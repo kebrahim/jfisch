@@ -19,19 +19,18 @@ module NavigationHelper
   ADMIN_THRESHOLD = ADMIN_MLB_TEAMS_BUTTON
 
   # Returns the navigation bar HTML w/ the specified button selected
-  # TODO pull list of games from db
   def navigationBar(button)
     navbar = "<div class='navbar'><div class='navbar-inner'>"
     if current_user
       navbar << "
-        <div class='brand'>Rotiss Games</div>
+        <div class='brand'>Fisch Survivor</div>
           <ul class='nav'>
             <li class='divider-vertical'></li>
          	<li"
       if (button == MY_GAMES_BUTTON)
         navbar << " class='active'"
       end
-      navbar << "><a href='/myGames'>My Games</a></li>
+      navbar << "><a href='/survivor'>Survivor</a></li>
             <li class='divider-vertical'></li>
        	    <li class='dropdown"
       if (isMlbButton(button))
@@ -81,49 +80,49 @@ module NavigationHelper
                 </li>
               </ul>
             </li>"
-      if (current_user.is_admin == true)
-        navbar << 
-           "<li class='dropdown"
-        if (isAdminButton(button))
-          navbar << " active"
-        end
-        navbar <<             "'>
-              <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
-                Admin&nbsp<b class='caret'></b>
-              </a>
-              <ul class='dropdown-menu'>
-                <li"
-        if (button == ADMIN_MLB_TEAMS_BUTTON)
-          navbar << " class='active'"
-        end
-        navbar <<    ">
-                  <a href='/mlb_teams'>MLB Teams</a>
-                </li>
-                <li"
-        if (button == ADMIN_MLB_WINS_BUTTON)
-          navbar << " class='active'"
-        end
-        navbar <<    ">
-                  <a href='/mlb_wins'>MLB Over/Unders</a>
-                </li>
-                <li class='divider'></li>
-                <li"
-        if (button == ADMIN_NBA_TEAMS_BUTTON)
-          navbar << " class='active'"
-        end
-        navbar <<    ">
-                  <a href='/nba_teams'>NBA Teams</a>
-                </li>
-                <li"
-        if (button == ADMIN_NBA_PLAYOFF_MATCHUPS_BUTTON)
-          navbar << " class='active'"
-        end
-        navbar <<    ">
-                  <a href='/nba_playoff_matchups'>NBA Playoffs</a>
-                </li>
-              </ul>
-            </li>"
-      end
+      # if (current_user.is_admin == true)
+      #   navbar << 
+      #      "<li class='dropdown"
+      #   if (isAdminButton(button))
+      #     navbar << " active"
+      #   end
+      #   navbar <<             "'>
+      #         <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
+      #           Admin&nbsp<b class='caret'></b>
+      #         </a>
+      #         <ul class='dropdown-menu'>
+      #           <li"
+      #   if (button == ADMIN_MLB_TEAMS_BUTTON)
+      #     navbar << " class='active'"
+      #   end
+      #   navbar <<    ">
+      #             <a href='/mlb_teams'>MLB Teams</a>
+      #           </li>
+      #           <li"
+      #   if (button == ADMIN_MLB_WINS_BUTTON)
+      #     navbar << " class='active'"
+      #   end
+      #   navbar <<    ">
+      #             <a href='/mlb_wins'>MLB Over/Unders</a>
+      #           </li>
+      #           <li class='divider'></li>
+      #           <li"
+      #   if (button == ADMIN_NBA_TEAMS_BUTTON)
+      #     navbar << " class='active'"
+      #   end
+      #   navbar <<    ">
+      #             <a href='/nba_teams'>NBA Teams</a>
+      #           </li>
+      #           <li"
+      #   if (button == ADMIN_NBA_PLAYOFF_MATCHUPS_BUTTON)
+      #     navbar << " class='active'"
+      #   end
+      #   navbar <<    ">
+      #             <a href='/nba_playoff_matchups'>NBA Playoffs</a>
+      #           </li>
+      #         </ul>
+      #       </li>"
+      # end
       navbar << "</ul>
           <ul class='nav pull-right'>
             <li class='divider-vertical'></li>
@@ -142,7 +141,7 @@ module NavigationHelper
         navbar << " class='active'"
       end
   	  navbar <<    ">
-                  <a href='/editProfile'><i class='icon-edit'></i>&nbsp&nbspEdit profile</a>
+                  <a href='/profile'><i class='icon-edit'></i>&nbsp&nbspEdit profile</a>
                 </li>
   	            <li class='divider'></li>
   	            <li><a href='/logout'><i class='icon-eject'></i>&nbsp&nbspSign out</a></li>

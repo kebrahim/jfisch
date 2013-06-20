@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  # GET /my_entries
-  def myentries
+  # GET /survivor
+  def survivor
     @user = current_user
     if @user.nil?
       redirect_to root_url
@@ -45,8 +45,8 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
-  # GET edit_profile
-  def editprofile
+  # GET /profile
+  def profile
     @user = current_user
     if @user.nil?
       redirect_to root_url
@@ -81,15 +81,15 @@ class UsersController < ApplicationController
     if !params["commit"].nil?
       respond_to do |format|
         if @user.update_attributes(params[:user])
-          format.html { redirect_to '/edit_profile', notice: 'User successfully updated.' }
+          format.html { redirect_to '/profile', notice: 'User successfully updated.' }
           format.json { head :no_content }
         else
-          format.html { render action: 'editprofile' }
+          format.html { render action: 'profile' }
           format.json { render json: @user.errors, status: :unprocessable_entity }
         end
       end
     else
-      redirect_to '/edit_profile'
+      redirect_to '/profile'
     end
   end
 

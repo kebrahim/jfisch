@@ -6,8 +6,8 @@ Jfisch::Application.routes.draw do
   
   resources :users
   get 'sign_up' => 'users#new', :as => 'sign_up'
-  get 'edit_profile' => 'users#editprofile'
-  get 'my_entries' => 'users#myentries', :as => 'my_entries'
+  get 'profile' => 'users#profile'
+  get 'survivor' => 'users#survivor'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

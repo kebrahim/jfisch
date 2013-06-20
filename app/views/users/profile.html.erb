@@ -1,0 +1,27 @@
+
+<%= navigationBar(NavigationHelper::EDIT_PROFILE_BUTTON) %>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3>Edit <%= @user.fullName %>'s profile</h3>
+  </div>
+</div>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <br/>
+
+    <!-- Show confirmation message if one exists -->
+    <% if !notice.nil? && !notice.empty? %>
+      <% if notice.starts_with?("Error:") %>
+        <div class='alert alert-error'>
+      <% else %>
+        <div class='alert alert-success'>
+      <% end %>
+       	  <strong><%= notice %></strong>
+        </div>
+    <% end %>
+
+    <%= render 'form' %>
+  </div>
+</div>

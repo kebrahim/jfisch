@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
       user = User.find(session[:user_id])
     end
     if !user.nil?
-      redirect_to my_entries_url
+      redirect_to survivor_url
     end
   end
 
@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
     user = User.authenticate(params[:email], params[:password])
     if user
       session[:user_id] = user.id
-      redirect_to my_entries_url
+      redirect_to survivor_url
     else
       redirect_to root_url, notice: "Error: Invalid email or password"
     end
