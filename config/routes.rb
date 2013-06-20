@@ -1,4 +1,9 @@
 Jfisch::Application.routes.draw do
+  resources :sessions
+  get "logout" => "sessions#destroy", :as => "logout"
+  get "login" => "sessions#new", :as => "login"
+  root :to => 'sessions#new'
+  
   resources :users
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'edit_profile' => 'users#editprofile'

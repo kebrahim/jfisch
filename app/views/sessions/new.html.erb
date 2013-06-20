@@ -1,0 +1,35 @@
+
+<%= navigationBar(nil) %>
+
+<div class="row-fluid headrow">
+  <div class="span12 center" id="loginbox">
+    <% if !notice.nil? && !notice.empty? %>
+      <br/>
+      <% if notice.starts_with?("Error:") %>
+        <div class='alert alert-error'>
+      <% else %>
+        <div class='alert alert-success'>
+      <% end %>
+       	  <strong><%= notice %></strong>
+        </div>
+    <% else %>
+      <br/>
+    <% end %>
+
+  	<div class='welcome pull-left'>
+  		<h3>Welcome to Fisch Survivor!</h3>
+  		<p>Need an account?&nbsp&nbsp<a href='/sign_up' class='btn btn-danger'>Sign Up</a></p>
+    </div>
+    <form class="form-signin pull-right" action="/sessions" method="post">
+      <h2 class="form-signin-heading">Please sign in</h2>
+      <input type="email" id="email" name="email" class="input-block-level"
+             placeholder="Email" required="">
+      <input type="password" id="password" name="password" class="input-block-level"
+             placeholder="Password" required="">
+      <!-- label class="checkbox">
+        <input type="checkbox" value="remember-me">Remember me
+      </label -->
+      <button class="btn btn-large btn-primary" type="submit" name="commit">Sign in</button>
+    </form>
+  </div>
+</div>

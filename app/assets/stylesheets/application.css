@@ -11,3 +11,188 @@
  *= require_self
  *= require_tree .
  */
+
+/* Navigation */
+.navbar {
+  margin-top: 10px;
+}
+
+/* Layout */
+html, body { 
+  height: 100%;
+}
+#wrap {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  /* Negative indent footer by it's height */
+  margin: 0 auto -120px;
+  background-image: url("sports.png")
+}
+
+.row-fluid [class*="span"] {
+    border: 1px dashed;
+    border-radius: 4px;
+    background-color: white;
+    margin-bottom: 20px;
+    padding: 0 10px 0 10px;
+}
+
+.center {
+  text-align: center;
+}
+
+/* Footer */
+#push, #footer {
+  height: 120px;
+}
+
+#footer {
+	background-color: #f5f5f5;
+}
+
+#footer [class*="span"] {
+	line-height: 120px;
+}
+
+/* Tables */
+table.center {margin-left:auto; margin-right:auto; text-align:center;}
+table.center th {text-align:center; vertical-align: middle;}
+table.center td {text-align:center; vertical-align: middle;}
+table.vertmiddle td {vertical-align:middle;}
+.vertmiddle input, select {
+	margin: 5px 0 5px;
+}
+table th {background-color: black; color:white;}
+.tdselect {
+	height: 40px;
+	line-height: 36px;
+}
+.tdselect select {
+	margin-bottom: 0px;
+}
+.table-striped .my-team-row td {
+  background-color:yellow !important;
+}
+
+/* Labels */
+label {
+  display: inline !important;
+  font-weight: bold !important;
+}
+
+/* Links */
+.btn-primary, .btn-danger, .btn-inverse, .btn-warning {color:white !important; }
+
+.nexttoh1 {
+  height:62px; 
+  line-height:58px;
+}
+
+/* images */
+.img_100_50 {
+  width: 100px;
+  height: 50px;
+}
+.img_50_49{
+  width: 50px;
+  height: 49px;
+}
+.img_75_73 {
+  width: 75px;
+  height: 73px;
+}
+
+/* login page */
+.welcome {
+    margin: 50px 0 0 70px;
+}
+
+.form-signin {
+    max-width: 300px;
+    padding: 19px 29px 29px;
+    margin: 0 10px 20px;
+    background-color: #fff;
+    border: 1px solid #1B75BB;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    text-align: left;
+}
+
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+    margin-bottom: 10px;
+}
+
+.form-signin input[type="text"],
+.form-signin input[type="password"] {
+    font-size: 16px;
+    height: auto;
+    margin-bottom: 15px;
+    padding: 7px 9px;
+}
+
+.form-signin label {
+  display: block !important;
+  font-weight: 200 !important;
+}
+
+#error_explanation {
+  margin: 0 auto;
+}
+
+.brandctr {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    margin: auto;
+}
+
+.alert {
+  margin-top: 15px;
+}
+
+.input-tourney {
+  width: 125px;
+  font-size: 12px;
+}
+
+.tourney {
+  font-size: 11px;
+  padding: 0 0 0 !important;
+}
+
+.tourney strong {
+  font-size: 80%;
+}
+.green {
+  color: green;
+  font-weight: bold;
+}
+.blue {
+  color: blue;
+  font-weight: bold;
+}
+.red {
+  color: red;
+  font-weight: bold;
+}
+p.matchup {
+  margin: 0 0 0 0;
+  font-size: 11px;
+}
+td > a, td > a#hover {
+  color: black !important;
+  background-color: transparent !important;
+  text-decoration: underline !important;
+}
+
+.btn-link-black {
+  color: black !important;
+  text-decoration: underline !important;
+}

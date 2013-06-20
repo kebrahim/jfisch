@@ -1,7 +1,7 @@
 <%= form_for(@user) do |f| %>
   <% if @user.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+      <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
 
       <ul>
       <% @user.errors.full_messages.each do |msg| %>
@@ -11,27 +11,46 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= f.label :first_name %><br />
-    <%= f.text_field :first_name %>
+  <div class="row-fluid">
+    <div class="span7">
+      <fieldset>
+        <legend>User Settings</legend>
+        <table class="table vertmiddle table-striped table-condensed table-bordered">
+          <tr>
+            <td><%= f.label :first_name %></td>
+            <td><%= f.text_field :first_name %></td>
+          </tr>
+          <tr>
+            <td><%= f.label :last_name %></td>
+            <td><%= f.text_field :last_name %></td>
+          </tr>
+          <tr>
+            <td><%= f.label :email %></td>
+            <td><%= f.text_field :email %></td>
+          </tr>
+        </table>
+      </fieldset>
+    </div>
+    <div class="span5">
+      <fieldset>
+        <legend>Password Settings</legend>
+      </fieldset>
+      <table class="table vertmiddle table-striped table-condensed table-bordered">
+        <tr>
+          <td><%= f.label :password %></td>
+          <td><%= f.password_field :password %></td>
+        </tr>
+        <tr>
+          <td><%= f.label :password_confirmation %></td>
+          <td><%= f.password_field :password_confirmation %></td>
+        </tr>
+      </table>
+    </div>
   </div>
-  <div class="field">
-    <%= f.label :last_name %><br />
-    <%= f.text_field :last_name %>
-  </div>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.text_field :email %>
-  </div>
-  <div class="field">
-    <%= f.label :password_hash %><br />
-    <%= f.text_field :password_hash %>
-  </div>
-  <div class="field">
-    <%= f.label :password_salt %><br />
-    <%= f.text_field :password_salt %>
-  </div>
+
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit class: 'btn btn-primary' %>&nbsp
+    <input class='btn' name='cancel' type='submit' value='Cancel' />
   </div>
+
 <% end %>
