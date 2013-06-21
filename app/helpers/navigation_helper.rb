@@ -7,16 +7,11 @@ module NavigationHelper
   EDIT_PROFILE_BUTTON = 4
 
   # MLB admin buttons
-  ADMIN_MLB_TEAMS_BUTTON = 5
-  ADMIN_MLB_WINS_BUTTON = 6
-  
-  # NBA admin buttons
-  ADMIN_NBA_TEAMS_BUTTON = 7
-  ADMIN_NBA_PLAYOFF_MATCHUPS_BUTTON = 8
+  ADMIN_NFL_TEAMS_BUTTON = 5
 
   # NFL admin buttons
 
-  ADMIN_THRESHOLD = ADMIN_MLB_TEAMS_BUTTON
+  ADMIN_THRESHOLD = ADMIN_NFL_TEAMS_BUTTON
 
   # Returns the navigation bar HTML w/ the specified button selected
   def navigationBar(button)

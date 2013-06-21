@@ -1,0 +1,33 @@
+
+<%= navigationBar(NavigationHelper::ADMIN_NFL_TEAMS_BUTTON) %>
+
+<div class='row-fluid'><div class='span12 center'>
+<h3>Manage NFL Teams</h3>
+
+<table class='table table-striped table-bordered table-condensed center'>
+  <thead><tr>
+    <th>City</th>
+    <th>Name</th>
+    <th>Abbreviation</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr></thead>
+
+<% @nfl_teams.each do |nfl_team| %>
+  <tr>
+    <td><%= nfl_team.city %></td>
+    <td><%= nfl_team.name %></td>
+    <td><%= nfl_team.abbreviation %></td>
+    <td><%= link_to 'Show', nfl_team %></td>
+    <td><%= link_to 'Edit', edit_nfl_team_path(nfl_team) %></td>
+    <td><%= link_to 'Destroy', nfl_team, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'Create NFL Team', new_nfl_team_path, class: 'btn' %>
+<br/><br/>
+</div></div>
