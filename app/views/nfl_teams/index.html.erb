@@ -9,6 +9,8 @@
     <th>City</th>
     <th>Name</th>
     <th>Abbreviation</th>
+    <th>Conference</th>
+    <th>Division</th>
     <th></th>
     <th></th>
     <th></th>
@@ -19,6 +21,8 @@
     <td><%= nfl_team.city %></td>
     <td><%= nfl_team.name %></td>
     <td><%= nfl_team.abbreviation %></td>
+    <td><%= nfl_team.conference %></td>
+    <td><%= nfl_team.division %></td>
     <td><%= link_to 'Show', nfl_team %></td>
     <td><%= link_to 'Edit', edit_nfl_team_path(nfl_team) %></td>
     <td><%= link_to 'Destroy', nfl_team, method: :delete, data: { confirm: 'Are you sure?' } %></td>

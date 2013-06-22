@@ -9,7 +9,10 @@ namespace :importnfl do
       city = row[0]
       name = row[1]
       abbreviation = row[2]
-      team = NflTeam.create(abbreviation: abbreviation, city: city, name: name)
+      conference = row[3]
+      division = row[4]
+      team = NflTeam.create(abbreviation: abbreviation, city: city, name: name,
+                            conference: conference, division: division)
       teamcount += 1
     end
     puts "Imported " + teamcount.to_s + " NFL teams!"

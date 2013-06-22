@@ -42,3 +42,5 @@ gem 'quiet_assets', :group => :development
 gem 'thin'
 
 gem 'curb'
+
+gem 'enumerize'
