@@ -1,4 +1,6 @@
 Jfisch::Application.routes.draw do
+  resources :nfl_schedules
+
   resources :nfl_teams
 
   resources :sessions

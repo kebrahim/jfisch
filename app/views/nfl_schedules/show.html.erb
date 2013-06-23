@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Year:</b>
+  <%= @nfl_schedule.year %>
+</p>
+
+<p>
+  <b>Week:</b>
+  <%= @nfl_schedule.week %>
+</p>
+
+<p>
+  <b>Home nfl team:</b>
+  <%= @nfl_schedule.home_nfl_team %>
+</p>
+
+<p>
+  <b>Away nfl team:</b>
+  <%= @nfl_schedule.away_nfl_team %>
+</p>
+
+<p>
+  <b>Start time:</b>
+  <%= @nfl_schedule.start_time %>
+</p>
+
+<p>
+  <b>Home score:</b>
+  <%= @nfl_schedule.home_score %>
+</p>
+
+<p>
+  <b>Away score:</b>
+  <%= @nfl_schedule.away_score %>
+</p>
+
+
+<%= link_to 'Edit', edit_nfl_schedule_path(@nfl_schedule) %> |
+<%= link_to 'Back', nfl_schedules_path %>

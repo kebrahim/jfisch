@@ -11,7 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130622205916) do
+ActiveRecord::Schema.define(:version => 20130622234541) do
+
+  create_table "nfl_schedules", :force => true do |t|
+    t.integer  "year"
+    t.integer  "week"
+    t.integer  "home_nfl_team_id"
+    t.integer  "away_nfl_team_id"
+    t.datetime "start_time"
+    t.integer  "home_score"
+    t.integer  "away_score"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  add_index "nfl_schedules", ["away_nfl_team_id"], :name => "index_nfl_schedules_on_away_nfl_team_id"
+  add_index "nfl_schedules", ["home_nfl_team_id"], :name => "index_nfl_schedules_on_home_nfl_team_id"
+  add_index "nfl_schedules", ["year", "week", "home_nfl_team_id", "away_nfl_team_id"], :name => "nfl_schedule_year_week_teams_uq", :unique => true
 
   create_table "nfl_teams", :force => true do |t|
     t.string   "city"

@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  year: 1
+  week: 1
+  home_nfl_team: 
+  away_nfl_team: 
+  start_time: 2013-06-22 19:45:41
+  home_score: 1
+  away_score: 1
+
+two:
+  year: 1
+  week: 1
+  home_nfl_team: 
+  away_nfl_team: 
+  start_time: 2013-06-22 19:45:41
+  home_score: 1
+  away_score: 1
