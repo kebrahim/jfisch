@@ -3,7 +3,10 @@ class NflSchedulesController < ApplicationController
   # GET /nfl_schedules.json
   def index
     # TODO show dates in user's time zone
-    @nfl_schedules = NflSchedule.includes(:home_nfl_team).includes(:away_nfl_team)
+    @nfl_schedules = NflSchedule.includes(:home_nfl_team)
+                                .includes(:away_nfl_team)
+                                .order(:week)
+                                .order(:start_time)
 
     respond_to do |format|
       format.html # index.html.erb

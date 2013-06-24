@@ -40,7 +40,7 @@ namespace :importnfl do
       away_team = NflTeam.find_by_abbreviation(away_team_abbr)
 
       # convert game date/time to datetime
-      start_time = DateTime.strptime(game_date + " " + game_time + " Eastern Time (US & Canada)",
+      start_time = DateTime.strptime(game_date + " " + game_time + " Atlantic Time (Canada)",
           "%m/%d/%Y %H:%M:%S %Z")
 
       # create schedule entry
