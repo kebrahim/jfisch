@@ -24,7 +24,7 @@
     <td><%= nfl_schedule.year %></td>
     <td><%= nfl_schedule.week %></td>
     <td><%= nfl_schedule.start_time.time.localtime.strftime("%m/%d/%Y") %></td>
-    <td><%= nfl_schedule.start_time.time.localtime.strftime("%I:%M %p") %></td>
+    <td><%= nfl_schedule.start_time.time.localtime.strftime("%I:%M %p %Z") %></td>
     <td><%= nfl_schedule.home_nfl_team.abbreviation %></td>
     <td><%= nfl_schedule.away_nfl_team.abbreviation %></td>
     <td><%= nfl_schedule.home_score %></td>

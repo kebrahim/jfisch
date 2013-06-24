@@ -1,4 +1,6 @@
 Jfisch::Application.routes.draw do
+  resources :survivor_entries
+
   resources :nfl_schedules
 
   resources :nfl_teams

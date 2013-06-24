@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>User:</b>
+  <%= @survivor_entry.user %>
+</p>
+
+<p>
+  <b>Year:</b>
+  <%= @survivor_entry.year %>
+</p>
+
+<p>
+  <b>Game type:</b>
+  <%= @survivor_entry.game_type %>
+</p>
+
+<p>
+  <b>Is alive:</b>
+  <%= @survivor_entry.is_alive %>
+</p>
+
+<p>
+  <b>Used autopick:</b>
+  <%= @survivor_entry.used_autopick %>
+</p>
+
+
+<%= link_to 'Edit', edit_survivor_entry_path(@survivor_entry) %> |
+<%= link_to 'Back', survivor_entries_path %>

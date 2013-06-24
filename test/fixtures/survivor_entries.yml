@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  user: 
+  year: 1
+  game_type: MyString
+  is_alive: false
+  used_autopick: false
+
+two:
+  user: 
+  year: 1
+  game_type: MyString
+  is_alive: false
+  used_autopick: false

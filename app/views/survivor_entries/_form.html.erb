@@ -1,0 +1,37 @@
+<%= form_for(@survivor_entry) do |f| %>
+  <% if @survivor_entry.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@survivor_entry.errors.count, "error") %> prohibited this survivor_entry from being saved:</h2>
+
+      <ul>
+      <% @survivor_entry.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :user %><br />
+    <%= f.text_field :user %>
+  </div>
+  <div class="field">
+    <%= f.label :year %><br />
+    <%= f.number_field :year %>
+  </div>
+  <div class="field">
+    <%= f.label :game_type %><br />
+    <%= f.text_field :game_type %>
+  </div>
+  <div class="field">
+    <%= f.label :is_alive %><br />
+    <%= f.check_box :is_alive %>
+  </div>
+  <div class="field">
+    <%= f.label :used_autopick %><br />
+    <%= f.check_box :used_autopick %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

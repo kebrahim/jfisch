@@ -1,0 +1,31 @@
+<h1>Listing survivor_entries</h1>
+
+<table>
+  <tr>
+    <th>User</th>
+    <th>Year</th>
+    <th>Game type</th>
+    <th>Is alive</th>
+    <th>Used autopick</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @survivor_entries.each do |survivor_entry| %>
+  <tr>
+    <td><%= survivor_entry.user %></td>
+    <td><%= survivor_entry.year %></td>
+    <td><%= survivor_entry.game_type %></td>
+    <td><%= survivor_entry.is_alive %></td>
+    <td><%= survivor_entry.used_autopick %></td>
+    <td><%= link_to 'Show', survivor_entry %></td>
+    <td><%= link_to 'Edit', edit_survivor_entry_path(survivor_entry) %></td>
+    <td><%= link_to 'Destroy', survivor_entry, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Survivor entry', new_survivor_entry_path %>
