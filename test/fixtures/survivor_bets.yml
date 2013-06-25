@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  survivor_entry: 
+  week: 1
+  nfl_game: 
+  nfl_team: 
+  is_correct: false
+
+two:
+  survivor_entry: 
+  week: 1
+  nfl_game: 
+  nfl_team: 
+  is_correct: false

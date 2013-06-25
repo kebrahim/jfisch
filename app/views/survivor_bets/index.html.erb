@@ -1,0 +1,31 @@
+<h1>Listing survivor_bets</h1>
+
+<table>
+  <tr>
+    <th>Survivor entry</th>
+    <th>Week</th>
+    <th>Nfl game</th>
+    <th>Nfl team</th>
+    <th>Is correct</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @survivor_bets.each do |survivor_bet| %>
+  <tr>
+    <td><%= survivor_bet.survivor_entry %></td>
+    <td><%= survivor_bet.week %></td>
+    <td><%= survivor_bet.nfl_game %></td>
+    <td><%= survivor_bet.nfl_team %></td>
+    <td><%= survivor_bet.is_correct %></td>
+    <td><%= link_to 'Show', survivor_bet %></td>
+    <td><%= link_to 'Edit', edit_survivor_bet_path(survivor_bet) %></td>
+    <td><%= link_to 'Destroy', survivor_bet, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Survivor bet', new_survivor_bet_path %>

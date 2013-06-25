@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Survivor entry:</b>
+  <%= @survivor_bet.survivor_entry %>
+</p>
+
+<p>
+  <b>Week:</b>
+  <%= @survivor_bet.week %>
+</p>
+
+<p>
+  <b>Nfl game:</b>
+  <%= @survivor_bet.nfl_game %>
+</p>
+
+<p>
+  <b>Nfl team:</b>
+  <%= @survivor_bet.nfl_team %>
+</p>
+
+<p>
+  <b>Is correct:</b>
+  <%= @survivor_bet.is_correct %>
+</p>
+
+
+<%= link_to 'Edit', edit_survivor_bet_path(@survivor_bet) %> |
+<%= link_to 'Back', survivor_bets_path %>
