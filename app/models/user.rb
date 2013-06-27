@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
   end
 
   # Returns the full name of the user
-  def fullName
+  def full_name
     return self.first_name + " " + self.last_name
   end
 

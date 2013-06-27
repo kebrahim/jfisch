@@ -1,165 +1,95 @@
 # Navigation bar helper
 module NavigationHelper
-  # construct mapping of sport to game
-  MY_GAMES_BUTTON = 1
-  MLB_OVER_UNDERS_BUTTON = 2
-  NBA_PLAYOFFS_BUTTON = 3
-  EDIT_PROFILE_BUTTON = 4
+  DASHBOARD_BUTTON = "DASHBOARD_BUTTON"
+  
+  # Game buttons
+  SURVIVOR_GAME_BUTTON = "SURVIVOR_GAME_BUTTON"
+  ANTI_GAME_BUTTON = "ANTI_GAME_BUTTON"
+  HIGH_ROLLER_GAME_BUTTON = "HIGH_ROLLER_GAME_BUTTON"
 
-  # MLB admin buttons
-  ADMIN_NFL_TEAMS_BUTTON = 5
+  # Admin buttons
+  ADMIN_NFL_TEAMS_BUTTON = "ADMIN_NFL_TEAMS_BUTTON"
+  ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
 
-  # NFL admin buttons
+  # User buttons
+  EDIT_PROFILE_BUTTON = "EDIT_PROFILE_BUTTON"
 
-  ADMIN_THRESHOLD = ADMIN_NFL_TEAMS_BUTTON
-
-  # Returns the navigation bar HTML w/ the specified button selected
-  def navigationBar(button)
+  def navigationBar(selected_button)
     navbar = "<div class='navbar'><div class='navbar-inner'>"
     if current_user
-      navbar << "
-        <div class='brand'>Fisch Survivor</div>
-          <ul class='nav'>
-            <li class='divider-vertical'></li>
-         	<li"
-      if (button == MY_GAMES_BUTTON)
-        navbar << " class='active'"
-      end
-      navbar << "><a href='/survivor'>Survivor</a></li>
-            <li class='divider-vertical'></li>
-       	    <li class='dropdown"
-      if (isMlbButton(button))
-        navbar << " active"
-      end
-      navbar <<               "'>
-              <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
-                MLB&nbsp<b class='caret'></b>
-              </a>
-              <ul class='dropdown-menu'>
-                <li"
-      if (button == MLB_OVER_UNDERS_BUTTON)
-        navbar << " class='active'"
-      end
-      navbar <<    ">
-                  <a href='/mlbOverUnders'>Over/Unders</a>
-                </li>
-              </ul>
-            </li>
-
-            <li class='dropdown"
-      if (isNbaButton(button))
-        navbar << " active"
-      end
-      navbar <<               "'>
-              <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
-                NBA&nbsp<b class='caret'></b>
-              </a>
-              <ul class='dropdown-menu'>
-                <li"
-      if (button == NBA_PLAYOFFS_BUTTON)
-        navbar << " class='active'"
-      end
-      navbar <<    ">
-                  <a href='/nbaPlayoffs'>Playoffs</a>
-                </li>
-              </ul>
-            </li>
-
-            <li class='dropdown'>
-              <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
-                NFL&nbsp<b class='caret'></b>
-              </a>
-              <ul class='dropdown-menu'>
-                <li>
-                  <a href='#'>Coming soon...</a>
-                </li>
-              </ul>
-            </li>"
-      # if (current_user.is_admin == true)
-      #   navbar << 
-      #      "<li class='dropdown"
-      #   if (isAdminButton(button))
-      #     navbar << " active"
-      #   end
-      #   navbar <<             "'>
-      #         <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
-      #           Admin&nbsp<b class='caret'></b>
-      #         </a>
-      #         <ul class='dropdown-menu'>
-      #           <li"
-      #   if (button == ADMIN_MLB_TEAMS_BUTTON)
-      #     navbar << " class='active'"
-      #   end
-      #   navbar <<    ">
-      #             <a href='/mlb_teams'>MLB Teams</a>
-      #           </li>
-      #           <li"
-      #   if (button == ADMIN_MLB_WINS_BUTTON)
-      #     navbar << " class='active'"
-      #   end
-      #   navbar <<    ">
-      #             <a href='/mlb_wins'>MLB Over/Unders</a>
-      #           </li>
-      #           <li class='divider'></li>
-      #           <li"
-      #   if (button == ADMIN_NBA_TEAMS_BUTTON)
-      #     navbar << " class='active'"
-      #   end
-      #   navbar <<    ">
-      #             <a href='/nba_teams'>NBA Teams</a>
-      #           </li>
-      #           <li"
-      #   if (button == ADMIN_NBA_PLAYOFF_MATCHUPS_BUTTON)
-      #     navbar << " class='active'"
-      #   end
-      #   navbar <<    ">
-      #             <a href='/nba_playoff_matchups'>NBA Playoffs</a>
-      #           </li>
-      #         </ul>
-      #       </li>"
-      # end
-      navbar << "</ul>
-          <ul class='nav pull-right'>
-            <li class='divider-vertical'></li>
-  	        <li class='dropdown"
-      if (button == EDIT_PROFILE_BUTTON)
-        navbar << " active"
-      end
-  	  navbar <<                "'>
-  	          <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
-  	            Hi "
-      navbar << current_user.first_name
-  	  navbar << "!&nbsp<b class='caret'></b></a>
-  	          <ul class='dropdown-menu'>
-  	          	<li"
-      if (button == EDIT_PROFILE_BUTTON)
-        navbar << " class='active'"
-      end
-  	  navbar <<    ">
-                  <a href='/profile'><i class='icon-edit'></i>&nbsp&nbspEdit profile</a>
-                </li>
-  	            <li class='divider'></li>
-  	            <li><a href='/logout'><i class='icon-eject'></i>&nbsp&nbspSign out</a></li>
-  	          </ul>
-  	        </li>
-  	      </ul>"
+      navbar <<
+        "<div class='brand'>Fisch Survivor</div>
+         <ul class='nav'>" <<
+         vertical_divider <<
+         button_link(DASHBOARD_BUTTON, "Dashboard", "/survivor", selected_button) <<
+         vertical_divider <<
+         drop_down("Survivor Games", selected_button, 
+             [{ btn: SURVIVOR_GAME_BUTTON, txt: "Survivor", lnk: "/survivor" },
+              { btn: ANTI_GAME_BUTTON, txt: "Anti-Survivor", lnk: "/survivor" },
+              { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/survivor" }]) <<
+         # TODO only show Admin dropdown for admin users
+         drop_down("Admin", selected_button,
+             [{ btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" },
+              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedules" }]) <<
+        "</ul>" <<
+        "<ul class='nav pull-right'>" <<
+         vertical_divider <<
+         drop_down("Hi " + current_user.first_name + "!", selected_button,
+             [{ btn: EDIT_PROFILE_BUTTON, txt: "Edit Profile", lnk: "/profile", icon: "edit" },
+              { type: "divider" },
+              { txt: "Sign out", lnk: "/logout", icon: "eject" }]) <<
+        "</ul>"
     else
       navbar << "<div class='brand brandctr'>Fisch Survivor</div>"
     end
-  	
-  	navbar << "</div></div>"
-  	return navbar.html_safe
+    navbar << "</div></div>"
+    return navbar.html_safe
   end
 
-  def isMlbButton(button)
-    return (button == MLB_OVER_UNDERS_BUTTON)
+  def drop_down(dropdown_text, selected_button, button_maps)
+    drop_down_html = "<li class='dropdown"
+    # if selected_button in list of child buttons, then add "active" class
+    if button_maps.map do |button_map| button_map[:btn] end.include?(selected_button)
+      drop_down_html << " active"
+    end
+    drop_down_html <<
+      "'>
+       <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
+           " + dropdown_text + "&nbsp<b class='caret'></b>
+       </a>
+       <ul class='dropdown-menu'>"
+    # construct child buttons
+    button_maps.each do |button_map|
+      if button_map[:type] == "divider"
+        drop_down_html << horizontal_divider
+      else
+        drop_down_html << button_link(button_map[:btn], button_map[:txt],
+                                      button_map[:lnk], selected_button, button_map[:icon])
+      end
+    end
+    drop_down_html << "  </ul>
+                       </li>"
+    return drop_down_html
   end
 
-  def isNbaButton(button)
-    return (button == NBA_PLAYOFFS_BUTTON)
+  def button_link(navigation_button, button_text, link_text, selected_button, icon = nil)
+    button_html = "<li"
+    if (selected_button == navigation_button)
+      button_html << " class='active'"
+    end
+    button_html << "><a href='" + link_text + "'>"
+    if !icon.nil?
+      button_html << "<i class='icon-" + icon + "'></i>&nbsp&nbsp"
+    end
+    button_html << button_text + "</a></li>"
+    return button_html
   end
 
-  def isAdminButton(button)
-    return (button >= ADMIN_THRESHOLD)
+  def horizontal_divider
+    return "<li class='divider'></li>"
+  end
+
+  def vertical_divider
+    return "<li class='divider-vertical'></li>"
   end
 end
