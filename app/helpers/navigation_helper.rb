@@ -21,12 +21,12 @@ module NavigationHelper
         "<div class='brand'>Fisch Survivor</div>
          <ul class='nav'>" <<
          vertical_divider <<
-         button_link(DASHBOARD_BUTTON, "Dashboard", "/survivor", selected_button) <<
+         button_link(DASHBOARD_BUTTON, "Dashboard", "/dashboard", selected_button) <<
          vertical_divider <<
          drop_down("Survivor Games", selected_button, 
              [{ btn: SURVIVOR_GAME_BUTTON, txt: "Survivor", lnk: "/survivor" },
-              { btn: ANTI_GAME_BUTTON, txt: "Anti-Survivor", lnk: "/survivor" },
-              { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/survivor" }]) <<
+              { btn: ANTI_GAME_BUTTON, txt: "Anti-Survivor", lnk: "/anti_survivor" },
+              { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/high_roller" }]) <<
          # TODO only show Admin dropdown for admin users
          drop_down("Admin", selected_button,
              [{ btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" },
