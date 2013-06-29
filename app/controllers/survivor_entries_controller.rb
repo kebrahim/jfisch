@@ -1,4 +1,42 @@
 class SurvivorEntriesController < ApplicationController
+  skip_before_filter :verify_authenticity_token
+
+  # GET /my_entries
+  def my_entries
+    @user = current_user
+    if !@user.nil?
+      # TODO before_season depends on start of season [9/5]
+      @before_season = true
+
+      current_year = Date.today.year
+      @type_to_entry_map = build_type_to_entry_map(
+          SurvivorEntry.where({user_id: @user.id, year: current_year}))
+    else
+      redirect_to root_url
+    end
+  end
+
+  # Returns a hash of survivor entry game type to an array of the entries of that type
+  def build_type_to_entry_map(entries)
+    type_to_entry_map = {}
+    entries.each do |entry|
+      if type_to_entry_map.has_key?(entry.game_type)
+        type_to_entry_map[entry.game_type] << entry
+      else
+        type_to_entry_map[entry.game_type] = [entry]
+      end
+    end
+    return type_to_entry_map
+  end
+
+  # POST /my_entries
+  def save_entries
+    # TODO create/delete entries
+
+    # re-direct user to my_entries page
+    redirect_to my_entries_url
+  end
+
   # GET /survivor_entries
   # GET /survivor_entries.json
   def index

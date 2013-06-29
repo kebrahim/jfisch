@@ -2,7 +2,8 @@ Jfisch::Application.routes.draw do
   resources :survivor_bets
 
   resources :survivor_entries
-  get 'add_entries' => 'survivor_entries#add_entries'
+  get 'my_entries' => 'survivor_entries#my_entries'
+  post 'my_entries' => 'survivor_entries#save_entries'
 
   resources :nfl_schedules
 

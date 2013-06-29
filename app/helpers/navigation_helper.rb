@@ -1,6 +1,7 @@
 # Navigation bar helper
 module NavigationHelper
   DASHBOARD_BUTTON = "DASHBOARD_BUTTON"
+  MY_ENTRIES_BUTTON = "MY_ENTRIES_BUTTON"
   
   # Game buttons
   SURVIVOR_GAME_BUTTON = "SURVIVOR_GAME_BUTTON"
@@ -22,6 +23,8 @@ module NavigationHelper
          <ul class='nav'>" <<
          vertical_divider <<
          button_link(DASHBOARD_BUTTON, "Dashboard", "/dashboard", selected_button) <<
+         # TODO only show my entries before season begins
+         button_link(MY_ENTRIES_BUTTON, "My Entries", "/my_entries", selected_button) <<
          vertical_divider <<
          drop_down("Survivor Games", selected_button, 
              [{ btn: SURVIVOR_GAME_BUTTON, txt: "Survivor", lnk: "/survivor" },

@@ -16,7 +16,8 @@
         entries = entries_remaining(:anti_survivor, @type_to_entry_map)
         if entries > 0
       %>
-          <p><%= link_to("Add entries!", "/add_entries", class: 'btn btn-primary') %></p>
+          <p><%= link_to("Add entries!", "/my_entries", class: 'btn btn-primary') %></p>
+          <p>(<%= entries %> remaining)</p>
       <% end %>
     <% end %>
   </div>
@@ -27,7 +28,8 @@
         entries = entries_remaining(:survivor, @type_to_entry_map)
         if entries > 0
       %>
-          <p><%= link_to("Add entries!", "/add_entries", class: 'btn btn-primary') %></p>
+          <p><%= link_to("Add entries!", "/my_entries", class: 'btn btn-primary') %></p>
+          <p>(<%= entries %> remaining)</p>
       <% end %>
     <% end %>
   </div>
@@ -38,7 +40,8 @@
         entries = entries_remaining(:high_roller, @type_to_entry_map)
         if entries > 0
       %>
-          <p><%= link_to("Add entries!", "/add_entries", class: 'btn btn-primary') %></p>
+          <p><%= link_to("Add entries!", "/my_entries", class: 'btn btn-primary') %></p>
+          <p>(<%= entries %> remaining)</p>
       <% end %>
     <% end %>
   </div>
