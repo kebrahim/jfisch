@@ -1,0 +1,25 @@
+
+<%= navigationBar(NavigationHelper::DASHBOARD_BUTTON) %>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3><%= @user.first_name %>'s Survivor Dashboard</h3>
+  </div>
+</div>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <br/>
+    <%= show_notice_as_alert(notice) %>
+    
+    <div class='row-fluid'>
+      <%= entries_bet_display(:anti_survivor, @type_to_entry_map, @entry_to_bets_map, 3) %>
+      <%= entries_bet_display(:survivor, @type_to_entry_map, @entry_to_bets_map, 6) %>
+      <%= entries_bet_display(:high_roller, @type_to_entry_map, @entry_to_bets_map, 3) %>
+    </div>
+
+    <p>
+      <%= link_to("Manage Entries", "/my_entries", class: 'btn btn-primary') %>
+    </p>
+  </div>
+</div>

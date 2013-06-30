@@ -5,6 +5,7 @@
     <h3><%= @user.first_name %>'s Survivor Entries</h3>
   </div>
 </div>
+
 <div class='row-fluid'>
   <div class='span12 center'>
     <br/>
@@ -12,23 +13,16 @@
     <%= show_notice_as_alert(notice) %>
     
     <div class='row-fluid'>
-      <div class='span3 center'>
-        <h4>Anti-Survivor</h4>
-        <%= entries_selector(:anti_survivor, @type_to_entry_map, @before_season) %>
-      </div>
-      <div class='span6 center'>
-        <h4>Survivor</h4>
-        <%= entries_selector(:survivor, @type_to_entry_map, @before_season) %>
-      </div>
-      <div class='span3 center'>
-        <h4>High Roller</h4>
-        <%= entries_selector(:high_roller, @type_to_entry_map, @before_season) %>
-      </div>
+      <%= entries_selector(:anti_survivor, @type_to_entry_map, 3, @before_season) %>
+      <%= entries_selector(:survivor, @type_to_entry_map, 6, @before_season) %>
+      <%= entries_selector(:high_roller, @type_to_entry_map, 3, @before_season) %>
     </div>
-    <p class='center'>
-      <button class='btn btn-primary' name='save'>Update Entry Counts</button>
-      <button class='btn' name='cancel'>Cancel</button>
-    </p>
+    <% if @before_season %>
+      <p class='center'>
+        <button class='btn btn-primary' name='save'>Update Entry Counts</button>
+        <button class='btn' name='cancel'>Cancel</button>
+      </p>
+    <% end %>
     </form>
   </div>
 </div>

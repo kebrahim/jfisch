@@ -34,4 +34,18 @@ class SurvivorEntry < ActiveRecord::Base
       return nil
     end
   end
+
+    # Returns the title of the specified game type.
+  def self.game_type_title(game_type)
+    case game_type
+    when :survivor
+      return "Survivor"
+    when :anti_survivor
+      return "Anti-Survivor"
+    when :high_roller
+      return "High Roller"
+    else
+      return nil
+    end
+  end
 end

@@ -1,34 +1,5 @@
 class UsersController < ApplicationController
   # GET /survivor
-  def dashboard
-    @user = current_user
-    if !@user.nil?
-      # TODO set beforeSeason based on start of season [9/5?]
-      @beforeSeason = true
-
-      current_year = Date.today.year
-      @type_to_entry_map = build_type_to_entry_map(
-          SurvivorEntry.where({user_id: @user.id, year: current_year}))
-    else
-      redirect_to root_url
-    end
-  end
-
-  # Returns a hash of survivor entry game type to an array of the entries of that type
-  def build_type_to_entry_map(entries)
-    type_to_entry_map = {}
-    entries.each do |entry|
-      game_type = SurvivorEntry.name_to_game_type(entry.game_type)
-      if type_to_entry_map.has_key?(game_type)
-        type_to_entry_map[game_type] << entry
-      else
-        type_to_entry_map[game_type] = [entry]
-      end
-    end
-    return type_to_entry_map
-  end
-
-  # GET /survivor
   def survivor
     @user = current_user
     if !@user.nil?

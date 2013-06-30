@@ -4,6 +4,7 @@ Jfisch::Application.routes.draw do
   resources :survivor_entries
   get 'my_entries' => 'survivor_entries#my_entries'
   post 'my_entries' => 'survivor_entries#save_entries'
+  get 'dashboard' => 'survivor_entries#dashboard'
 
   resources :nfl_schedules
 
@@ -18,7 +19,6 @@ Jfisch::Application.routes.draw do
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'profile' => 'users#profile'
 
-  get 'dashboard' => 'users#dashboard'
   get 'survivor' => 'users#survivor'
 
   # The priority is based upon order of creation:

@@ -1,6 +1,28 @@
 class SurvivorEntriesController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
+  # GET /survivor
+  def dashboard
+    @user = current_user
+    if !@user.nil?
+      # TODO set beforeSeason based on start of season [9/5?]
+      @before_season = true
+
+      current_year = Date.today.year
+      user_bets = SurvivorBet.includes([:nfl_schedule, :nfl_team])
+                             .joins(:survivor_entry)
+                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
+
+      # TODO convert list of bets to type-to-entry map
+      @type_to_entry_map = build_type_to_entry_map(
+          SurvivorEntry.where({user_id: @user.id, year: current_year}))
+
+      @entry_to_bets_map = build_entry_id_to_bets_map(user_bets)
+    else
+      redirect_to root_url
+    end
+  end
+
   # GET /my_entries
   def my_entries
     @user = current_user
@@ -14,6 +36,19 @@ class SurvivorEntriesController < ApplicationController
     else
       redirect_to root_url
     end
+  end
+
+  # Returns a hash of survivor entry id to an array of bets for that entry
+  def build_entry_id_to_bets_map(bets)
+    entry_to_bets_map = {}
+    bets.each do |bet|
+      if entry_to_bets_map.has_key?(bet.survivor_entry.id)
+        entry_to_bets_map[bet.survivor_entry.id] << bet
+      else
+        entry_to_bets_map[bet.survivor_entry.id] = [bet]
+      end
+    end
+    return entry_to_bets_map
   end
 
   # Returns a hash of survivor entry game type to an array of the entries of that type
