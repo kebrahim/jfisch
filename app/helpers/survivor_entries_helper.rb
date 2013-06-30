@@ -23,9 +23,16 @@ module SurvivorEntriesHelper
           entries_html << " offset" + offset_size.to_s
           offset_size = 0
         end
-        entries_html << "'><h5>" + SurvivorEntry.game_type_abbreviation(game_type) + " " + 
-                                   entry_count.to_s + "</h5>" + 
-                        "</div>"
+        entries_html << "'><h5>" +
+                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " " + 
+                                         entry_count.to_s,
+                                     "/survivor_entries/" + current_entry.id.to_s,
+                                     class: 'btn-link-black') +
+                          "</h5>"
+
+        # TODO Allow user to change picks in bulk
+
+        entries_html << "</div>"
       end
       entries_html << "</div>"
     else
@@ -70,8 +77,12 @@ module SurvivorEntriesHelper
           entries_html << " offset" + offset_size.to_s
           offset_size = 0
         end
-        entries_html << "'><h5>" + SurvivorEntry.game_type_abbreviation(game_type) + " " + 
-                                   entry_count.to_s + "</h5>"
+        entries_html << "'><h5>" +
+                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " " + 
+                                         entry_count.to_s,
+                                     "/survivor_entries/" + current_entry.id.to_s,
+                                     class: 'btn-link-black') +
+                          "</h5>"
 
         # Show all bets for the entry
         entries_html << "<table class='" + TABLE_CLASS + "'>
@@ -123,5 +134,44 @@ module SurvivorEntriesHelper
   def entries_remaining(game_type, type_to_entry_map)
     num_entries = type_to_entry_map.has_key?(game_type) ? type_to_entry_map[game_type].length : 0
     return SurvivorEntry::MAX_ENTRIES_MAP[game_type] - num_entries
+  end
+
+  # shows the table of the specified array of bets, allowing the user to change only those which
+  # haven't been locked yet.
+  def entry_bets_table(survivor_bets, team_to_games_map, nfl_teams) #, week_to_game_map)
+    entry_html = "<table class='" + TABLE_CLASS + "'>
+                    <thead><tr>
+                      <th>Week</th>
+                      <th>Selected Team</th>
+                      <th>Opponent</th>
+                      <th>Result</th>
+                    </tr></thead>"
+
+    # TODO if entry is dead, show read-only
+    # TODO indicate where auto-pick was used
+    # TODO high-roller should have more weeks
+    1.upto(17) { |week|
+      # TODO if bet already exists for this week, show selected bet
+      entry_html << "<tr>
+                      <td>" + week.to_s + "</td>
+                      <td class='tdselect'><select name='bet_" + week.to_s + "'>
+                            <option value=0>-- Select Team --</option>"
+      nfl_teams.each { |nfl_team|
+      	# Only allow team to be selected if it has a game during that week.
+      	team_game = team_to_games_map[nfl_team.id][week]
+      	if !team_game.nil?
+          # TODO if selected game has already started, lock it.
+          entry_html << "<option value=" + nfl_team.id.to_s + ">" +
+                        nfl_team.full_name + "</option>"
+        end
+      }
+      entry_html <<      "</select></td>
+                      <td></td>
+                      <td></td>
+                    </tr>"
+    }
+
+    entry_html << "</table>"
+    return entry_html.html_safe
   end
 end

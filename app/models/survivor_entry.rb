@@ -29,12 +29,16 @@ class SurvivorEntry < ActiveRecord::Base
     when :anti_survivor
       return "Anti"
     when :high_roller
-      return "HiRo"
+      return "HiRoll"
     else
       return nil
     end
   end
 
+  def type_title
+  	return SurvivorEntry.game_type_title(SurvivorEntry.name_to_game_type(self.game_type))
+  end
+ 
     # Returns the title of the specified game type.
   def self.game_type_title(game_type)
     case game_type

@@ -73,8 +73,8 @@ table.vertmiddle td {vertical-align:middle;}
 }
 table th {background-color: black; color:white;}
 .tdselect {
-	height: 40px;
-	line-height: 36px;
+	height: 32px;
+	line-height: 28px;
 }
 .tdselect select {
 	margin-bottom: 0px;
@@ -198,7 +198,7 @@ p.matchup {
   margin: 0 0 0 0;
   font-size: 11px;
 }
-td > a, td > a#hover {
+td > a, td > a#hover, h5 > a, h5 > a#hover {
   color: black !important;
   background-color: transparent !important;
   text-decoration: underline !important;

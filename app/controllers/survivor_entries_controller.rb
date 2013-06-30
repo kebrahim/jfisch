@@ -146,11 +146,79 @@ class SurvivorEntriesController < ApplicationController
   # GET /survivor_entries/1
   # GET /survivor_entries/1.json
   def show
+    # if logged-in user doesn't own entry, then redirect to home page.
+    @user = current_user
     @survivor_entry = SurvivorEntry.find(params[:id])
+    if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
+      @survivor_bets = SurvivorBet.where(survivor_entry: @survivor_entry)
+      
+      # TODO filter selectable teams that haven't been selected for this entry
+      current_year = Date.today.year
+      
+      # TODO need week_to_game_map? maybe for schedule?
+      #@week_to_game_map = build_week_to_game_map(
+      #    NflSchedule.includes([:home_nfl_team, :away_nfl_team])
+      #               .where(year: current_year)
+      #               .order(:week, :start_time))
 
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @survivor_entry }
+      @team_to_games_map = build_team_to_games_map(NflSchedule.where(year: current_year))
+      @nfl_teams = NflTeam.order(:city, :name)
+      
+      respond_to do |format|
+        format.html # show.html.erb
+        format.json { render json: @survivor_entry }
+      end
+    else
+      redirect_to root_url
+    end
+  end
+
+  # returns a map of nfl team id to another hash, which is a map of week to game played during that
+  # week
+  def build_team_to_games_map(nfl_games)
+    team_to_games_map = {}
+    nfl_games.each { |game|
+      if !team_to_games_map.has_key?(game.home_nfl_team_id)
+        team_to_games_map[game.home_nfl_team_id] = {}
+      end
+      team_to_games_map[game.home_nfl_team_id][game.week] = game
+
+      if !team_to_games_map.has_key?(game.away_nfl_team_id)
+        team_to_games_map[game.away_nfl_team_id] = {}
+      end
+      team_to_games_map[game.away_nfl_team_id][game.week] = game
+    }   
+    return team_to_games_map
+  end
+
+  def build_week_to_game_map(nfl_games)
+    week_to_game_map = {}
+    nfl_games.each { |game|
+      if week_to_game_map.has_key?(game.week)
+        week_to_game_map[game.week] << game
+      else
+        week_to_game_map[game.week] = [game]
+      end
+    }
+    return week_to_game_map
+  end
+
+  # POST /save_entry
+  def save_entry
+    # if logged-in user doesn't own entry, then redirect to home page.
+    @user = current_user
+    @survivor_entry = SurvivorEntry.find(params[:id])
+    if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
+      # TODO save updated bets for selected entry
+      is_updated = false
+
+      # re-direct user to individual entry page, with confirmation
+      if is_updated
+        confirmation_message = "Bets successfully updated!"
+      end
+      redirect_to "/survivor_entries/" + @survivor_entry.id.to_s, notice: confirmation_message
+    else
+      redirect_to root_url
     end
   end
 
