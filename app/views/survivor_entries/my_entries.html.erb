@@ -7,6 +7,7 @@
 </div>
 
 <form action='/my_entries' method='post'>
+<%= show_notice_as_alert(notice) %>
 <div class='row-fluid'>
   <div class='span3 center'>
     <h4>Anti-Survivor</h4>
@@ -20,9 +21,9 @@
     <h4>High Roller</h4>
     <%= entries_selector(:high_roller, @type_to_entry_map, @before_season) %>
   </div>
+</div>
   <p class='center'>
     <button class='btn btn-primary' name='save'>Update Entry Counts</button>
     <button class='btn' name='cancel'>Cancel</button>
   </p>
-</div>
 </form>

@@ -20,10 +20,11 @@ class SurvivorEntriesController < ApplicationController
   def build_type_to_entry_map(entries)
     type_to_entry_map = {}
     entries.each do |entry|
-      if type_to_entry_map.has_key?(entry.game_type)
-        type_to_entry_map[entry.game_type] << entry
+      game_type = SurvivorEntry.name_to_game_type(entry.game_type)
+      if type_to_entry_map.has_key?(game_type)
+        type_to_entry_map[game_type] << entry
       else
-        type_to_entry_map[entry.game_type] = [entry]
+        type_to_entry_map[game_type] = [entry]
       end
     end
     return type_to_entry_map
@@ -31,10 +32,69 @@ class SurvivorEntriesController < ApplicationController
 
   # POST /my_entries
   def save_entries
-    # TODO create/delete entries
+    @user = current_user
+    if !@user.nil?
+      is_updated = false
+      if params["cancel"].nil?
+        current_year = Date.today.year
+        type_to_entry_map = build_type_to_entry_map(
+            SurvivorEntry.where({user_id: @user.id, year: current_year}))
 
-    # re-direct user to my_entries page
-    redirect_to my_entries_url
+        # Update entry count for each game type.
+        is_updated |= update_entries(:survivor, type_to_entry_map, params, current_year)
+        is_updated |= update_entries(:anti_survivor, type_to_entry_map, params, current_year)
+        is_updated |= update_entries(:high_roller, type_to_entry_map, params, current_year)
+      end
+
+      # re-direct user to my_entries page, with confirmation
+      if is_updated
+        confirmation_message = "Entry counts successfully updated!"
+      end
+      redirect_to my_entries_url, notice: confirmation_message
+    else
+      redirect_to root_url
+    end
+  end
+
+  # Updates the number of entries for the specified game type, logged-in user & year, based on the
+  # specified count and how many entries currently exist for the user.
+  def update_entries(game_type, type_to_entry_map, params, year)
+    # based on updated count, create new entries or delete existing
+    existing_entries = type_to_entry_map[game_type]
+    existing_size = existing_entries.nil? ? 0 : existing_entries.size
+    updated_count = params["game_" + game_type.to_s].to_i
+    
+    if existing_size < updated_count
+      # count is higher than existing, create the difference
+      create_entries((updated_count - existing_size), year, game_type)
+      return true
+    elsif existing_size > updated_count
+      # existing is higher than count, delete the difference
+      destroy_entries(existing_entries, (existing_size - updated_count))
+      return true
+    end
+    return false
+  end
+
+  # Creates the specified number of entries of the specified game type, for the specified year, for
+  # the logged-in user.
+  def create_entries(num_to_create, year, game_type)
+    1.upto(num_to_create) { |entry_count|
+      new_entry = SurvivorEntry.new
+      new_entry.user_id = current_user.id
+      new_entry.year = year
+      new_entry.game_type = game_type
+      new_entry.is_alive = true
+      new_entry.used_autopick = false
+      new_entry.save
+    }
+  end
+
+  # Destroys the specified number of entries from the specified array of entries.
+  def destroy_entries(existing_entries, num_to_destroy)
+    0.upto((num_to_destroy - 1)) { |destroy_idx|
+      existing_entries[destroy_idx].destroy
+    }
   end
 
   # GET /survivor_entries

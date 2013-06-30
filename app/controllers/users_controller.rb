@@ -18,10 +18,11 @@ class UsersController < ApplicationController
   def build_type_to_entry_map(entries)
     type_to_entry_map = {}
     entries.each do |entry|
-      if type_to_entry_map.has_key?(entry.game_type)
-        type_to_entry_map[entry.game_type] << entry
+      game_type = SurvivorEntry.name_to_game_type(entry.game_type)
+      if type_to_entry_map.has_key?(game_type)
+        type_to_entry_map[game_type] << entry
       else
-        type_to_entry_map[entry.game_type] = [entry]
+        type_to_entry_map[game_type] = [entry]
       end
     end
     return type_to_entry_map

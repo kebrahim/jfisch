@@ -153,8 +153,12 @@ label {
     margin: auto;
 }
 
-.alert {
+.alert-top-margin {
   margin-top: 15px;
+}
+
+.alert-center {
+  text-align: center;
 }
 
 .input-tourney {
