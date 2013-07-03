@@ -7,6 +7,8 @@ class SurvivorEntry < ActiveRecord::Base
   enumerize :game_type, in: [:survivor, :anti_survivor, :high_roller, :second_chance]
 
   MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2 }
+  MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
+  TWO_GAME_WEEK_THRESHOLD = 13
 
   # Returns the game_type matching the specified name
   def self.name_to_game_type(game_type_name)
@@ -35,11 +37,12 @@ class SurvivorEntry < ActiveRecord::Base
     end
   end
 
+  # Returns the title of this entry's game type.
   def type_title
   	return SurvivorEntry.game_type_title(SurvivorEntry.name_to_game_type(self.game_type))
   end
  
-    # Returns the title of the specified game type.
+  # Returns the title of the specified game type.
   def self.game_type_title(game_type)
     case game_type
     when :survivor
@@ -50,6 +53,20 @@ class SurvivorEntry < ActiveRecord::Base
       return "High Roller"
     else
       return nil
+    end
+  end
+
+  # returns the number of bets required for the specified game_type and week
+  def self.bets_in_week(game_type, week)
+    case game_type
+    when :survivor
+      return (week < TWO_GAME_WEEK_THRESHOLD) ? 1 : 2
+    when :anti_survivor
+      return (week < TWO_GAME_WEEK_THRESHOLD) ? 1 : 2
+    when :high_roller
+      return 1
+    else
+      return 0
     end
   end
 end

@@ -138,7 +138,7 @@ module SurvivorEntriesHelper
 
   # shows the table of the specified array of bets, allowing the user to change only those which
   # haven't been locked yet.
-  def entry_bets_table(survivor_bets, team_to_games_map, nfl_teams) #, week_to_game_map)
+  def entry_bets_table(game_type_name, survivor_bets, team_to_games_map, nfl_teams)
     entry_html = "<table class='" + TABLE_CLASS + "'>
                     <thead><tr>
                       <th>Week</th>
@@ -149,26 +149,30 @@ module SurvivorEntriesHelper
 
     # TODO if entry is dead, show read-only
     # TODO indicate where auto-pick was used
-    # TODO high-roller should have more weeks
-    1.upto(17) { |week|
-      # TODO if bet already exists for this week, show selected bet
-      entry_html << "<tr>
-                      <td>" + week.to_s + "</td>
-                      <td class='tdselect'><select name='bet_" + week.to_s + "'>
-                            <option value=0>-- Select Team --</option>"
-      nfl_teams.each { |nfl_team|
-      	# Only allow team to be selected if it has a game during that week.
-      	team_game = team_to_games_map[nfl_team.id][week]
-      	if !team_game.nil?
-          # TODO if selected game has already started, lock it.
-          entry_html << "<option value=" + nfl_team.id.to_s + ">" +
-                        nfl_team.full_name + "</option>"
-        end
+    game_type = SurvivorEntry.name_to_game_type(game_type_name)
+    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+      1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
+        # TODO if bet already exists for this week, show selected bet, including opponent
+        # TODO if bet already exists and game is complete, show result
+        entry_html << "<tr>
+                        <td>" + week.to_s + "</td>
+                        <td class='tdselect'>
+                          <select name='" + SurvivorBet.bet_selector(week, bet_number) + "'>
+                            <option value=0></option>"
+        nfl_teams.each { |nfl_team|
+      	  # Only allow team to be selected if it has a game during that week.
+      	  team_game = team_to_games_map[nfl_team.id][week]
+      	  if !team_game.nil?
+            # TODO if selected game has already started, lock it.
+            entry_html << "<option value=" + nfl_team.id.to_s + ">" +
+                          nfl_team.full_name + "</option>"
+          end
+        }
+        entry_html <<      "</select></td>
+                        <td></td>
+                        <td></td>
+                      </tr>"
       }
-      entry_html <<      "</select></td>
-                      <td></td>
-                      <td></td>
-                    </tr>"
     }
 
     entry_html << "</table>"

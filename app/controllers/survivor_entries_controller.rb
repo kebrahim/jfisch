@@ -150,7 +150,7 @@ class SurvivorEntriesController < ApplicationController
     @user = current_user
     @survivor_entry = SurvivorEntry.find(params[:id])
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
-      @survivor_bets = SurvivorBet.where(survivor_entry: @survivor_entry)
+      @survivor_bets = SurvivorBet.where(survivor_entry_id: @survivor_entry)
       
       # TODO filter selectable teams that haven't been selected for this entry
       current_year = Date.today.year
@@ -203,14 +203,49 @@ class SurvivorEntriesController < ApplicationController
     return week_to_game_map
   end
 
-  # POST /save_entry
-  def save_entry
+  # returns a map of week to the array of bets that exist during that week.
+  # TODO key should be week & bet number
+  def build_week_to_bet_map(bets)
+    week_to_bet_map = {}
+    if !bets.nil?
+      bets.each { |bet|
+        if week_to_bet_map.has_key?(bet.nfl_game.week)
+          week_to_bet_map[bet.nfl_game.week] << bet
+        else
+          week_to_bet_map[bet.nfl_game.week] = [bet]
+        end
+      }
+    end
+    return week_to_bet_map
+  end
+  
+  # POST /save_entry_bets
+  def save_entry_bets
     # if logged-in user doesn't own entry, then redirect to home page.
     @user = current_user
     @survivor_entry = SurvivorEntry.find(params[:id])
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
-      # TODO save updated bets for selected entry
+      # save created/updated bets for selected entry
       is_updated = false
+      if params["cancel"].nil?
+        current_year = Date.today.year
+        week_to_bet_map = build_week_to_bet_map(
+            SurvivorBet.where(survivor_entry_id: @survivor_entry))
+
+        game_type = SurvivorEntry.name_to_game_type(@survivor_entry.game_type)
+        1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+          1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
+            if !params[SurvivorBet.bet_selector(week, bet_number)].nil? &&
+               params[SurvivorBet.bet_selector(week, bet_number)].to_i > 0
+              # TODO If bet already exists, then update.
+
+              # TODO Otherwise, create new bet.
+            end
+          }
+        }
+
+        # TODO ideally, save all at once? and show error if user picks same team twice        
+      end
 
       # re-direct user to individual entry page, with confirmation
       if is_updated

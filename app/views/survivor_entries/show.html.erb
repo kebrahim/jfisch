@@ -9,10 +9,19 @@
 <div class='row-fluid'>
   <div class='span7 center'>
     <%= show_notice_as_alert(notice) %>
-    <form action='/save_entry' method='post'>
+    <form action='/save_entry_bets' method='post'>
       <h4><%= @survivor_entry.type_title %> Picks</h4>
-      <%= entry_bets_table(@survivor_bets, @team_to_games_map, @nfl_teams) %>
-      <!-- TODO button to update -->
+      <p class='center'>
+        <button class='btn btn-primary' name='save'>Update Bets</button>
+        <button class='btn' name='cancel'>Cancel</button>
+      </p>
+      <%= entry_bets_table(@survivor_entry.game_type, @survivor_bets, @team_to_games_map,
+                           @nfl_teams) %>
+      <input type='hidden' name='id' value=<%= "'" + @survivor_entry.id.to_s + "'" %> />
+      <p class='center'>
+        <button class='btn btn-primary' name='save'>Update Bets</button>
+        <button class='btn' name='cancel'>Cancel</button>
+      </p>
     </form>
   </div>
 
