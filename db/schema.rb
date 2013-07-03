@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130625221345) do
+ActiveRecord::Schema.define(:version => 20130703192232) do
 
   create_table "nfl_schedules", :force => true do |t|
     t.integer  "year"
@@ -47,11 +47,13 @@ ActiveRecord::Schema.define(:version => 20130625221345) do
     t.boolean  "is_correct"
     t.datetime "created_at",        :null => false
     t.datetime "updated_at",        :null => false
+    t.integer  "bet_number"
   end
 
   add_index "survivor_bets", ["nfl_game_id"], :name => "index_survivor_bets_on_nfl_game_id"
   add_index "survivor_bets", ["nfl_team_id"], :name => "index_survivor_bets_on_nfl_team_id"
   add_index "survivor_bets", ["survivor_entry_id", "nfl_team_id"], :name => "survivor_bets_entry_team_uq", :unique => true
+  add_index "survivor_bets", ["survivor_entry_id", "week", "bet_number"], :name => "survivor_bets_entry_week_num_uq", :unique => true
   add_index "survivor_bets", ["survivor_entry_id"], :name => "index_survivor_bets_on_survivor_entry_id"
 
   create_table "survivor_entries", :force => true do |t|
