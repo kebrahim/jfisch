@@ -24,8 +24,8 @@ module SurvivorEntriesHelper
           offset_size = 0
         end
         entries_html << "'><h5>" +
-                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " " + 
-                                         entry_count.to_s,
+                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+                                         current_entry.entry_number.to_s,
                                      "/survivor_entries/" + current_entry.id.to_s,
                                      class: 'btn-link-black') +
                           "</h5>"
@@ -78,8 +78,8 @@ module SurvivorEntriesHelper
           offset_size = 0
         end
         entries_html << "'><h5>" +
-                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " " + 
-                                         entry_count.to_s,
+                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+                                         current_entry.entry_number.to_s,
                                      "/survivor_entries/" + current_entry.id.to_s,
                                      class: 'btn-link-black') +
                           "</h5>"

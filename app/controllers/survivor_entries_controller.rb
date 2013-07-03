@@ -101,7 +101,7 @@ class SurvivorEntriesController < ApplicationController
     
     if existing_size < updated_count
       # count is higher than existing, create the difference
-      create_entries((updated_count - existing_size), year, game_type)
+      create_entries(existing_size, updated_count, year, game_type)
       return true
     elsif existing_size > updated_count
       # existing is higher than count, delete the difference
@@ -111,14 +111,15 @@ class SurvivorEntriesController < ApplicationController
     return false
   end
 
-  # Creates the specified number of entries of the specified game type, for the specified year, for
-  # the logged-in user.
-  def create_entries(num_to_create, year, game_type)
-    1.upto(num_to_create) { |entry_count|
+  # Creates entries of the specified game type, for the specified year, for the logged-in user. so
+  # that the user now has updated_count entries.
+  def create_entries(existing_size, updated_count, year, game_type)
+    (existing_size + 1).upto(updated_count) { |entry_number|
       new_entry = SurvivorEntry.new
       new_entry.user_id = current_user.id
       new_entry.year = year
       new_entry.game_type = game_type
+      new_entry.entry_number = entry_number
       new_entry.is_alive = true
       new_entry.used_autopick = false
       new_entry.save
@@ -127,7 +128,9 @@ class SurvivorEntriesController < ApplicationController
 
   # Destroys the specified number of entries from the specified array of entries.
   def destroy_entries(existing_entries, num_to_destroy)
-    0.upto((num_to_destroy - 1)) { |destroy_idx|
+    start_idx = existing_entries.size - 1
+    end_idx = start_idx - num_to_destroy + 1
+    start_idx.downto(end_idx) { |destroy_idx|
       existing_entries[destroy_idx].destroy
     }
   end
