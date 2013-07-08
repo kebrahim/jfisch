@@ -44,3 +44,5 @@ gem 'thin'
 gem 'curb'
 
 gem 'enumerize'
+
+gem 'activerecord-import'

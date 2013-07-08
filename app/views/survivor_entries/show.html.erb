@@ -8,7 +8,7 @@
 
 <div class='row-fluid'>
   <div class='span7 center'>
-    <%= show_notice_as_alert(notice) %>
+    <%= show_notice_as_alert_with_class_string(notice, "alert-top-margin") %>
     <form action='/save_entry_bets' method='post'>
       <h4><%= @survivor_entry.type_title %> Picks</h4>
       <p class='center'>

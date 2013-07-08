@@ -10,7 +10,7 @@ class SurvivorBet < ActiveRecord::Base
   end
 
   # returns the name of the select param for selecting a team to bet on, for this bet
-  def selector(week, bet_number)
+  def selector
     return SurvivorBet.bet_selector(self.week, self.bet_number)
   end
 end

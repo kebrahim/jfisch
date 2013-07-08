@@ -206,22 +206,30 @@ class SurvivorEntriesController < ApplicationController
     return week_to_game_map
   end
 
-  # returns a map of week to the array of bets that exist during that week.
-  # TODO key should be week & bet number
-  def build_week_to_bet_map(bets)
-    week_to_bet_map = {}
-    if !bets.nil?
-      bets.each { |bet|
-        if week_to_bet_map.has_key?(bet.nfl_game.week)
-          week_to_bet_map[bet.nfl_game.week] << bet
-        else
-          week_to_bet_map[bet.nfl_game.week] = [bet]
-        end
-      }
-    end
-    return week_to_bet_map
+  # returns a map of week and bet number to the corresponding existing bet.
+  def build_selector_to_bet_map(bets)
+    selector_to_bet_map = {}
+    bets.each { |bet|
+      selector_to_bet_map[bet.selector] = bet
+    }
+    return selector_to_bet_map
   end
   
+  # returns a map of a key containing week number and nfl team id to the game during that week, with
+  # that team playing
+  def build_week_team_to_game_map(nfl_games)
+    week_team_to_game_map = {}
+    nfl_games.each { |game|
+      week_team_to_game_map[week_team_key(game.week, game.home_nfl_team_id)] = game
+      week_team_to_game_map[week_team_key(game.week, game.away_nfl_team_id)] = game
+    }
+    return week_team_to_game_map
+  end
+
+  def week_team_key(week, team_id)
+    return week.to_s + "-" + team_id.to_s
+  end
+
   # POST /save_entry_bets
   def save_entry_bets
     # if logged-in user doesn't own entry, then redirect to home page.
@@ -232,27 +240,54 @@ class SurvivorEntriesController < ApplicationController
       is_updated = false
       if params["cancel"].nil?
         current_year = Date.today.year
-        week_to_bet_map = build_week_to_bet_map(
+        selector_to_bet_map = build_selector_to_bet_map(
             SurvivorBet.where(survivor_entry_id: @survivor_entry))
+        week_team_to_game_map = build_week_team_to_game_map(
+            NflSchedule.where(year: current_year))
 
         game_type = SurvivorEntry.name_to_game_type(@survivor_entry.game_type)
+        bets_to_create = []
+        bets_to_update = []
         1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
           1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
-            if !params[SurvivorBet.bet_selector(week, bet_number)].nil? &&
-               params[SurvivorBet.bet_selector(week, bet_number)].to_i > 0
-              # TODO If bet already exists, then update.
-
-              # TODO Otherwise, create new bet.
+            selector = SurvivorBet.bet_selector(week, bet_number)
+            if !params[selector].nil? && params[selector].to_i > 0
+              existing_bet = selector_to_bet_map[selector]
+              if existing_bet.nil?
+                # Bet does not exist, create new bet.
+                new_bet = SurvivorBet.new
+                new_bet.survivor_entry_id = @survivor_entry.id
+                new_bet.week = week
+                new_bet.bet_number = bet_number
+                new_bet.nfl_game_id =
+                    week_team_to_game_map[week_team_key(week, params[selector].to_i)].id
+                new_bet.nfl_team_id = params[selector].to_i
+                new_bet.is_correct = nil
+                bets_to_create << new_bet
+              elsif existing_bet.nfl_team_id != params[selector].to_i
+                # Bet already exists and is changed, update.
+                existing_bet.nfl_team_id = params[selector].to_i
+                existing_bet.nfl_game_id =
+                    week_team_to_game_map[week_team_key(week, params[selector].to_i)].id
+                bets_to_update << existing_bet
+              end
             end
           }
         }
 
-        # TODO ideally, save all at once? and show error if user picks same team twice        
-      end
-
-      # re-direct user to individual entry page, with confirmation
-      if is_updated
-        confirmation_message = "Bets successfully updated!"
+        # Bulk-save all bets at once; show error if same team is selected multiple times for one
+        # entry.
+        # TODO also import bets_to_update
+        begin
+          import_result = SurvivorBet.import bets_to_create
+          if import_result.failed_instances.empty?
+            confirmation_message = "Bets successfully updated!"
+          else
+            confirmation_message = "Error: Failed instances while saving bets"
+          end
+        rescue Exception => e
+          confirmation_message = "Error: Cannot select same team twice."
+        end
       end
       redirect_to "/survivor_entries/" + @survivor_entry.id.to_s, notice: confirmation_message
     else
