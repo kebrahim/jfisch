@@ -9,14 +9,14 @@ class SurvivorEntriesController < ApplicationController
       @before_season = true
 
       current_year = Date.today.year
-      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
-                             .joins(:survivor_entry)
-                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
-
-      # TODO convert list of bets to type-to-entry map
       @type_to_entry_map = build_type_to_entry_map(
           SurvivorEntry.where({user_id: @user.id, year: current_year}))
 
+      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                             .joins(:survivor_entry)
+                             .joins(:nfl_game)
+                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
+                             .order("survivor_entries.id, nfl_schedules.week")
       @entry_to_bets_map = build_entry_id_to_bets_map(user_bets)
     else
       redirect_to root_url
@@ -42,10 +42,10 @@ class SurvivorEntriesController < ApplicationController
   def build_entry_id_to_bets_map(bets)
     entry_to_bets_map = {}
     bets.each do |bet|
-      if entry_to_bets_map.has_key?(bet.survivor_entry.id)
-        entry_to_bets_map[bet.survivor_entry.id] << bet
+      if entry_to_bets_map.has_key?(bet.survivor_entry_id)
+        entry_to_bets_map[bet.survivor_entry_id] << bet
       else
-        entry_to_bets_map[bet.survivor_entry.id] = [bet]
+        entry_to_bets_map[bet.survivor_entry_id] = [bet]
       end
     end
     return entry_to_bets_map
@@ -206,7 +206,6 @@ class SurvivorEntriesController < ApplicationController
     @survivor_entry = SurvivorEntry.find(params[:id])
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
       # save created/updated bets for selected entry
-      is_updated = false
       if params["cancel"].nil?
         current_year = Date.today.year
         selector_to_bet_map = build_selector_to_bet_map(
@@ -220,8 +219,10 @@ class SurvivorEntriesController < ApplicationController
         1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
           1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
             selector = SurvivorBet.bet_selector(week, bet_number)
-            if !params[selector].nil? && params[selector].to_i > 0
-              existing_bet = selector_to_bet_map[selector]
+            existing_bet = selector_to_bet_map[selector]
+            selected_team_id = params[selector].to_i
+            if !params[selector].nil? &&
+                (!existing_bet.nil? || selected_team_id > 0)
               if existing_bet.nil?
                 # Bet does not exist, create new bet.
                 new_bet = SurvivorBet.new
@@ -229,15 +230,15 @@ class SurvivorEntriesController < ApplicationController
                 new_bet.week = week
                 new_bet.bet_number = bet_number
                 new_bet.nfl_game_id =
-                    week_team_to_game_map[NflSchedule.game_selector(week, params[selector].to_i)].id
-                new_bet.nfl_team_id = params[selector].to_i
+                    week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
+                new_bet.nfl_team_id = selected_team_id
                 new_bet.is_correct = nil
                 bets_to_create << new_bet
-              elsif existing_bet.nfl_team_id != params[selector].to_i
+              elsif existing_bet.nfl_team_id != selected_team_id
                 # Bet already exists and is changed, update.
-                existing_bet.nfl_team_id = params[selector].to_i
-                existing_bet.nfl_game_id =
-                    week_team_to_game_map[NflSchedule.game_selector(week, params[selector].to_i)].id
+                existing_bet.nfl_team_id = selected_team_id
+                existing_bet.nfl_game_id = selected_team_id == 0 ? 0 :
+                    week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
                 bets_to_update << existing_bet
               end
             end
@@ -246,16 +247,33 @@ class SurvivorEntriesController < ApplicationController
 
         # Bulk-save all bets at once; show error if same team is selected multiple times for one
         # entry.
-        # TODO also import bets_to_update
-        begin
-          import_result = SurvivorBet.import bets_to_create
-          if import_result.failed_instances.empty?
-            confirmation_message = "Bets successfully updated!"
-          else
-            confirmation_message = "Error: Failed instances while saving bets"
+        confirmation_message = ""
+        if !bets_to_create.empty? || !bets_to_update.empty?
+          # Wrap creates/updates/deletes in a single transaction, in case any of the operations
+          # violates an index, at which point all of the operations are rolled back.
+          SurvivorBet.transaction do 
+            begin
+              # First, bulk-import new bets
+              import_result = SurvivorBet.import bets_to_create
+
+              # Next, update each existing bet, deleting if no team is selected
+              bets_to_update.each { |bet_to_update|
+                if bet_to_update.nfl_team_id > 0
+                  bet_to_update.save
+                else
+                  bet_to_update.destroy
+                end
+              }
+
+              if import_result.failed_instances.empty?
+                confirmation_message = "Picks successfully updated!"
+              else
+                confirmation_message = "Error: Failed instances while saving bets"
+              end
+            rescue Exception => e
+              confirmation_message = "Error: Cannot select same team twice."
+            end
           end
-        rescue Exception => e
-          confirmation_message = "Error: Cannot select same team twice."
         end
       end
       redirect_to "/survivor_entries/" + @survivor_entry.id.to_s, notice: confirmation_message
