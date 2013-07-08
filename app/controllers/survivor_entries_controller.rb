@@ -9,7 +9,7 @@ class SurvivorEntriesController < ApplicationController
       @before_season = true
 
       current_year = Date.today.year
-      user_bets = SurvivorBet.includes([:nfl_schedule, :nfl_team])
+      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
                              .joins(:survivor_entry)
                              .where(:survivor_entries => {year: current_year, user_id: @user.id})
 
@@ -153,19 +153,13 @@ class SurvivorEntriesController < ApplicationController
     @user = current_user
     @survivor_entry = SurvivorEntry.find(params[:id])
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
-      @survivor_bets = SurvivorBet.where(survivor_entry_id: @survivor_entry)
+      @selector_to_bet_map = build_selector_to_bet_map(
+            SurvivorBet.where(survivor_entry_id: @survivor_entry))
       
       # TODO filter selectable teams that haven't been selected for this entry
-      current_year = Date.today.year
-      
-      # TODO need week_to_game_map? maybe for schedule?
-      #@week_to_game_map = build_week_to_game_map(
-      #    NflSchedule.includes([:home_nfl_team, :away_nfl_team])
-      #               .where(year: current_year)
-      #               .order(:week, :start_time))
-
-      @team_to_games_map = build_team_to_games_map(NflSchedule.where(year: current_year))
-      @nfl_teams = NflTeam.order(:city, :name)
+      current_year = Date.today.year     
+      @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
+      @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
       
       respond_to do |format|
         format.html # show.html.erb
@@ -176,34 +170,13 @@ class SurvivorEntriesController < ApplicationController
     end
   end
 
-  # returns a map of nfl team id to another hash, which is a map of week to game played during that
-  # week
-  def build_team_to_games_map(nfl_games)
-    team_to_games_map = {}
-    nfl_games.each { |game|
-      if !team_to_games_map.has_key?(game.home_nfl_team_id)
-        team_to_games_map[game.home_nfl_team_id] = {}
-      end
-      team_to_games_map[game.home_nfl_team_id][game.week] = game
-
-      if !team_to_games_map.has_key?(game.away_nfl_team_id)
-        team_to_games_map[game.away_nfl_team_id] = {}
-      end
-      team_to_games_map[game.away_nfl_team_id][game.week] = game
-    }   
-    return team_to_games_map
-  end
-
-  def build_week_to_game_map(nfl_games)
-    week_to_game_map = {}
-    nfl_games.each { |game|
-      if week_to_game_map.has_key?(game.week)
-        week_to_game_map[game.week] << game
-      else
-        week_to_game_map[game.week] = [game]
-      end
+  # returns a map of team id to nfl team
+  def build_id_to_team_map(teams)
+    id_to_team_map = {}
+    teams.each { |team|
+      id_to_team_map[team.id] = team
     }
-    return week_to_game_map
+    return id_to_team_map
   end
 
   # returns a map of week and bet number to the corresponding existing bet.
@@ -220,14 +193,10 @@ class SurvivorEntriesController < ApplicationController
   def build_week_team_to_game_map(nfl_games)
     week_team_to_game_map = {}
     nfl_games.each { |game|
-      week_team_to_game_map[week_team_key(game.week, game.home_nfl_team_id)] = game
-      week_team_to_game_map[week_team_key(game.week, game.away_nfl_team_id)] = game
+      week_team_to_game_map[game.home_selector] = game
+      week_team_to_game_map[game.away_selector] = game
     }
     return week_team_to_game_map
-  end
-
-  def week_team_key(week, team_id)
-    return week.to_s + "-" + team_id.to_s
   end
 
   # POST /save_entry_bets
@@ -260,7 +229,7 @@ class SurvivorEntriesController < ApplicationController
                 new_bet.week = week
                 new_bet.bet_number = bet_number
                 new_bet.nfl_game_id =
-                    week_team_to_game_map[week_team_key(week, params[selector].to_i)].id
+                    week_team_to_game_map[NflSchedule.game_selector(week, params[selector].to_i)].id
                 new_bet.nfl_team_id = params[selector].to_i
                 new_bet.is_correct = nil
                 bets_to_create << new_bet
@@ -268,7 +237,7 @@ class SurvivorEntriesController < ApplicationController
                 # Bet already exists and is changed, update.
                 existing_bet.nfl_team_id = params[selector].to_i
                 existing_bet.nfl_game_id =
-                    week_team_to_game_map[week_team_key(week, params[selector].to_i)].id
+                    week_team_to_game_map[NflSchedule.game_selector(week, params[selector].to_i)].id
                 bets_to_update << existing_bet
               end
             end

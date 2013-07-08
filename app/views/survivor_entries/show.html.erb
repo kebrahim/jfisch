@@ -2,7 +2,8 @@
 
 <div class='row-fluid'>
   <div class='span12 center'>
-    <h3><%= @user.first_name %>'s <%= @survivor_entry.type_title %> #<%= @survivor_entry.entry_number.to_s %> Entry</h3>
+    <h3><%= @user.first_name %>'s <%= @survivor_entry.type_title %> #
+        <%= @survivor_entry.entry_number.to_s %> Entry</h3>
   </div>
 </div>
 
@@ -12,14 +13,14 @@
     <form action='/save_entry_bets' method='post'>
       <h4><%= @survivor_entry.type_title %> Picks</h4>
       <p class='center'>
-        <button class='btn btn-primary' name='save'>Update Bets</button>
+        <button class='btn btn-primary' name='save'>Update Picks</button>
         <button class='btn' name='cancel'>Cancel</button>
       </p>
-      <%= entry_bets_table(@survivor_entry.game_type, @survivor_bets, @team_to_games_map,
-                           @nfl_teams) %>
+      <%= entry_bets_table(@survivor_entry.game_type, @selector_to_bet_map, @week_team_to_game_map,
+                           @nfl_teams_map) %>
       <input type='hidden' name='id' value=<%= "'" + @survivor_entry.id.to_s + "'" %> />
       <p class='center'>
-        <button class='btn btn-primary' name='save'>Update Bets</button>
+        <button class='btn btn-primary' name='save'>Update Picks</button>
         <button class='btn' name='cancel'>Cancel</button>
       </p>
     </form>

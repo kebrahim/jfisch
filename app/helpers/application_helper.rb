@@ -3,7 +3,7 @@ module ApplicationHelper
   # Shows the specified notice as an alert and displays it as an error, if the notice string starts
   # with "Error"
   def show_notice_as_alert(notice)
-    return ApplicationHelper::show_notice_as_alert_with_class_string(notice, nil)
+    return show_notice_as_alert_with_class_string(notice, nil)
   end
 
   # Shows the specified notice as an alert and displays it as an error, if the notice string starts

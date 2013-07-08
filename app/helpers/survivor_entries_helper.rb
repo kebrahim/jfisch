@@ -138,7 +138,7 @@ module SurvivorEntriesHelper
 
   # shows the table of the specified array of bets, allowing the user to change only those which
   # haven't been locked yet.
-  def entry_bets_table(game_type_name, survivor_bets, team_to_games_map, nfl_teams)
+  def entry_bets_table(game_type_name, selector_to_bet_map, week_team_to_game_map, nfl_teams_map)
     entry_html = "<table class='" + TABLE_CLASS + "'>
                     <thead><tr>
                       <th>Week</th>
@@ -152,25 +152,44 @@ module SurvivorEntriesHelper
     game_type = SurvivorEntry.name_to_game_type(game_type_name)
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
-        # TODO if bet already exists for this week, show selected bet, including opponent
-        # TODO if bet already exists and game is complete, show result
+        # TODO if selected game has already started, lock it.
         entry_html << "<tr>
                         <td>" + week.to_s + "</td>
                         <td class='tdselect'>
                           <select name='" + SurvivorBet.bet_selector(week, bet_number) + "'>
                             <option value=0></option>"
-        nfl_teams.each { |nfl_team|
+        existing_bet = selector_to_bet_map[SurvivorBet.bet_selector(week, bet_number)]
+        nfl_teams_map.values.each { |nfl_team|
       	  # Only allow team to be selected if it has a game during that week.
-      	  team_game = team_to_games_map[nfl_team.id][week]
+      	  team_game = week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
       	  if !team_game.nil?
-            # TODO if selected game has already started, lock it.
-            entry_html << "<option value=" + nfl_team.id.to_s + ">" +
+            entry_html << "<option "
+            
+            # show bet is selected if bet already exists
+            if !existing_bet.nil? && existing_bet.nfl_team_id == nfl_team.id
+              entry_html << "selected "
+            end
+
+            # dropdown shows name of NFL team
+            entry_html << "value=" + nfl_team.id.to_s + ">" +
                           nfl_team.full_name + "</option>"
           end
         }
         entry_html <<      "</select></td>
-                        <td></td>
-                        <td></td>
+                        <td>"
+        # If bet already exists for this week, show opponent
+        if !existing_bet.nil?
+          game = week_team_to_game_map[NflSchedule.game_selector(week, existing_bet.nfl_team_id)]
+          if !game.nil?
+          	opponent_team_id = game.opponent_team_id(existing_bet.nfl_team_id)
+          	opponent_team = nfl_teams_map[opponent_team_id]
+            entry_html << game.matchup_string(opponent_team)
+          end
+        end
+        entry_html <<      "</td>
+                        <td>"
+        # TODO if bet already exists and game is complete, show result
+        entry_html <<      "</td>
                       </tr>"
       }
     }
