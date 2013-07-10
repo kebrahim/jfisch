@@ -1,6 +1,7 @@
 module SurvivorEntriesHelper
 
-  TABLE_CLASS = 'table table-striped table-bordered table-condensed center dashboardtable'
+  TABLE_CLASS = 'table table-striped table-bordered table-condensed center dashboardtable
+                 vertmiddle'
 
   # Displays the currently selected entries for the specified game_type, as well as allows the user
   # to update the number of selected entries, if the season has not yet begun.
@@ -202,5 +203,45 @@ module SurvivorEntriesHelper
 
     entry_html << "</table>"
     return entry_html.html_safe
+  end
+
+  # shows the table of all bets for all users, for the specified game type
+  def all_bets_table(game_type, entries_by_type, entry_to_bets_map)
+    bets_html = "<table class='" + TABLE_CLASS + "'>
+                   <thead>
+                     <tr>
+                       <th rowspan='2'>Entry</th>
+                       <th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>
+                     </tr>
+                     <tr>"
+    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+      bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" + week.to_s + "</th>"
+    }
+    bets_html <<    "</tr>
+                   </thead>"
+
+    entries_by_type.each { |entry|
+      # TODO highlight logged-in user's entries
+      bets_html << "<tr>
+                      <td>" + entry.user.full_name + " " + entry.entry_number.to_s + "</td>"
+      bets = entry_to_bets_map[entry.id]
+      1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+        1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
+          # TODO mark bets as correct/incorrect
+          bets_html << "<td>"
+          if !bets.nil?
+            bet = bets[SurvivorBet.bet_selector(week, bet_number)]
+            if !bet.nil?
+              bets_html << bet.nfl_team.abbreviation
+            end
+          end
+          bets_html << "</td>"
+        }
+      }
+      bets_html << "</tr>"
+    }
+
+    bets_html << "</table>"
+    return bets_html.html_safe
   end
 end

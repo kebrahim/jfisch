@@ -1,11 +1,17 @@
 Jfisch::Application.routes.draw do
-  resources :survivor_bets
 
-  resources :survivor_entries
+  # survivor_entries
   get 'my_entries' => 'survivor_entries#my_entries'
   post 'my_entries' => 'survivor_entries#save_entries'
   get 'dashboard' => 'survivor_entries#dashboard'
   post 'save_entry_bets' => 'survivor_entries#save_entry_bets'
+  get '/survivor_entries/:id(.:format)' => 'survivor_entries#show'
+  get 'survivor' => 'survivor_entries#survivor'
+  get 'anti_survivor' => 'survivor_entries#anti_survivor'
+  get 'high_roller' => 'survivor_entries#high_roller'
+
+  # TODO remove unused routes
+  resources :survivor_bets
 
   resources :nfl_schedules
 
@@ -19,8 +25,6 @@ Jfisch::Application.routes.draw do
   resources :users
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'profile' => 'users#profile'
-
-  get 'survivor' => 'users#survivor'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

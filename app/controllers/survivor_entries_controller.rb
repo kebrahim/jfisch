@@ -1,7 +1,7 @@
 class SurvivorEntriesController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
-  # GET /survivor
+  # GET /dashboard
   def dashboard
     @user = current_user
     if !@user.nil?
@@ -127,6 +127,7 @@ class SurvivorEntriesController < ApplicationController
   end
 
   # Destroys the specified number of entries from the specified array of entries.
+  # TODO destroy corresponding bets, if they exist
   def destroy_entries(existing_entries, num_to_destroy)
     start_idx = existing_entries.size - 1
     end_idx = start_idx - num_to_destroy + 1
@@ -151,7 +152,13 @@ class SurvivorEntriesController < ApplicationController
   def show
     # if logged-in user doesn't own entry, then redirect to home page.
     @user = current_user
-    @survivor_entry = SurvivorEntry.find(params[:id])
+    begin
+      @survivor_entry = SurvivorEntry.find(params[:id])
+    rescue ActiveRecord::RecordNotFound => e
+      redirect_to root_url
+      return
+    end
+
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
       @selector_to_bet_map = build_selector_to_bet_map(
             SurvivorBet.where(survivor_entry_id: @survivor_entry))
@@ -292,52 +299,68 @@ class SurvivorEntriesController < ApplicationController
     end
   end
 
-  # GET /survivor_entries/1/edit
-  def edit
-    @survivor_entry = SurvivorEntry.find(params[:id])
+  # GET /survivor
+  def survivor
+    @user = current_user
+    if !@user.nil?
+      @entries_by_type = get_entries_by_type(:survivor)
+      @entry_to_bets_map = get_bets_map_by_type(:survivor)
+    else
+      redirect_to root_url
+    end
   end
 
-  # POST /survivor_entries
-  # POST /survivor_entries.json
-  def create
-    @survivor_entry = SurvivorEntry.new(params[:survivor_entry])
+  # GET /anti_survivor
+  def anti_survivor
+    @user = current_user
+    if !@user.nil?
+      @entries_by_type = get_entries_by_type(:anti_survivor)
+      @entry_to_bets_map = get_bets_map_by_type(:anti_survivor)
+    else
+      redirect_to root_url
+    end
+  end
 
-    respond_to do |format|
-      if @survivor_entry.save
-        format.html { redirect_to @survivor_entry, notice: 'Survivor entry was successfully created.' }
-        format.json { render json: @survivor_entry, status: :created, location: @survivor_entry }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @survivor_entry.errors, status: :unprocessable_entity }
+  # GET /high_roller
+  def high_roller
+    @user = current_user
+    if !@user.nil?
+      @entries_by_type = get_entries_by_type(:high_roller)
+      @entry_to_bets_map = get_bets_map_by_type(:high_roller)
+    else
+      redirect_to root_url
+    end
+  end
+
+  # returns the survivor entries of the specified type
+  def get_entries_by_type(game_type)
+    # TODO sort by the week when entry was knocked out
+    return SurvivorEntry.includes(:user)
+                        .joins(:user)
+                        .where({year: Date.today.year, game_type: game_type})
+                        .order("users.last_name, users.first_name, survivor_entries.entry_number")
+  end
+
+  # returns the survivor bets of the specified type, in a map of entry to bet
+  def get_bets_map_by_type(game_type)
+    return build_entry_to_bets_map(
+        SurvivorBet.includes([:nfl_game, :nfl_team])
+                   .joins(:survivor_entry)
+                   .joins(:nfl_game)
+                   .where(:survivor_entries => {year: Date.today.year, game_type: game_type})
+                   .order("survivor_entries.id, nfl_schedules.week"))
+  end
+
+  # returns a map of entry id to another map of week/bet-number for the corresponding bet belonging
+  # to that entry.
+  def build_entry_to_bets_map(bets)
+    entry_to_bets_map = {}
+    bets.each { |bet|
+      if !entry_to_bets_map.has_key?(bet.survivor_entry_id)
+        entry_to_bets_map[bet.survivor_entry_id] = {}
       end
-    end
-  end
-
-  # PUT /survivor_entries/1
-  # PUT /survivor_entries/1.json
-  def update
-    @survivor_entry = SurvivorEntry.find(params[:id])
-
-    respond_to do |format|
-      if @survivor_entry.update_attributes(params[:survivor_entry])
-        format.html { redirect_to @survivor_entry, notice: 'Survivor entry was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @survivor_entry.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /survivor_entries/1
-  # DELETE /survivor_entries/1.json
-  def destroy
-    @survivor_entry = SurvivorEntry.find(params[:id])
-    @survivor_entry.destroy
-
-    respond_to do |format|
-      format.html { redirect_to survivor_entries_url }
-      format.json { head :no_content }
-    end
+      entry_to_bets_map[bet.survivor_entry_id][bet.selector] = bet
+    }
+    return entry_to_bets_map
   end
 end

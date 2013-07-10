@@ -8,6 +8,7 @@ class SurvivorEntry < ActiveRecord::Base
 
   MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2 }
   MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
+  MAX_BETS_MAP = { survivor: 22, anti_survivor: 22, high_roller: 21 }
   TWO_GAME_WEEK_THRESHOLD = 13
 
   # Returns the game_type matching the specified name

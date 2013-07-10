@@ -1,14 +1,4 @@
 class UsersController < ApplicationController
-  # GET /survivor
-  def survivor
-    @user = current_user
-    if !@user.nil?
-      # depending on date [before/after start of season, redirect to proper page]
-    else
-      redirect_to root_url
-    end
-  end
-
   # GET /users
   # GET /users.json
   def index

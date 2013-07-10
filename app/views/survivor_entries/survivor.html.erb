@@ -8,10 +8,8 @@
 </div>
 
 <div class='row-fluid'>
-  <div class='span4 center'>
-    <h4>My Entries</h4>
-  </div>
-  <div class='span8 center'>
-    <h4>Something</h4>
+  <div class='span12 center'>
+    <h4>All Entries</h4>
+    <%= all_bets_table(:survivor, @entries_by_type, @entry_to_bets_map) %>
   </div>
 </div>
