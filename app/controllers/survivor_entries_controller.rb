@@ -126,13 +126,22 @@ class SurvivorEntriesController < ApplicationController
     }
   end
 
-  # Destroys the specified number of entries from the specified array of entries.
-  # TODO destroy corresponding bets, if they exist
+  # Destroys the specified number of entries from the specified array of entries, including all bets
+  # currently made for this entry.
   def destroy_entries(existing_entries, num_to_destroy)
     start_idx = existing_entries.size - 1
     end_idx = start_idx - num_to_destroy + 1
     start_idx.downto(end_idx) { |destroy_idx|
-      existing_entries[destroy_idx].destroy
+      entry_to_destroy = existing_entries[destroy_idx]
+
+      # if entry has any bets, first destroy them.
+      bets = SurvivorBet.where(survivor_entry_id: entry_to_destroy)
+      bets.each { |bet|
+        bet.destroy
+      }
+
+      # then, destroy entry
+      entry_to_destroy.destroy
     }
   end
 
