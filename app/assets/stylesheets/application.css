@@ -110,10 +110,14 @@ label {
   width: 75px;
   height: 73px;
 }
+.img_60_109 {
+  width: 60px;
+  height: 109px;
+}
 
 /* login page */
 .welcome {
-    margin: 50px 0 0 70px;
+    margin: 0 0 0 70px;
 }
 
 .form-signin {

@@ -19,7 +19,7 @@ module NavigationHelper
     navbar = "<div class='navbar'><div class='navbar-inner'>"
     if current_user
       navbar <<
-        "<div class='brand'>Fisch Survivor</div>
+        "<div class='brand'>J-Fisch Survivor</div>
          <ul class='nav'>" <<
          vertical_divider <<
          button_link(DASHBOARD_BUTTON, "Dashboard", "/dashboard", selected_button) <<
@@ -43,7 +43,7 @@ module NavigationHelper
               { txt: "Sign out", lnk: "/logout", icon: "eject" }]) <<
         "</ul>"
     else
-      navbar << "<div class='brand brandctr'>Fisch Survivor</div>"
+      navbar << "<div class='brand brandctr'>J-Fisch Survivor</div>"
     end
     navbar << "</div></div>"
     return navbar.html_safe
