@@ -1,40 +1,54 @@
-<p id="notice"><%= notice %></p>
+<%= navigationBar(NavigationHelper::ADMIN_NFL_SCHEDULE_BUTTON) %>
 
-<p>
-  <b>Year:</b>
-  <%= @nfl_schedule.year %>
-</p>
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3>Manage NFL Schedule</h3>
+  </div>
+</div>
 
-<p>
-  <b>Week:</b>
-  <%= @nfl_schedule.week %>
-</p>
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h4><%= @nfl_game.away_nfl_team.full_name %> @ <%= @nfl_game.home_nfl_team.full_name %></h4>
+    <%= show_notice_as_alert(notice) %>
+    
+    <form action=<%= "'/nfl_schedule/" + @nfl_game.id.to_s + "'" %> method='post'>
+      <div class='row-fluid'>
+        <div class='span6 center'>
+          <h5>Game Details</h5>
+          <table class='table table-striped table-bordered center'>
+            <tr><td><strong>Year:</strong></td><td><%= @nfl_game.year %></td></tr>
+            <tr><td><strong>Week:</strong></td><td><%= @nfl_game.week %></td></tr>
+            <tr><td><strong>Date:</strong></td>
+                <td><%= @nfl_game.start_time.time.localtime.strftime("%m/%d/%Y") %></td></tr>
+            <tr><td><strong>Time:</strong></td>
+                <td><%= @nfl_game.start_time.time.localtime.strftime("%I:%M %p %Z") %></td></tr>
+          </table>
+        </div>
+        <div class='span6 center'>
+          <h5>Results</h5>
+          <table class='table table-striped table-bordered center'>
+            <thead><tr><th>Team</th><th>Score</th></tr></thead>
+            <tr>
+              <td><strong><%= @nfl_game.away_nfl_team.full_name %></strong></td>
+              <td><input type='number' name='away_score' min='0'
+                   value=<%= @nfl_game.away_score.nil? ? "''" : "'" + @nfl_game.away_score.to_s + "'" %>
+                   required></td>
+            </tr>
+            <tr>
+              <td><strong><%= @nfl_game.home_nfl_team.full_name %></strong></td>
+              <td><input type='number' name='home_score' min='0'
+                   value=<%= @nfl_game.home_score.nil? ? "''" : "'" + @nfl_game.home_score.to_s + "'" %>
+                   required></td>
+            </tr>
+          </table>
+        </div>
+      </div>
 
-<p>
-  <b>Home nfl team:</b>
-  <%= @nfl_schedule.home_nfl_team %>
-</p>
-
-<p>
-  <b>Away nfl team:</b>
-  <%= @nfl_schedule.away_nfl_team %>
-</p>
-
-<p>
-  <b>Start time:</b>
-  <%= @nfl_schedule.start_time %>
-</p>
-
-<p>
-  <b>Home score:</b>
-  <%= @nfl_schedule.home_score %>
-</p>
-
-<p>
-  <b>Away score:</b>
-  <%= @nfl_schedule.away_score %>
-</p>
-
-
-<%= link_to 'Edit', edit_nfl_schedule_path(@nfl_schedule) %> |
-<%= link_to 'Back', nfl_schedules_path %>
+      <p class='center'>
+        <button class='btn btn-primary' name='save'>Update Score</button>
+        <button class='btn' name='cancel'>Cancel</button>
+        <a href='/nfl_schedule' class='btn btn-inverse'>Back to Schedule</a>
+      </p>
+    </form>
+  </div>
+</div>

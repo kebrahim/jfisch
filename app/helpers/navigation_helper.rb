@@ -33,7 +33,7 @@ module NavigationHelper
          # TODO only show Admin dropdown for admin users
          drop_down("Admin", selected_button,
              [{ btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" },
-              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedules" }]) <<
+              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" }]) <<
         "</ul>" <<
         "<ul class='nav pull-right'>" <<
          vertical_divider <<

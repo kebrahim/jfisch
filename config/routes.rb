@@ -14,6 +14,9 @@ Jfisch::Application.routes.draw do
   resources :survivor_bets
 
   resources :nfl_schedules
+  get 'nfl_schedule' => 'nfl_schedules#index'
+  get '/nfl_schedule/:id(.:format)' => 'nfl_schedules#show'
+  post '/nfl_schedule/:id(.:format)' => 'nfl_schedules#update'
 
   resources :nfl_teams
 

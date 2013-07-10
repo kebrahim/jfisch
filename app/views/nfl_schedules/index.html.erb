@@ -1,5 +1,5 @@
 
-<%= navigationBar(NavigationHelper::ADMIN_NFL_TEAMS_BUTTON) %>
+<%= navigationBar(NavigationHelper::ADMIN_NFL_SCHEDULE_BUTTON) %>
 
 <div class='row-fluid'><div class='span12 center'>
 <h3>Manage NFL Schedule</h3>
@@ -10,35 +10,31 @@
     <th>Week</th>
     <th>Date</th>
     <th>Time</th>
-    <th>Home nfl team</th>
-    <th>Away nfl team</th>
-    <th>Home score</th>
-    <th>Away score</th>
-    <th></th>
-    <th></th>
+    <th>Home Team</th>
+    <th>Home Score</th>
+    <th>Away Team</th>
+    <th>Away Score</th>
     <th></th>
   </tr></thead>
 
-<% @nfl_schedules.each do |nfl_schedule| %>
+<% @nfl_games.each do |nfl_game| %>
   <tr>
-    <td><%= nfl_schedule.year %></td>
-    <td><%= nfl_schedule.week %></td>
-    <td><%= nfl_schedule.start_time.time.localtime.strftime("%m/%d/%Y") %></td>
-    <td><%= nfl_schedule.start_time.time.localtime.strftime("%I:%M %p %Z") %></td>
-    <td><%= nfl_schedule.home_nfl_team.abbreviation %></td>
-    <td><%= nfl_schedule.away_nfl_team.abbreviation %></td>
-    <td><%= nfl_schedule.home_score %></td>
-    <td><%= nfl_schedule.away_score %></td>
-    <td><%= link_to 'Show', nfl_schedule %></td>
-    <td><%= link_to 'Edit', edit_nfl_schedule_path(nfl_schedule) %></td>
-    <td><%= link_to 'Destroy', nfl_schedule, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td><%= nfl_game.year %></td>
+    <td><%= nfl_game.week %></td>
+    <td><%= nfl_game.start_time.time.localtime.strftime("%m/%d/%Y") %></td>
+    <td><%= nfl_game.start_time.time.localtime.strftime("%I:%M %p %Z") %></td>
+    <td><%= nfl_game.home_nfl_team.abbreviation %></td>
+    <td><%= nfl_game.home_score %></td>
+    <td><%= nfl_game.away_nfl_team.abbreviation %></td>
+    <td><%= nfl_game.away_score %></td>
+    <td><%= link_to 'Update Score', '/nfl_schedule/' + nfl_game.id.to_s %></td>
   </tr>
 <% end %>
 </table>
 
 <br />
 
-<%= link_to 'Create NFL schedule', new_nfl_schedule_path %>
+<%= link_to 'Create New Matchup', new_nfl_schedule_path, class: 'btn btn-primary' %>
 
 <br/><br/>
 </div></div>
