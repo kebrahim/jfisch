@@ -150,6 +150,8 @@ module SurvivorEntriesHelper
     # TODO if entry is dead, show read-only
     # TODO indicate where auto-pick was used
     game_type = SurvivorEntry.name_to_game_type(game_type_name)
+    selected_team_ids = selector_to_bet_map.values.map { |bet| bet.nfl_team_id }
+
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
         # TODO if selected game has already started, lock it.
@@ -160,19 +162,23 @@ module SurvivorEntriesHelper
                             <option value=0></option>"
         existing_bet = selector_to_bet_map[SurvivorBet.bet_selector(week, bet_number)]
         nfl_teams_map.values.each { |nfl_team|
-      	  # Only allow team to be selected if it has a game during that week.
+      	  # Only allow team to be selected if it has a game during that week, and it has not already
+      	  # been selected in a different week.
       	  team_game = week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
       	  if !team_game.nil?
-            entry_html << "<option "
+      	  	is_selected_team = !existing_bet.nil? && (existing_bet.nfl_team_id == nfl_team.id)
+      	  	if is_selected_team || !selected_team_ids.include?(nfl_team.id)
+              entry_html << "<option "
             
-            # show bet is selected if bet already exists
-            if !existing_bet.nil? && existing_bet.nfl_team_id == nfl_team.id
-              entry_html << "selected "
-            end
+              # show bet is selected if bet already exists
+              if is_selected_team
+                entry_html << "selected "
+              end
 
-            # dropdown shows name of NFL team
-            entry_html << "value=" + nfl_team.id.to_s + ">" +
-                          nfl_team.full_name + "</option>"
+              # dropdown shows name of NFL team
+              entry_html << "value=" + nfl_team.id.to_s + ">" +
+                            nfl_team.full_name + "</option>"
+            end
           end
         }
         entry_html <<      "</select></td>

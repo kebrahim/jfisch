@@ -156,8 +156,7 @@ class SurvivorEntriesController < ApplicationController
       @selector_to_bet_map = build_selector_to_bet_map(
             SurvivorBet.where(survivor_entry_id: @survivor_entry))
       
-      # TODO filter selectable teams that haven't been selected for this entry
-      current_year = Date.today.year     
+      current_year = Date.today.year
       @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
       
