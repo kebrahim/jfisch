@@ -28,4 +28,13 @@ class SurvivorBet < ActiveRecord::Base
       return nil
     end
   end
+
+  # returns the result of the game, according to the view of the selected team
+  def game_result
+    if self.is_correct.nil?
+      return ""
+    end
+    return self.nfl_game.result(nfl_team_id) + " " + self.nfl_game.team_score(nfl_team_id).to_s + 
+           "-" + self.nfl_game.opponent_score(nfl_team_id).to_s
+  end
 end

@@ -64,4 +64,37 @@ class NflSchedule < ActiveRecord::Base
       return nil
     end
   end
+
+  # returns the result of the game (W/L/T), according to the view of the specified team
+  def result(team_id)
+    if self.home_score > self.away_score
+      return team_id == self.home_nfl_team_id ? "W" : "L"
+    elsif self.away_score > self.home_score
+      return team_id == self.away_nfl_team_id ? "W" : "L"
+    else
+      return "T"
+    end
+  end
+
+  # returns the specified team's score in this game
+  def team_score(team_id)
+    if team_id == self.away_nfl_team_id
+      return self.away_score
+    elsif team_id = self.home_nfl_team_id
+      return self.home_score
+    else
+      return nil
+    end
+  end
+
+  # returns the specified team's opponent's score in this game
+  def opponent_score(team_id)
+    if team_id == self.away_nfl_team_id
+      return self.home_score
+    elsif team_id = self.home_nfl_team_id
+      return self.away_score
+    else
+      return nil
+    end
+  end
 end

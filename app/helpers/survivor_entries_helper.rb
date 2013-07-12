@@ -2,7 +2,7 @@ module SurvivorEntriesHelper
 
   TABLE_CLASS = 'table table-striped table-bordered table-condensed center dashboardtable
                  vertmiddle'
-  TABLE_DASH_CLASS = 'table table-dash-striped table-bordered table-condensed center dashboardtable
+  TABLE_STRIPED_CLASS = 'table table-dash-striped table-bordered table-condensed center dashboardtable
                  vertmiddle'
 
   # Displays the currently selected entries for the specified game_type, as well as allows the user
@@ -63,7 +63,10 @@ module SurvivorEntriesHelper
   # Displays all bets for all entries for a specific game type
   def entries_bet_display(game_type, type_to_entry_map, entry_to_bets_map, span_size)
     entries_html = "<div class='span" + span_size.to_s + " center survivorspan'>
-                      <h4>" + SurvivorEntry.game_type_title(game_type) + "</h4>"
+                      <h4>" + link_to(SurvivorEntry.game_type_title(game_type),
+                      	              "/" + game_type.to_s,
+                      	              class: 'btn-link-black') +
+                     "</h4>"
     
     # Show all bets, separated by entries
     current_entries = type_to_entry_map[game_type]
@@ -91,7 +94,7 @@ module SurvivorEntriesHelper
                           "</h5>"
 
         # Show all bets for the entry
-        entries_html << "<table class='" + TABLE_DASH_CLASS + "'>
+        entries_html << "<table class='" + TABLE_STRIPED_CLASS + "'>
                            <thead><tr>
                              <th>Week</th>
                              <th>Team</th>
@@ -106,7 +109,11 @@ module SurvivorEntriesHelper
             end
             entries_html <<     ">
                                <td>" + bet.nfl_game.week.to_s + "</td>
-                               <td>" + bet.nfl_team.abbreviation + "</td>
+                               <td"
+            if !bet.is_correct.nil?
+              entries_html << " title='" + bet.game_result + "'"
+            end
+            entries_html <<       ">" + bet.nfl_team.abbreviation + "</td>
                              </tr>"
           }
         end
@@ -150,8 +157,8 @@ module SurvivorEntriesHelper
 
   # shows the table of the specified array of bets, allowing the user to change only those which
   # haven't been locked yet.
-  def entry_bets_table(game_type_name, selector_to_bet_map, week_team_to_game_map, nfl_teams_map)
-    entry_html = "<table class='" + TABLE_CLASS + "'>
+  def entry_bets_table(survivor_entry, selector_to_bet_map, week_team_to_game_map, nfl_teams_map)
+    entry_html = "<table class='" + TABLE_STRIPED_CLASS + "'>
                     <thead><tr>
                       <th>Week</th>
                       <th>Selected Team</th>
@@ -159,42 +166,34 @@ module SurvivorEntriesHelper
                       <th>Result</th>
                     </tr></thead>"
 
-    # TODO if entry is dead, show read-only
-    game_type = SurvivorEntry.name_to_game_type(game_type_name)
-    selected_team_ids = selector_to_bet_map.values.map { |bet| bet.nfl_team_id }
-
+    game_type = survivor_entry.get_game_type
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
-        # TODO if selected game has already started, lock it.
-        entry_html << "<tr>
-                        <td>" + week.to_s + "</td>
-                        <td class='tdselect'>
-                          <select name='" + SurvivorBet.bet_selector(week, bet_number) + "'>
-                            <option value=0></option>"
+        entry_html << "<tr"
         existing_bet = selector_to_bet_map[SurvivorBet.bet_selector(week, bet_number)]
-        nfl_teams_map.values.each { |nfl_team|
-      	  # Only allow team to be selected if it has a game during that week, and it has not already
-      	  # been selected in a different week.
-      	  team_game = week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
-      	  if !team_game.nil?
-      	  	is_selected_team = !existing_bet.nil? && (existing_bet.nfl_team_id == nfl_team.id)
-      	  	if is_selected_team || !selected_team_ids.include?(nfl_team.id)
-              entry_html << "<option "
-            
-              # show bet is selected if bet already exists
-              if is_selected_team
-                entry_html << "selected "
-              end
+        if !existing_bet.nil? && !existing_bet.is_correct.nil?
+          entry_html << " class='" + (existing_bet.is_correct ? "green-row" : "red-row") + "'"
+        elsif !survivor_entry.is_alive
+          entry_html << " class='dead-row'"
+        end
+        entry_html << ">
+                        <td>" + week.to_s + "</td>"
+        
+        # If bet exists & game is complete, show result; otherwise, show dropdown with available
+        # teams
+        # TODO if pick is locked for this week [it's already 1pm on sunday or game has already
+        # started], show as read-only
+        if !existing_bet.nil? && (!existing_bet.is_correct.nil? || !survivor_entry.is_alive)
+          entry_html << "<td>" + existing_bet.nfl_team.full_name + "</td>"
+        elsif !survivor_entry.is_alive
+          entry_html << "<td></td>"
+        else
+          entry_html << get_team_select(week, bet_number, existing_bet, nfl_teams_map,
+        	                            week_team_to_game_map, selector_to_bet_map)
+        end
 
-              # dropdown shows name of NFL team
-              entry_html << "value=" + nfl_team.id.to_s + ">" +
-                            nfl_team.full_name + "</option>"
-            end
-          end
-        }
-        entry_html <<      "</select></td>
-                        <td>"
-        # If bet already exists for this week, show opponent
+        # If bet already exists, show opponent
+        entry_html <<  "<td>"
         if !existing_bet.nil?
           game = week_team_to_game_map[NflSchedule.game_selector(week, existing_bet.nfl_team_id)]
           if !game.nil?
@@ -205,7 +204,12 @@ module SurvivorEntriesHelper
         end
         entry_html <<      "</td>
                         <td>"
-        # TODO if bet already exists and game is complete, show result
+        
+        # If bet already exists and game is complete, show result
+        if !existing_bet.nil? && !existing_bet.is_correct.nil?
+          entry_html << existing_bet.game_result
+        end
+
         entry_html <<      "</td>
                       </tr>"
       }
@@ -213,6 +217,50 @@ module SurvivorEntriesHelper
 
     entry_html << "</table>"
     return entry_html.html_safe
+  end
+
+  # returns the select tag with all of the available nfl teams to select from, marking the team
+  # from the specified existing bet as selected, if it exists
+  def get_team_select(week, bet_number, existing_bet, nfl_teams_map, week_team_to_game_map, 
+  	                  selector_to_bet_map)
+    select_html = "<td class='tdselect'>
+                     <select name='" + SurvivorBet.bet_selector(week, bet_number) + "'>
+                     <option value=0></option>"
+    selected_team_ids = selector_to_bet_map.values.map { |bet| bet.nfl_team_id }                  
+    nfl_teams_map.values.each { |nfl_team|
+      # Only allow team to be selected if it has a game during that week, and it has not already
+      # been selected in a different week.
+      team_game = week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
+      if !team_game.nil?
+        is_selected_team = !existing_bet.nil? && (existing_bet.nfl_team_id == nfl_team.id)
+      	if is_selected_team || !selected_team_ids.include?(nfl_team.id)
+          select_html << "<option "
+            
+          # show bet is selected if bet already exists
+          if is_selected_team
+            select_html << "selected "
+          end
+
+          # dropdown shows name of NFL team
+          select_html << "value=" + nfl_team.id.to_s + ">" + nfl_team.full_name + "</option>"
+        end
+      end
+    }
+    select_html << "</select></td>"
+    return select_html
+  end
+
+  # displays the update picks buttons if the specified entry is still alive
+  def display_update_picks_buttons(survivor_entry)
+    button_html = ""
+    if survivor_entry.is_alive
+      button_html <<
+        "<p class='center'>
+          <button class='btn btn-primary' name='save'>Update Picks</button>
+          <button class='btn' name='cancel'>Cancel</button>
+        </p>"
+    end
+    return button_html.html_safe
   end
 
   # shows the table of all bets for all users, for the specified game type
@@ -255,7 +303,8 @@ module SurvivorEntriesHelper
             bet = bets[SurvivorBet.bet_selector(week, bet_number)]
             if !bet.nil?
               if !bet.is_correct.nil?
-                bets_html << " class='" + (bet.is_correct ? "green-cell" : "red-cell").to_s + "'"  
+                bets_html << " class='" + (bet.is_correct ? "green-cell" : "red-cell").to_s + "'
+                               title='" + bet.game_result + "'"  
               elsif !entry.is_alive
                 bets_html << " class='dead-cell'"
               end
