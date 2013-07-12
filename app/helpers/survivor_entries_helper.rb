@@ -9,7 +9,9 @@ module SurvivorEntriesHelper
   # to update the number of selected entries, if the season has not yet begun.
   def entries_selector(game_type, type_to_entry_map, span_size, before_season)
     entries_html = "<div class='span" + span_size.to_s + " survivorspan center'>
-                      <h4>" + SurvivorEntry.game_type_title(game_type) + "</h4>"
+                      <h4>" + link_to(SurvivorEntry.game_type_title(game_type),
+                      	              "/" + game_type.to_s,
+                      	              class: 'btn-link-black') + "</h4>"
     
     # Show existing entries
     current_entries = type_to_entry_map[game_type]
@@ -58,6 +60,18 @@ module SurvivorEntriesHelper
     end
     entries_html << "</div>"
     return entries_html.html_safe
+  end
+
+  # displays the buttons at the bottom of the my_entries page
+  def entries_buttons(before_season)
+  	buttons_html = "<p class='center'>"
+    if before_season
+      buttons_html << "<button class='btn btn-primary' name='save'>Update Entry Counts</button>
+                       &nbsp&nbsp"
+    end
+    # TODO add button to update bets in bulk
+    buttons_html << "<button class='btn' name='cancel'>Cancel</button></p>"
+    return buttons_html.html_safe
   end
 
   # Displays all bets for all entries for a specific game type

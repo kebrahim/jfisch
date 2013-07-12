@@ -5,9 +5,6 @@ class SurvivorEntriesController < ApplicationController
   def dashboard
     @user = current_user
     if !@user.nil?
-      # TODO set beforeSeason based on start of season [9/5?]
-      @before_season = true
-
       current_year = Date.today.year
       @type_to_entry_map = build_type_to_entry_map(
           SurvivorEntry.where({user_id: @user.id, year: current_year})
@@ -28,8 +25,9 @@ class SurvivorEntriesController < ApplicationController
   def my_entries
     @user = current_user
     if !@user.nil?
-      # TODO before_season depends on start of season [9/5]
-      @before_season = true
+      # before_season depends on start of season
+      @before_season =
+          DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
 
       current_year = Date.today.year
       @type_to_entry_map = build_type_to_entry_map(
