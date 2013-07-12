@@ -79,8 +79,51 @@ table th {background-color: black; color:white;}
 .tdselect select {
 	margin-bottom: 0px;
 }
-.table-striped .my-team-row td {
-  background-color:yellow !important;
+
+.table-dash-striped tbody > tr:nth-child(odd) > td,
+.table-dash-striped tbody > tr:nth-child(odd) > th {
+  background-color: #f9f9f9 !important;
+}
+.table-dash-striped tbody > tr:nth-child(even) > td,
+.table-dash-striped tbody > tr:nth-child(even) > th {
+  background-color: white !important;
+}
+.table-dash-striped tbody > tr.green-row > td {
+  background-color:#DFF0D8 !important;
+}
+.table-dash-striped tbody > tr.red-row > td {
+  background-color:#F2DEDE !important;
+}
+
+.table-striped .my-row td {
+  background-color:#E3F2F9 !important;
+  font-weight: bold;
+}
+
+.table .green-row td {
+  background-color:#DFF0D8 !important;
+  font-weight: bold;
+}
+.table td.green-cell {
+  background-color:#DFF0D8 !important;
+}
+
+.table .red-row td {
+  background-color:#F2DEDE !important;
+  font-weight: bold;
+}
+.table td.red-cell {
+  background-color:#F2DEDE !important;
+}
+
+.table .dead-row td {
+  text-decoration:line-through;
+}
+.table td.dead-cell {
+  text-decoration:line-through;
+}
+.row-fluid [class*="span"] .dead {
+  background-color:#F2DEDE;
 }
 
 /* Labels */

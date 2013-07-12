@@ -2,6 +2,8 @@ module SurvivorEntriesHelper
 
   TABLE_CLASS = 'table table-striped table-bordered table-condensed center dashboardtable
                  vertmiddle'
+  TABLE_DASH_CLASS = 'table table-dash-striped table-bordered table-condensed center dashboardtable
+                 vertmiddle'
 
   # Displays the currently selected entries for the specified game_type, as well as allows the user
   # to update the number of selected entries, if the season has not yet begun.
@@ -78,6 +80,9 @@ module SurvivorEntriesHelper
           entries_html << " offset" + offset_size.to_s
           offset_size = 0
         end
+        if !current_entry.is_alive
+          entries_html << " dead"
+        end
         entries_html << "'><h5>" +
                              link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
                                          current_entry.entry_number.to_s,
@@ -86,14 +91,20 @@ module SurvivorEntriesHelper
                           "</h5>"
 
         # Show all bets for the entry
-        entries_html << "<table class='" + TABLE_CLASS + "'>
+        entries_html << "<table class='" + TABLE_DASH_CLASS + "'>
                            <thead><tr>
                              <th>Week</th>
                              <th>Team</th>
                            </tr></thead>"
         if entry_to_bets_map.has_key?(current_entry.id)
           entry_to_bets_map[current_entry.id].each { |bet|
-            entries_html << "<tr>
+            entries_html << "<tr"
+            if !bet.is_correct.nil?
+              entries_html << " class='" + (bet.is_correct ? "green-row" : "red-row") + "'"
+            elsif !current_entry.is_alive
+              entries_html << " class='dead-row'"
+            end
+            entries_html <<     ">
                                <td>" + bet.nfl_game.week.to_s + "</td>
                                <td>" + bet.nfl_team.abbreviation + "</td>
                              </tr>"
@@ -149,7 +160,6 @@ module SurvivorEntriesHelper
                     </tr></thead>"
 
     # TODO if entry is dead, show read-only
-    # TODO indicate where auto-pick was used
     game_type = SurvivorEntry.name_to_game_type(game_type_name)
     selected_team_ids = selector_to_bet_map.values.map { |bet| bet.nfl_team_id }
 
@@ -206,7 +216,7 @@ module SurvivorEntriesHelper
   end
 
   # shows the table of all bets for all users, for the specified game type
-  def all_bets_table(game_type, entries_by_type, entry_to_bets_map)
+  def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user)
     bets_html = "<table class='" + TABLE_CLASS + "'>
                    <thead>
                      <tr>
@@ -215,25 +225,46 @@ module SurvivorEntriesHelper
                      </tr>
                      <tr>"
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
-      bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" + week.to_s + "</th>"
+      bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" +
+                   week.to_s + "</th>"
     }
     bets_html <<    "</tr>
                    </thead>"
 
     entries_by_type.each { |entry|
-      # TODO highlight logged-in user's entries
-      bets_html << "<tr>
-                      <td>" + entry.user.full_name + " " + entry.entry_number.to_s + "</td>"
+      bets_html << "<tr class='"
+
+      # highlight logged-in user's entries
+      if entry.user_id == logged_in_user.id
+        bets_html << "my-row"
+      end
+      bets_html <<            "'>
+                      <td class='"
+      # if entry is dead, cross out entry name
+      if !entry.is_alive
+        bets_html << "dead-cell red-cell"
+      end
+
+      bets_html << "'>" + entry.user.full_name + " " + entry.entry_number.to_s + "</td>"
       bets = entry_to_bets_map[entry.id]
       1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
         1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
-          # TODO mark bets as correct/incorrect
-          bets_html << "<td>"
+          # Show selected team, marking correct/incorrect, if game is complete.
+          bets_html << "<td"
           if !bets.nil?
             bet = bets[SurvivorBet.bet_selector(week, bet_number)]
             if !bet.nil?
-              bets_html << bet.nfl_team.abbreviation
+              if !bet.is_correct.nil?
+                bets_html << " class='" + (bet.is_correct ? "green-cell" : "red-cell").to_s + "'"  
+              elsif !entry.is_alive
+                bets_html << " class='dead-cell'"
+              end
+              bets_html << ">" + bet.nfl_team.abbreviation
+            else
+              bets_html << ">"
             end
+          else
+            bets_html << ">"
           end
           bets_html << "</td>"
         }
