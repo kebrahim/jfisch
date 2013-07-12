@@ -58,9 +58,27 @@ class NflSchedulesController < ApplicationController
     @nfl_game = NflSchedule.find(params[:id])
     if !params["save"].nil?
       if params["home_score"] != '' && params["away_score"] != ''
+        # TODO wrap in transaction?
         if @nfl_game.update_attributes({ home_score: params["home_score"].to_i, 
                                          away_score: params["away_score"].to_i })
-          # TODO update all bets on this game
+          
+          # update win/loss on all bets in this game
+          bets_on_game = SurvivorBet.includes([:nfl_game, :survivor_entry])
+                                    .where(nfl_game_id: @nfl_game)
+          bets_on_game.each { |bet|
+            has_correct_bet = bet.has_correct_bet
+            if bet.is_correct.nil? || (bet.is_correct != has_correct_bet)
+              bet.update_attribute(:is_correct, has_correct_bet)
+  
+              # update entry's is_alive status if it should change.
+              entry = bet.survivor_entry
+              if entry.is_alive != has_correct_bet
+                entry.update_attribute(:is_alive, has_correct_bet)
+
+                # TODO if bet is incorrect, set knockout week on entry
+              end
+            end
+          }
           confirmation_message = "Score was successfully updated!"
         else
           confirmation_message = "Error occurred while updating score"

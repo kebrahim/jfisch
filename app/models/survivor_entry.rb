@@ -24,6 +24,19 @@ class SurvivorEntry < ActiveRecord::Base
     end
   end
 
+  # Returns the game_type matching this entry's game type name
+  def get_game_type
+    if :survivor.to_s == self.game_type
+      return :survivor
+    elsif :anti_survivor.to_s == self.game_type
+      return :anti_survivor
+    elsif :high_roller.to_s == self.game_type
+      return :high_roller
+    else
+      return nil
+    end
+  end
+
   # Returns the abbreviation of the specified game type.
   def self.game_type_abbreviation(game_type)
     case game_type

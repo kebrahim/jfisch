@@ -40,4 +40,28 @@ class NflSchedule < ActiveRecord::Base
       return nil
     end
   end
+
+  # returns the id of the nfl team that won this matchup, or nil if the score is tied or the score
+  # hasn't been set yet.
+  def winning_nfl_team_id
+    if self.home_score > self.away_score
+      return home_nfl_team_id
+    elsif self.away_score > self.home_score
+      return away_nfl_team_id
+    else
+      return nil
+    end
+  end
+
+  # returns the id of the nfl team that lost this matchup, or nil if the score is tied or the score
+  # hasn't been set yet.
+  def losing_nfl_team_id
+    if self.home_score < self.away_score
+      return home_nfl_team_id
+    elsif self.away_score < self.home_score
+      return away_nfl_team_id
+    else
+      return nil
+    end
+  end
 end
