@@ -3,6 +3,7 @@
 <div class='row-fluid'>
   <div class='span12 center'>
     <h3>Manage <%= @current_year %> Scoring Weeks</h3>
+    <%= show_notice_as_alert(notice) %>
 
     <form action='/weeks' method='post'>
       <table class='table table-striped table-bordered table-condensed center'>
@@ -13,9 +14,12 @@
           </tr>
         </thead>
       <% @weeks.each do |week| %>
-        <tr>
+        <tr class='tdselect'>
           <td><%= week.number %></td>
-          <td><%= week.start_time %></td>
+          <td><input class='input-xlarge center' type='datetime'
+                     name=<%= "'weekstart" + week.number.to_s + "'" %> required 
+                     value=<%= "'" + week.start_time.time.localtime.strftime("%m/%d/%Y %I:%M %p %Z") + "'" %>>
+          </td>
         </tr>
       <% end %>
       </table>
