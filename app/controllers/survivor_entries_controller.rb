@@ -10,7 +10,8 @@ class SurvivorEntriesController < ApplicationController
 
       current_year = Date.today.year
       @type_to_entry_map = build_type_to_entry_map(
-          SurvivorEntry.where({user_id: @user.id, year: current_year}))
+          SurvivorEntry.where({user_id: @user.id, year: current_year})
+                       .order(:game_type, :entry_number))
 
       user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
                              .joins(:survivor_entry)

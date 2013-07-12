@@ -167,6 +167,7 @@ module SurvivorEntriesHelper
                     </tr></thead>"
 
     game_type = survivor_entry.get_game_type
+    week_to_start_time_map = build_week_to_start_time_map
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
         entry_html << "<tr"
@@ -179,13 +180,20 @@ module SurvivorEntriesHelper
         entry_html << ">
                         <td>" + week.to_s + "</td>"
         
+        # if pick is locked for this week [game has already started or week start time has already
+        # passed], show as read-only
+        pick_locked = false
+        if (DateTime.now > week_to_start_time_map[week]) ||
+           (!existing_bet.nil? && (DateTime.now > existing_bet.nfl_game.start_time))
+          pick_locked = true
+        end
+
         # If bet exists & game is complete, show result; otherwise, show dropdown with available
         # teams
-        # TODO if pick is locked for this week [it's already 1pm on sunday or game has already
-        # started], show as read-only
-        if !existing_bet.nil? && (!existing_bet.is_correct.nil? || !survivor_entry.is_alive)
+        if !existing_bet.nil? && 
+            (!existing_bet.is_correct.nil? || !survivor_entry.is_alive || pick_locked)
           entry_html << "<td>" + existing_bet.nfl_team.full_name + "</td>"
-        elsif !survivor_entry.is_alive
+        elsif !survivor_entry.is_alive || pick_locked
           entry_html << "<td></td>"
         else
           entry_html << get_team_select(week, bet_number, existing_bet, nfl_teams_map,
@@ -217,6 +225,15 @@ module SurvivorEntriesHelper
 
     entry_html << "</table>"
     return entry_html.html_safe
+  end
+ 
+  # returns a map of week number to start_time for that week
+  def build_week_to_start_time_map
+  	week_to_start_time_map = {}
+  	Week.where(year: Date.today.year).each { |week|
+  	  week_to_start_time_map[week.number] = week.start_time
+  	}
+  	return week_to_start_time_map
   end
 
   # returns the select tag with all of the available nfl teams to select from, marking the team

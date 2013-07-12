@@ -76,8 +76,11 @@ table th {background-color: black; color:white;}
 	height: 32px;
 	line-height: 28px;
 }
-.tdselect select,input {
+.tdselect select {
 	margin-bottom: 0px !important;
+}
+.tdselect input {
+  margin-bottom: 0px !important;
 }
 
 .table-dash-striped tbody > tr:nth-child(odd) > td,
