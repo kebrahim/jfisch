@@ -372,4 +372,38 @@ class SurvivorEntriesController < ApplicationController
     }
     return entry_to_bets_map
   end
+
+  # GET /all_entries
+  def all_entries
+    # TODO check admin user
+    @user = current_user
+    if @user.nil?
+      redirect_to root_url
+      return
+    end
+
+    @users = User.order(:last_name, :first_name)
+    @current_year = Date.today.year
+    entries = SurvivorEntry.where(year: @current_year)
+    @user_to_entries_count_map = {}
+    init_entry_count_map(@user_to_entries_count_map, 0)
+    entries.each { |entry|
+      if !@user_to_entries_count_map.has_key?(entry.user_id)
+        init_entry_count_map(@user_to_entries_count_map, entry.user_id)
+      end
+      @user_to_entries_count_map[entry.user_id][entry.get_game_type][0] += 1
+      @user_to_entries_count_map[0][entry.get_game_type][0] += 1
+      if entry.is_alive
+        @user_to_entries_count_map[entry.user_id][entry.get_game_type][1] += 1
+        @user_to_entries_count_map[0][entry.get_game_type][1] += 1
+      end
+    }
+  end
+
+  def init_entry_count_map(entry_count_map, user_id)
+    entry_count_map[user_id] = {}
+    entry_count_map[user_id][:survivor] = [0,0]
+    entry_count_map[user_id][:anti_survivor] = [0,0]
+    entry_count_map[user_id][:high_roller] = [0,0]
+  end
 end

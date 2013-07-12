@@ -9,6 +9,7 @@ Jfisch::Application.routes.draw do
   get 'survivor' => 'survivor_entries#survivor'
   get 'anti_survivor' => 'survivor_entries#anti_survivor'
   get 'high_roller' => 'survivor_entries#high_roller'
+  get 'all_entries' => 'survivor_entries#all_entries'
 
   # TODO remove unused routes
   resources :survivor_bets

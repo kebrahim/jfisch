@@ -1,0 +1,44 @@
+<%= navigationBar(NavigationHelper::ADMIN_SURVIVOR_ENTRIES_BUTTON) %>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3>Manage <%= @current_year %> Survivor Entries</h3>
+      <!-- TODO change year -->
+	  <table class='table table-striped table-bordered table-condensed center'>
+		<thead>
+		  <tr>
+		    <th rowspan=2>User</th>
+		    <th colspan=2>Survivor</th>
+		    <th colspan=2>Anti-Survivor</th>
+		    <th colspan=2>High-Roller</th>
+		  </tr>
+		  <tr>
+		    <th>Total</th><th>Alive</th>
+		    <th>Total</th><th>Alive</th>
+		    <th>Total</th><th>Alive</th>
+		  </tr>
+		</thead>
+
+		<% @users.each do |user| %>
+		  <tr>
+		    <td><%= user.full_name %></td>
+		    <td><%= @user_to_entries_count_map[user.id][:survivor][0] %></td>
+		    <td><%= @user_to_entries_count_map[user.id][:survivor][1] %></td>
+		    <td><%= @user_to_entries_count_map[user.id][:anti_survivor][0] %></td>
+		    <td><%= @user_to_entries_count_map[user.id][:anti_survivor][1] %></td>
+		    <td><%= @user_to_entries_count_map[user.id][:high_roller][0] %></td>
+		    <td><%= @user_to_entries_count_map[user.id][:high_roller][1] %></td>
+		  </tr>
+		<% end %>
+		<tr>
+		  <td><strong>Totals</strong></td>
+		  <td><strong><%= @user_to_entries_count_map[0][:survivor][0] %></strong></td>
+		  <td><strong><%= @user_to_entries_count_map[0][:survivor][1] %></strong></td>
+		  <td><strong><%= @user_to_entries_count_map[0][:anti_survivor][0] %></strong></td>
+		  <td><strong><%= @user_to_entries_count_map[0][:anti_survivor][1] %></strong></td>
+		  <td><strong><%= @user_to_entries_count_map[0][:high_roller][0] %></strong></td>
+		  <td><strong><%= @user_to_entries_count_map[0][:high_roller][1] %></strong></td>
+		</tr>
+	  </table>
+  </div>
+</div>
