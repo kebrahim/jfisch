@@ -30,6 +30,10 @@ Jfisch::Application.routes.draw do
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'profile' => 'users#profile'
 
+  # weeks
+  get 'weeks' => 'weeks#index'
+  post 'weeks' => 'weeks#update'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

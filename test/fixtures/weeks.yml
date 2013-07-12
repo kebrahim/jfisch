@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  year: 1
+  number: 1
+  start_time: 2013-07-12 15:53:02
+
+two:
+  year: 1
+  number: 1
+  start_time: 2013-07-12 15:53:02

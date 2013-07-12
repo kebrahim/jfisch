@@ -1,0 +1,28 @@
+<%= navigationBar(NavigationHelper::ADMIN_SURVIVOR_ENTRIES_BUTTON) %>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3>Manage <%= @current_year %> Scoring Weeks</h3>
+
+    <form action='/weeks' method='post'>
+      <table class='table table-striped table-bordered table-condensed center'>
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Start time</th>
+          </tr>
+        </thead>
+      <% @weeks.each do |week| %>
+        <tr>
+          <td><%= week.number %></td>
+          <td><%= week.start_time %></td>
+        </tr>
+      <% end %>
+      </table>
+      <p class='center'>
+        <button class='btn btn-primary' name='save'>Update Weeks</button>
+        <button class='btn' name='cancel'>Cancel</button>
+      </p>
+    </form>
+  </div>
+</div>
