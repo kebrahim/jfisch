@@ -175,7 +175,8 @@ class SurvivorEntriesController < ApplicationController
       current_year = Date.today.year
       @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
-      
+      @week_to_start_time_map = build_week_to_start_time_map
+
       respond_to do |format|
         format.html # show.html.erb
         format.json { render json: @survivor_entry }
@@ -212,6 +213,15 @@ class SurvivorEntriesController < ApplicationController
       week_team_to_game_map[game.away_selector] = game
     }
     return week_team_to_game_map
+  end
+ 
+  # returns a map of week number to start_time for that week
+  def build_week_to_start_time_map
+    week_to_start_time_map = {}
+    Week.where(year: Date.today.year).each { |week|
+      week_to_start_time_map[week.number] = week.start_time
+    }
+    return week_to_start_time_map
   end
 
   # POST /save_entry_bets
@@ -314,6 +324,7 @@ class SurvivorEntriesController < ApplicationController
     if !@user.nil?
       @entries_by_type = get_entries_by_type(:survivor)
       @entry_to_bets_map = get_bets_map_by_type(:survivor)
+      @current_week = get_current_week
     else
       redirect_to root_url
     end
@@ -325,6 +336,7 @@ class SurvivorEntriesController < ApplicationController
     if !@user.nil?
       @entries_by_type = get_entries_by_type(:anti_survivor)
       @entry_to_bets_map = get_bets_map_by_type(:anti_survivor)
+      @current_week = get_current_week
     else
       redirect_to root_url
     end
@@ -336,6 +348,7 @@ class SurvivorEntriesController < ApplicationController
     if !@user.nil?
       @entries_by_type = get_entries_by_type(:high_roller)
       @entry_to_bets_map = get_bets_map_by_type(:high_roller)
+      @current_week = get_current_week
     else
       redirect_to root_url
     end
@@ -371,6 +384,19 @@ class SurvivorEntriesController < ApplicationController
       entry_to_bets_map[bet.survivor_entry_id][bet.selector] = bet
     }
     return entry_to_bets_map
+  end
+
+  # returns the current week based on the weeks' start times
+  def get_current_week
+    weeks = Week.where(year: Date.today.year)
+                .order(:number)
+    now = DateTime.now
+    weeks.each { |week|
+      if now < week.start_time
+        return (week.number - 1)
+      end
+    }
+    return weeks.last.number
   end
 
   # GET /all_entries

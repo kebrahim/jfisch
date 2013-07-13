@@ -171,7 +171,8 @@ module SurvivorEntriesHelper
 
   # shows the table of the specified array of bets, allowing the user to change only those which
   # haven't been locked yet.
-  def entry_bets_table(survivor_entry, selector_to_bet_map, week_team_to_game_map, nfl_teams_map)
+  def entry_bets_table(survivor_entry, selector_to_bet_map, week_team_to_game_map, nfl_teams_map,
+  	                   week_to_start_time_map)
     entry_html = "<table class='" + TABLE_STRIPED_CLASS + "'>
                     <thead><tr>
                       <th>Week</th>
@@ -181,7 +182,6 @@ module SurvivorEntriesHelper
                     </tr></thead>"
 
     game_type = survivor_entry.get_game_type
-    week_to_start_time_map = build_week_to_start_time_map
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
         entry_html << "<tr"
@@ -240,15 +240,6 @@ module SurvivorEntriesHelper
     entry_html << "</table>"
     return entry_html.html_safe
   end
- 
-  # returns a map of week number to start_time for that week
-  def build_week_to_start_time_map
-  	week_to_start_time_map = {}
-  	Week.where(year: Date.today.year).each { |week|
-  	  week_to_start_time_map[week.number] = week.start_time
-  	}
-  	return week_to_start_time_map
-  end
 
   # returns the select tag with all of the available nfl teams to select from, marking the team
   # from the specified existing bet as selected, if it exists
@@ -295,15 +286,18 @@ module SurvivorEntriesHelper
   end
 
   # shows the table of all bets for all users, for the specified game type
-  def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user)
+  def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user, current_week)
     bets_html = "<table class='" + TABLE_CLASS + "'>
                    <thead>
                      <tr>
-                       <th rowspan='2'>Entry</th>
-                       <th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>
-                     </tr>
+                       <th rowspan='2'>Entry</th>"
+    if current_week > 0
+      bets_html << "<th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
+    end
+    bets_html <<    "</tr>
                      <tr>"
-    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+    # Show bets for all weeks up to the current week.
+    1.upto(current_week) { |week|
       bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" +
                    week.to_s + "</th>"
     }
@@ -333,7 +327,7 @@ module SurvivorEntriesHelper
       end
       bets_html << "</td>"
       bets = entry_to_bets_map[entry.id]
-      1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+      1.upto(current_week) { |week|
         1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
           # Show selected team, marking correct/incorrect, if game is complete.
           bets_html << "<td"
