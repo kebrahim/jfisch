@@ -137,8 +137,11 @@ label {
 .btn-primary, .btn-danger, .btn-inverse, .btn-warning {color:white !important; }
 
 .nexttoh1 {
-  height:62px; 
+  height:62px;
   line-height:58px;
+}
+.nexttoh1 a {
+  font-size: 12px;
 }
 
 /* images */

@@ -324,7 +324,14 @@ module SurvivorEntriesHelper
         bets_html << "dead-cell red-cell"
       end
 
-      bets_html << "'>" + entry.user.full_name + " " + entry.entry_number.to_s + "</td>"
+      bets_html << "'>"
+      if entry.user_id == logged_in_user.id
+      	bets_html << link_to((entry.user.full_name + " " + entry.entry_number.to_s),
+      	        "/survivor_entries/" + entry.id.to_s)
+      else
+      	bets_html << entry.user.full_name + " " + entry.entry_number.to_s
+      end
+      bets_html << "</td>"
       bets = entry_to_bets_map[entry.id]
       1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
         1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
