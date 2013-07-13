@@ -47,4 +47,34 @@ class WeeksController < ApplicationController
     end
     redirect_to "/weeks", notice: confirmation_message
   end
+
+  # GET /survivor/week/:id
+  def survivor
+    @user = current_user
+    if @user.nil?
+      redirect_to root_url
+      return
+    end
+    # TODO only let user see weeks that have completed
+    # TODO show whether teams won/lost, including totals
+    # TODO add support for anti, highroll
+    @week = Week.where(number: params[:id].to_i).first
+    @team_map = build_team_map
+    @team_to_bet_counts_map = build_team_to_bet_counts_map(:survivor, @week.number, Date.today.year)
+  end
+
+  def build_team_to_bet_counts_map(game_type, week, year)
+    return SurvivorBet.joins(:survivor_entry)
+                      .where({week: week, :survivor_entries => {year: year, game_type: game_type}})
+                      .group(:nfl_team_id)
+                      .count(:nfl_team_id)
+  end
+
+  def build_team_map
+    team_map = {}
+    NflTeam.all.each { |team|
+      team_map[team.id] = team
+    }
+    return team_map
+  end
 end

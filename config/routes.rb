@@ -33,6 +33,9 @@ Jfisch::Application.routes.draw do
   # weeks
   get 'weeks' => 'weeks#index'
   post 'weeks' => 'weeks#update'
+  get '/survivor/week/:id(.:format)' => 'weeks#survivor'
+  get '/anti_survivor/week/:id(.:format)' => 'weeks#anti_survivor'
+  get '/high_roller/week/:id(.:format)' => 'weeks#high_roller'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
