@@ -352,4 +352,43 @@ module SurvivorEntriesHelper
     bets_html << "</table>"
     return bets_html.html_safe
   end
+
+  # returns a table of stats for the specified game_type, including the total alive, eliminated
+  # and remaining entries in each week.
+  def entry_stats_table(game_type, week_to_entry_stats_map, current_week)
+    stats_html = "<h4>Entry Stats</h4>
+                 <table class='" + ApplicationHelper::TABLE_CLASS + "'>
+                   <thead>
+                     <tr>
+                       <th rowspan=2>Stat</th>"
+    if current_week > 0
+      stats_html << "<th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
+    end
+    stats_html <<   "</tr><tr>"
+    1.upto(current_week) { |week|
+      stats_html << "<th>" + week.to_s + "</th>"
+    }
+    stats_html <<   "</thead>"
+
+    stats_html << "<tr><td class='rightborderme'>Total Entries</td>"
+    1.upto(current_week) { |week|
+      stats_html << "<td>" + week_to_entry_stats_map[week]["alive"].to_s + "</td>"
+    }
+    
+    stats_html << "</tr>
+                   <tr><td class='rightborderme'>Eliminated Entries</td>"
+    1.upto(current_week) { |week|
+      stats_html << "<td>" + week_to_entry_stats_map[week]["elim"].to_s + "</td>"
+    }
+
+    stats_html << "</tr>
+                   <tr><td class='rightborderme'>Remaining Entries</td>"
+    1.upto(current_week) { |week|
+      stats_html << "<td>" + (week_to_entry_stats_map[week]["alive"] -
+                              week_to_entry_stats_map[week]["elim"]).to_s + "</td>"
+    }
+
+    stats_html << "</tr></table>"
+    return stats_html.html_safe
+  end
 end

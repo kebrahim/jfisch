@@ -366,6 +366,7 @@ class SurvivorEntriesController < ApplicationController
     @entries_by_type = get_entries_by_type(game_type)
     @entry_to_bets_map = get_bets_map_by_type(game_type)
     @current_week = get_current_week
+    @week_to_entry_stats_map = build_week_to_entry_stats_map(@entries_by_type, @current_week)
   end
 
   # returns the survivor entries of the specified type
@@ -415,6 +416,29 @@ class SurvivorEntriesController < ApplicationController
       end
     }
     return weeks.last.number
+  end
+
+  # returns a map of week (up to the specified current week) to another hash, including stats for
+  # total entries alive during that week & number of entries eliminated during that week.
+  def build_week_to_entry_stats_map(entries_by_type, current_week)
+    week_to_entry_stats_map = {}
+    1.upto(current_week) { |week|
+      week_to_entry_stats_map[week] = {}
+      week_to_entry_stats_map[week]["alive"] = 0
+      week_to_entry_stats_map[week]["elim"] = 0
+    }
+
+    entries_by_type.each { |entry|
+      1.upto(current_week) { |week|
+        if entry.is_alive || entry.knockout_week >= week
+          week_to_entry_stats_map[week]["alive"] += 1
+        end
+        if entry.knockout_week == week
+          week_to_entry_stats_map[week]["elim"] += 1
+        end
+      }
+    }
+    return week_to_entry_stats_map
   end
 
   # GET /all_entries
