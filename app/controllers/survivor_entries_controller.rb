@@ -356,11 +356,11 @@ class SurvivorEntriesController < ApplicationController
 
   # returns the survivor entries of the specified type
   def get_entries_by_type(game_type)
-    # TODO sort by the week when entry was knocked out
     return SurvivorEntry.includes(:user)
                         .joins(:user)
                         .where({year: Date.today.year, game_type: game_type})
-                        .order("users.last_name, users.first_name, survivor_entries.entry_number")
+                        .order("survivor_entries.knockout_week DESC, users.last_name,
+                                users.first_name, survivor_entries.entry_number")
   end
 
   # returns the survivor bets of the specified type, in a map of entry to bet

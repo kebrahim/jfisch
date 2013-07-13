@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130712195302) do
+ActiveRecord::Schema.define(:version => 20130713003755) do
 
   create_table "nfl_schedules", :force => true do |t|
     t.integer  "year"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(:version => 20130712195302) do
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
     t.integer  "entry_number"
+    t.integer  "knockout_week"
   end
 
   add_index "survivor_entries", ["user_id", "year", "game_type", "entry_number"], :name => "survivor_entries_user_year_type_num_uq", :unique => true

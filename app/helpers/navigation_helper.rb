@@ -9,9 +9,11 @@ module NavigationHelper
   HIGH_ROLLER_GAME_BUTTON = "HIGH_ROLLER_GAME_BUTTON"
 
   # Admin buttons
-  ADMIN_NFL_TEAMS_BUTTON = "ADMIN_NFL_TEAMS_BUTTON"
   ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
   ADMIN_SURVIVOR_ENTRIES_BUTTON = "ADMIN_SURVIVOR_ENTRIES_BUTTON"
+
+  # TODO Super-admin buttons
+  ADMIN_NFL_TEAMS_BUTTON = "ADMIN_NFL_TEAMS_BUTTON"
   ADMIN_SCORING_WEEKS_BUTTON = "ADMIN_SCORING_WEEKS_BUTTON"
 
   # User buttons
@@ -34,9 +36,10 @@ module NavigationHelper
               { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/high_roller" }]) <<
          # TODO only show Admin dropdown for admin users
          drop_down("Admin", selected_button,
-             [{ btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" },
+             [{ btn: ADMIN_SURVIVOR_ENTRIES_BUTTON, txt: "All Entries", lnk: "/all_entries" },
               { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" },
-              { btn: ADMIN_SURVIVOR_ENTRIES_BUTTON, txt: "All Entries", lnk: "/all_entries" },
+              { type: "divider" },
+              { btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" },
               { btn: ADMIN_SCORING_WEEKS_BUTTON, txt: "Scoring Weeks", lnk: "/weeks" }]) <<
         "</ul>" <<
         "<ul class='nav pull-right'>" <<

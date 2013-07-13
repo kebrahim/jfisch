@@ -58,31 +58,48 @@ class NflSchedulesController < ApplicationController
     @nfl_game = NflSchedule.find(params[:id])
     if !params["save"].nil?
       if params["home_score"] != '' && params["away_score"] != ''
-        # TODO wrap in transaction?
-        if @nfl_game.update_attributes({ home_score: params["home_score"].to_i, 
-                                         away_score: params["away_score"].to_i })
-          
-          # update win/loss on all bets in this game
-          bets_on_game = SurvivorBet.includes([:nfl_game, :survivor_entry])
-                                    .where(nfl_game_id: @nfl_game)
-          bets_on_game.each { |bet|
-            has_correct_bet = bet.has_correct_bet
-            if bet.is_correct.nil? || (bet.is_correct != has_correct_bet)
-              bet.update_attribute(:is_correct, has_correct_bet)
-  
-              # update entry's is_alive status if it should change.
-              entry = bet.survivor_entry
-              if entry.is_alive != has_correct_bet
-                entry.update_attribute(:is_alive, has_correct_bet)
+        confirmation_message = ""
+        SurvivorBet.transaction do 
+          begin
+            if @nfl_game.update_attributes({ home_score: params["home_score"].to_i, 
+                                             away_score: params["away_score"].to_i })
+              
+              # update win/loss on all bets in this game
+              bets_on_game = SurvivorBet.includes([:nfl_game, :survivor_entry])
+                                        .where(nfl_game_id: @nfl_game)
+              bets_on_game.each { |bet|
+                has_correct_bet = bet.has_correct_bet
+                entry = bet.survivor_entry
 
-                # TODO if bet is incorrect, set knockout week on entry
-              end
-            end
-          }
-          confirmation_message = "Score was successfully updated!"
-        else
-          confirmation_message = "Error occurred while updating score"
-        end        
+                # Only update bet's correct status if it has changed values, and the current entry
+                # is alive or this entry was knocked out during this week, and the score is being
+                # corrected.
+                if (bet.is_correct.nil? || (bet.is_correct != has_correct_bet)) &&
+                   (entry.is_alive || (entry.knockout_week == bet.nfl_game.week))
+                  bet.update_attribute(:is_correct, has_correct_bet)
+      
+                  # update entry's is_alive status, if it should change.
+                  if entry.is_alive != has_correct_bet
+                    attributes_to_update = {}
+
+                    # set is_alive status
+                    attributes_to_update[:is_alive] = has_correct_bet
+                    
+                    # set knockout_week
+                    attributes_to_update[:knockout_week] = has_correct_bet ? nil : bet.nfl_game.week
+
+                    entry.update_attributes(attributes_to_update)
+                  end
+                end
+              }
+              confirmation_message = "Score was successfully updated!"
+            else
+              confirmation_message = "Error: Problem occurred while updating score"
+            end   
+          rescue Exception => e
+            confirmation_message = "Error: Problem occurred while updating score"
+          end
+        end     
       else
         confirmation_message = "Error: Both scores are required"
       end
