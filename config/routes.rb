@@ -5,7 +5,10 @@ Jfisch::Application.routes.draw do
   post 'my_entries' => 'survivor_entries#save_entries'
   get 'dashboard' => 'survivor_entries#dashboard'
   post 'save_entry_bets' => 'survivor_entries#save_entry_bets'
+
+  # TODO change to /[game_type]/entry/[entry_number]
   get '/survivor_entries/:id(.:format)' => 'survivor_entries#show'
+
   get 'survivor' => 'survivor_entries#survivor'
   get 'anti_survivor' => 'survivor_entries#anti_survivor'
   get 'high_roller' => 'survivor_entries#high_roller'
@@ -33,6 +36,8 @@ Jfisch::Application.routes.draw do
   # weeks
   get 'weeks' => 'weeks#index'
   post 'weeks' => 'weeks#update'
+
+  # TODO /[game_type]/week -> page to show week breakdowns ajax with week dropdown
   get '/survivor/week/:id(.:format)' => 'weeks#survivor'
   get '/anti_survivor/week/:id(.:format)' => 'weeks#anti_survivor'
   get '/high_roller/week/:id(.:format)' => 'weeks#high_roller'

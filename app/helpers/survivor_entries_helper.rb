@@ -1,10 +1,5 @@
 module SurvivorEntriesHelper
 
-  TABLE_CLASS = 'table table-striped table-bordered table-condensed center dashboardtable
-                 vertmiddle'
-  TABLE_STRIPED_CLASS = 'table table-dash-striped table-bordered table-condensed center dashboardtable
-                 vertmiddle'
-
   # Displays the currently selected entries for the specified game_type, as well as allows the user
   # to update the number of selected entries, if the season has not yet begun.
   def entries_selector(game_type, type_to_entry_map, span_size, before_season)
@@ -108,7 +103,7 @@ module SurvivorEntriesHelper
                           "</h5>"
 
         # Show all bets for the entry
-        entries_html << "<table class='" + TABLE_STRIPED_CLASS + "'>
+        entries_html << "<table class='" + ApplicationHelper::TABLE_STRIPED_CLASS + "'>
                            <thead><tr>
                              <th>Week</th>
                              <th>Team</th>
@@ -173,7 +168,7 @@ module SurvivorEntriesHelper
   # haven't been locked yet.
   def entry_bets_table(survivor_entry, selector_to_bet_map, week_team_to_game_map, nfl_teams_map,
   	                   week_to_start_time_map)
-    entry_html = "<table class='" + TABLE_STRIPED_CLASS + "'>
+    entry_html = "<table class='" + ApplicationHelper::TABLE_STRIPED_CLASS + "'>
                     <thead><tr>
                       <th>Week</th>
                       <th>Selected Team</th>
@@ -287,7 +282,7 @@ module SurvivorEntriesHelper
 
   # shows the table of all bets for all users, for the specified game type
   def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user, current_week)
-    bets_html = "<table class='" + TABLE_CLASS + "'>
+    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
                    <thead>
                      <tr>
                        <th rowspan='2'>Entry</th>"
@@ -312,7 +307,7 @@ module SurvivorEntriesHelper
         bets_html << "my-row"
       end
       bets_html <<            "'>
-                      <td class='"
+                      <td class='rightborderme "
       # if entry is dead, cross out entry name
       if !entry.is_alive
         bets_html << "dead-cell red-cell"

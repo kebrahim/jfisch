@@ -123,6 +123,20 @@ table th {background-color: black; color:white;}
 .table td.dead-cell {
   text-decoration:line-through;
 }
+
+.table .bold-row td {
+  font-weight: bold;
+}
+.table td.topborderme {
+  border-top: thin solid black;
+}
+.table td.leftborderme {
+  border-left: thin solid black;
+}
+.table td.rightborderme {
+  border-right: thin solid black;
+}
+
 .row-fluid [class*="span"] .dead {
   /*background-color:#F2DEDE;*/
 }
