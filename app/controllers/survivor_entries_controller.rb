@@ -325,37 +325,47 @@ class SurvivorEntriesController < ApplicationController
   # GET /survivor
   def survivor
     @user = current_user
-    if !@user.nil?
-      @entries_by_type = get_entries_by_type(:survivor)
-      @entry_to_bets_map = get_bets_map_by_type(:survivor)
-      @current_week = get_current_week
-    else
+    if @user.nil?
       redirect_to root_url
+      return
     end
+
+    @game_type = :survivor
+    load_entries_data(@game_type)
+    render "game_type"
   end
 
   # GET /anti_survivor
   def anti_survivor
     @user = current_user
-    if !@user.nil?
-      @entries_by_type = get_entries_by_type(:anti_survivor)
-      @entry_to_bets_map = get_bets_map_by_type(:anti_survivor)
-      @current_week = get_current_week
-    else
+    if @user.nil?
       redirect_to root_url
+      return
     end
+
+    @game_type = :anti_survivor
+    load_entries_data(@game_type)
+    render "game_type"
   end
 
   # GET /high_roller
   def high_roller
     @user = current_user
-    if !@user.nil?
-      @entries_by_type = get_entries_by_type(:high_roller)
-      @entry_to_bets_map = get_bets_map_by_type(:high_roller)
-      @current_week = get_current_week
-    else
+    if @user.nil?
       redirect_to root_url
+      return
     end
+
+    @game_type = :high_roller
+    load_entries_data(@game_type)
+    render "game_type"
+  end
+
+  # loads the survivor entry data for the game breakdown by the specified game_type
+  def load_entries_data(game_type)
+    @entries_by_type = get_entries_by_type(game_type)
+    @entry_to_bets_map = get_bets_map_by_type(game_type)
+    @current_week = get_current_week
   end
 
   # returns the survivor entries of the specified type

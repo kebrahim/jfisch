@@ -282,7 +282,8 @@ module SurvivorEntriesHelper
 
   # shows the table of all bets for all users, for the specified game type
   def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user, current_week)
-    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
+    bets_html = "<h4>Entry Breakdown</h4>
+                 <table class='" + ApplicationHelper::TABLE_CLASS + "'>
                    <thead>
                      <tr>
                        <th rowspan='2'>Entry</th>"

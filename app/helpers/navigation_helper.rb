@@ -19,6 +19,9 @@ module NavigationHelper
   # User buttons
   EDIT_PROFILE_BUTTON = "EDIT_PROFILE_BUTTON"
 
+  GAME_BUTTON_MAP = { survivor: SURVIVOR_GAME_BUTTON, anti_survivor: ANTI_GAME_BUTTON, 
+                      high_roller: HIGH_ROLLER_GAME_BUTTON }
+
   def navigationBar(selected_button)
     navbar = "<div class='navbar'><div class='navbar-inner'>"
     if current_user
