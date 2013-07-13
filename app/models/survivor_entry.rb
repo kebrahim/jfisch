@@ -83,4 +83,9 @@ class SurvivorEntry < ActiveRecord::Base
       return 0
     end
   end
+
+  # returns the maximum number of weeks for this entry
+  def max_weeks
+    return SurvivorEntry::MAX_WEEKS_MAP[self.get_game_type]
+  end
 end

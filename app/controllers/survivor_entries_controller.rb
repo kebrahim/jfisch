@@ -176,6 +176,10 @@ class SurvivorEntriesController < ApplicationController
       @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
       @week_to_start_time_map = build_week_to_start_time_map
+      @weeks = Week.where(year: Date.today.year)
+                   .where("number <= (?)", @survivor_entry.max_weeks)
+                   .order(:number)
+      @current_week = get_current_week_from_weeks(@weeks)
 
       respond_to do |format|
         format.html # show.html.erb
@@ -386,10 +390,14 @@ class SurvivorEntriesController < ApplicationController
     return entry_to_bets_map
   end
 
-  # returns the current week based on the weeks' start times
+  # returns the current week of all weeks for the given year
   def get_current_week
-    weeks = Week.where(year: Date.today.year)
-                .order(:number)
+    return get_current_week_from_weeks(Week.where(year: Date.today.year)
+                                           .order(:number))
+  end
+
+  # returns the current week, from the specified array of weeks, based on the weeks' start times
+  def get_current_week_from_weeks(weeks)
     now = DateTime.now
     weeks.each { |week|
       if now < week.start_time

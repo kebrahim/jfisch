@@ -21,6 +21,7 @@ Jfisch::Application.routes.draw do
   get 'nfl_schedule' => 'nfl_schedules#index'
   get '/nfl_schedule/:id(.:format)' => 'nfl_schedules#show'
   post '/nfl_schedule/:id(.:format)' => 'nfl_schedules#update'
+  get '/ajax/nfl_schedule/week/:number' => 'nfl_schedules#ajaxweek'
 
   resources :nfl_teams
 

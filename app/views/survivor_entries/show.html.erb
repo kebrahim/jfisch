@@ -30,8 +30,37 @@
 
   <div class='span5 center'>
     <h4>NFL Schedule</h4>
-    <!-- TODO weekly schedule w/ week dropdown that loads async -->
+    <select id='week_chooser'>
+    <% @weeks.each { |week| %>
+      <option value=<%= week.number %>
+              <%= (week.number == (@current_week + 1) ? "selected" : "") %>>
+        Week <%= week.number %>
+      </option>
+    <% } %>
+    </select>
+    <div id='schedresults'></div>
   </div>
 </div>
-
 </form>
+
+<script type="text/javascript">
+  // Loads the nfl schedule week page asynchronously & populates the schedresults div with the
+  // results
+  function week_schedule_ajax() {
+    $.ajax({
+      url: "/ajax/nfl_schedule/week/" + (document.getElementById("week_chooser").selectedIndex + 1),
+      success: function(data) {
+        $("#schedresults").html(data);
+      }
+    });
+  }
+
+  // On document ready, load the selected week's schedule, and set the selected week's schedule to
+  // be loaded whenever the week selector is changed.
+  $(document).ready(function() {
+    week_schedule_ajax();
+    $("#week_chooser").change(function() {
+      week_schedule_ajax();
+    });
+  });
+</script>

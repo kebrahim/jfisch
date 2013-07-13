@@ -118,4 +118,13 @@ class NflSchedulesController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  # GET /ajax/nfl_schedule/week/:number
+  def ajaxweek
+    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    @games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
+                        .where({year: Date.today.year, week: @week.number})
+                        .order(:start_time)
+    render :layout => "ajax"
+  end
 end
