@@ -46,19 +46,22 @@ class UsersController < ApplicationController
   end
 
   # POST /users
-  # POST /users.json
   def create
     @user = User.new(params[:user])
+    @user.role = :user
 
-    if !params["commit"].nil?
-      respond_to do |format|
-        if @user.save
-          format.html { redirect_to root_url, notice: 'User was successfully created.' }
-          format.json { render json: @user, status: :created, location: @user }
+    if params["commit"]
+      begin
+        if User.find_by_names(@user.first_name, @user.last_name)
+          redirect_to "/sign_up",
+              notice: "Error: That first and last name is already taken. Please try again."
+        elsif @user.save
+          redirect_to root_url, notice: 'User was successfully created.'
         else
-          format.html { render action: "new" }
-          format.json { render json: @user.errors, status: :unprocessable_entity }
+          render action: 'new'
         end
+      rescue Exception => e
+        redirect_to "/sign_up", notice: "Error: Unexpected error occurred: " + e.message
       end
     else
       redirect_to root_url

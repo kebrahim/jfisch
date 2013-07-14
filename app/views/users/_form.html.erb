@@ -18,15 +18,15 @@
         <table class="table vertmiddle table-striped table-condensed table-bordered">
           <tr>
             <td><%= f.label :first_name %></td>
-            <td><%= f.text_field :first_name %></td>
+            <td><%= f.text_field :first_name, :required => true %></td>
           </tr>
           <tr>
             <td><%= f.label :last_name %></td>
-            <td><%= f.text_field :last_name %></td>
+            <td><%= f.text_field :last_name, :required => true %></td>
           </tr>
           <tr>
             <td><%= f.label :email %></td>
-            <td><%= f.text_field :email %></td>
+            <td><%= f.email_field :email, :required => true %></td>
           </tr>
         </table>
       </fieldset>

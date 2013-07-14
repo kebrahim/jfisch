@@ -1,5 +1,9 @@
 class User < ActiveRecord::Base
-  attr_accessible :email, :first_name, :last_name, :password, :password_confirmation
+  extend Enumerize
+
+  attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role
+
+  enumerize :role, in: [:demo, :user, :captain, :admin, :super_admin]
 
   attr_accessor :password
   before_save :encrypt_password
@@ -8,9 +12,10 @@ class User < ActiveRecord::Base
   validates_presence_of :password, :on => :create
   validates_presence_of :password_confirmation, :on => :create
   validates_presence_of :email
-  validates_uniqueness_of :email
-  validates_presence_of :first_name, :on => :create
-  validates_presence_of :last_name, :on => :create
+  validates_uniqueness_of :email, :case_sensitive => false
+  validates_presence_of :first_name
+  validates_presence_of :last_name
+  validates_presence_of :role
 
   def self.authenticate(email, password)
     user = find_by_email(email)
@@ -36,5 +41,11 @@ class User < ActiveRecord::Base
   # Overrides find_by_email to provide case-insensitive search, useful for logging in.
   def self.find_by_email(email)
     User.find(:all, :conditions => ["lower(email) = lower(?)", email]).first
+  end
+
+  # Finds a single user by its first and last names, using case-insensitive search.
+  def self.find_by_names(first_name, last_name)
+    User.find(:all, :conditions => ["lower(first_name) = lower(?) AND lower(last_name) = lower(?)", 
+                                    first_name, last_name]).first
   end
 end

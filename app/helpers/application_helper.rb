@@ -2,8 +2,8 @@ module ApplicationHelper
 
   TABLE_CLASS = 'table table-striped table-bordered table-condensed center dashboardtable
                  vertmiddle'
-  TABLE_STRIPED_CLASS = 'table table-dash-striped table-bordered table-condensed center dashboardtable
-                 vertmiddle'
+  TABLE_STRIPED_CLASS = 'table table-dash-striped table-bordered table-condensed center
+                 dashboardtable vertmiddle'
 
   # Shows the specified notice as an alert and displays it as an error, if the notice string starts
   # with "Error"

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130713003755) do
+ActiveRecord::Schema.define(:version => 20130714163752) do
 
   create_table "nfl_schedules", :force => true do |t|
     t.integer  "year"
@@ -79,9 +79,11 @@ ActiveRecord::Schema.define(:version => 20130713003755) do
     t.string   "password_salt"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.string   "role"
   end
 
   add_index "users", ["email"], :name => "users_email_uq", :unique => true
+  add_index "users", ["first_name", "last_name"], :name => "users_first_last_name_uq", :unique => true
 
   create_table "weeks", :force => true do |t|
     t.integer  "year"
