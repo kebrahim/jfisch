@@ -19,7 +19,6 @@
     <label>Choose week:</label>&nbsp&nbsp
     <select class='input-large' id="week_chooser">
     <% 1.upto(@current_week) { |week| %>
-      <!-- select specified week -->
       <option value=<%= week %>
               <%= week == @current_week ? "selected" : "" %>>
         Week <%= week %>

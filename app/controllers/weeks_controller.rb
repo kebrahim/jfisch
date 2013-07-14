@@ -58,13 +58,13 @@ class WeeksController < ApplicationController
 
     @game_type = :survivor
     @current_week = current_week
-    render "game_type"
+    render "breakdown"
   end
 
   # GET /ajax/survivor/week/:number
   def ajax_survivor
     load_week_breakdown_data(:survivor)
-    render "ajax_game_type", :layout => "ajax"
+    render "ajax_breakdown", :layout => "ajax"
   end
 
   # GET /anti_survivor/week
@@ -77,13 +77,13 @@ class WeeksController < ApplicationController
 
     @game_type = :anti_survivor
     @current_week = current_week
-    render "game_type"
+    render "breakdown"
   end
 
     # GET /ajax/anti_survivor/week/:number
   def ajax_anti_survivor
     load_week_breakdown_data(:anti_survivor)
-    render "ajax_game_type", :layout => "ajax"
+    render "ajax_breakdown", :layout => "ajax"
   end
 
   # GET /high_roller/week
@@ -96,13 +96,13 @@ class WeeksController < ApplicationController
 
     @game_type = :high_roller
     @current_week = current_week
-    render "game_type"
+    render "breakdown"
   end
   
   # GET /ajax/high_roller/week/:number
   def ajax_high_roller
     load_week_breakdown_data(:high_roller)
-    render "ajax_game_type", :layout => "ajax"
+    render "ajax_breakdown", :layout => "ajax"
   end
 
   # loads the data for the week breakdown for the specified game_type

@@ -332,7 +332,7 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :survivor
     load_entries_data(@game_type)
-    render "game_type"
+    render "breakdown"
   end
 
   # GET /anti_survivor
@@ -345,7 +345,7 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :anti_survivor
     load_entries_data(@game_type)
-    render "game_type"
+    render "breakdown"
   end
 
   # GET /high_roller
@@ -358,7 +358,7 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :high_roller
     load_entries_data(@game_type)
-    render "game_type"
+    render "breakdown"
   end
 
   # loads the survivor entry data for the game breakdown by the specified game_type
