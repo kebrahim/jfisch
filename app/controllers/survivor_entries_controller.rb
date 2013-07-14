@@ -69,7 +69,7 @@ class SurvivorEntriesController < ApplicationController
   def save_entries
     @user = current_user
     if !@user.nil?
-      is_updated = false
+      is_updated, has_creates = false
       if params["cancel"].nil?
         current_year = Date.today.year
         type_to_entry_map = build_type_to_entry_map(
@@ -79,11 +79,19 @@ class SurvivorEntriesController < ApplicationController
         is_updated |= update_entries(:survivor, type_to_entry_map, params, current_year)
         is_updated |= update_entries(:anti_survivor, type_to_entry_map, params, current_year)
         is_updated |= update_entries(:high_roller, type_to_entry_map, params, current_year)
+
+        SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
+          existing_entries = type_to_entry_map[game_type]
+          existing_size = existing_entries.nil? ? 0 : existing_entries.size
+          has_creates |= params["game_" + game_type.to_s].to_i > existing_size
+        }
       end
 
       # re-direct user to my_entries page, with confirmation
       if is_updated
-        confirmation_message = "Entry counts successfully updated!"
+        confirmation_message = has_creates ?
+            "Congratulations! Click on an individual entry to start making picks!" :
+            "Entries successfully deleted!"
       end
       redirect_to my_entries_url, notice: confirmation_message
     else
@@ -336,7 +344,7 @@ class SurvivorEntriesController < ApplicationController
   end
 
   # GET /anti_survivor
-  def anti_survivor
+  def anti_s  urvivor
     @user = current_user
     if @user.nil?
       redirect_to root_url

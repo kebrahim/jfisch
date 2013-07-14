@@ -13,13 +13,17 @@
     <%= show_notice_as_alert(notice) %>
     
     <div class='row-fluid'>
-      <!-- Manage span sizes, depending on how many entries per type -->
+      <!-- TODO Manage span sizes, depending on how many entries per type -->
       <%= entries_bet_display(:anti_survivor, @type_to_entry_map, @entry_to_bets_map, 3) %>
       <%= entries_bet_display(:survivor, @type_to_entry_map, @entry_to_bets_map, 6) %>
       <%= entries_bet_display(:high_roller, @type_to_entry_map, @entry_to_bets_map, 3) %>
     </div>
 
     <p>
+      <% if @type_to_entry_map.empty? %>
+        <h5>Welcome to J-Fisch Survivor! Click the button to create some entries!</h5>
+        <img class='img_50_49 finger' src='/assets/downpointer.svg'><br/>
+      <% end %>
       <%= link_to("Manage Entries", "/my_entries", class: 'btn btn-primary') %>
     </p>
   </div>
