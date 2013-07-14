@@ -391,4 +391,55 @@ module SurvivorEntriesHelper
     stats_html << "</tr></table>"
     return stats_html.html_safe
   end
+
+  # displays the all entries table, including number of entries for all the specified users
+  def all_entries_table(users, user_to_entries_count_map)
+    all_entries_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
+                          <thead><tr>
+                            <th rowspan=2>User</th>
+                            <th colspan=2>Survivor</th>
+                            <th colspan=2>Anti-Survivor</th>
+                            <th colspan=2>High-Roller</th>
+                          </tr>
+                          <tr>
+                            <th>Total</th><th>Alive</th>
+                            <th>Total</th><th>Alive</th>
+                            <th>Total</th><th>Alive</th>
+                          </tr></thead>"
+    
+    # number of (total & alive) entries per user
+    users.each { |user|
+      all_entries_html << "<tr><td>" + user.full_name + "</td>"
+      if user_to_entries_count_map.has_key?(user.id)
+        [:survivor, :anti_survivor, :high_roller].each { |game_type|
+          0.upto(1) { |idx|
+            all_entries_html << "<td"
+            all_entries_html << " class='leftborderme'" if idx == 0
+            all_entries_html << ">" + user_to_entries_count_map[user.id][game_type][idx].to_s +
+                                "</td>"
+          }
+        }
+      else
+        0.upto(5) { |idx|
+          all_entries_html << "<td"
+          all_entries_html << " class='leftborderme'" if idx.even?
+          all_entries_html << ">0</td>"
+        }
+      end
+      all_entries_html << "</tr>"
+    }
+
+    # total entries for all users
+    all_entries_html << "<tr class='bold-row'><td class='topborderme'>Totals</td>"
+    [:survivor, :anti_survivor, :high_roller].each { |game_type|
+      0.upto(1) { |idx|
+        all_entries_html << "<td class='topborderme"
+        all_entries_html << " leftborderme" if idx.even?
+        all_entries_html << "'>" + user_to_entries_count_map[0][game_type][idx].to_s + "</td>"
+      }
+    }
+
+    all_entries_html << "</tr></table>"
+    return all_entries_html.html_safe
+  end
 end
