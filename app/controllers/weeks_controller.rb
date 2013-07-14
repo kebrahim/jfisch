@@ -48,7 +48,7 @@ class WeeksController < ApplicationController
     redirect_to "/weeks", notice: confirmation_message
   end
 
-  # GET /survivor/week/:id
+  # GET /survivor/week
   def survivor
     @user = current_user
     if @user.nil?
@@ -56,10 +56,18 @@ class WeeksController < ApplicationController
       return
     end
 
-    load_week_breakdown_data(:survivor)
+    @game_type = :survivor
+    @current_week = current_week
+    render "game_type"
   end
 
-  # GET /anti_survivor/week/:id
+  # GET /ajax/survivor/week/:number
+  def ajax_survivor
+    load_week_breakdown_data(:survivor)
+    render "ajax_game_type", :layout => "ajax"
+  end
+
+  # GET /anti_survivor/week
   def anti_survivor
     @user = current_user
     if @user.nil?
@@ -67,10 +75,18 @@ class WeeksController < ApplicationController
       return
     end
 
-    load_week_breakdown_data(:anti_survivor)
+    @game_type = :anti_survivor
+    @current_week = current_week
+    render "game_type"
   end
 
-  # GET /high_roller/week/:id
+    # GET /ajax/anti_survivor/week/:number
+  def ajax_anti_survivor
+    load_week_breakdown_data(:anti_survivor)
+    render "ajax_game_type", :layout => "ajax"
+  end
+
+  # GET /high_roller/week
   def high_roller
     @user = current_user
     if @user.nil?
@@ -78,7 +94,15 @@ class WeeksController < ApplicationController
       return
     end
 
+    @game_type = :high_roller
+    @current_week = current_week
+    render "game_type"
+  end
+  
+  # GET /ajax/high_roller/week/:number
+  def ajax_high_roller
     load_week_breakdown_data(:high_roller)
+    render "ajax_game_type", :layout => "ajax"
   end
 
   # loads the data for the week breakdown for the specified game_type
@@ -86,7 +110,6 @@ class WeeksController < ApplicationController
     # only let user see weeks that have completed
     @week = Week.where({year: Date.today.year, number: params[:id].to_i}).first
     if @week.nil? || DateTime.now < @week.start_time
-      redirect_to "/" + game_type.to_s
       return
     end
 

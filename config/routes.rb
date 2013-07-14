@@ -38,10 +38,12 @@ Jfisch::Application.routes.draw do
   get 'weeks' => 'weeks#index'
   post 'weeks' => 'weeks#update'
 
-  # TODO /[game_type]/week -> page to show week breakdowns ajax with week dropdown
-  get '/survivor/week/:id(.:format)' => 'weeks#survivor'
-  get '/anti_survivor/week/:id(.:format)' => 'weeks#anti_survivor'
-  get '/high_roller/week/:id(.:format)' => 'weeks#high_roller'
+  get '/survivor/week' => 'weeks#survivor'
+  get '/ajax/survivor/week/:id' => 'weeks#ajax_survivor'
+  get '/anti_survivor/week' => 'weeks#anti_survivor'
+  get '/ajax/anti_survivor/week/:id' => 'weeks#ajax_anti_survivor'
+  get '/high_roller/week' => 'weeks#high_roller'
+  get '/ajax/high_roller/week/:id' => 'weeks#ajax_high_roller'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

@@ -295,7 +295,7 @@ module SurvivorEntriesHelper
     # Show bets for all weeks up to the current week.
     1.upto(current_week) { |week|
       bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" +
-                   link_to(week.to_s, ("/" + game_type.to_s + "/week/" + week.to_s)) + "</th>"
+                   week.to_s + "</th>"
     }
     bets_html <<    "</tr>
                    </thead>"

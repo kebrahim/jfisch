@@ -277,3 +277,11 @@ th > a, td > a#hover {
   color: black !important;
   text-decoration: underline !important;
 }
+
+.chooser {
+  height: 44px;
+  line-height: 40px;
+}
+.chooser select {
+  margin: 0;
+}
