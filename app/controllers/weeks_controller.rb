@@ -4,6 +4,12 @@ class WeeksController < ApplicationController
   # GET /weeks
   # GET /weeks.json
   def index
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_super_admin
+      redirect_to root_url
+      return
+    end
+
     @current_year = Date.today.year
     @weeks = Week.where(year: @current_year).order(:number)
 
@@ -15,14 +21,13 @@ class WeeksController < ApplicationController
 
   # POST /weeks
   def update
-    # TODO check admin user
-    @user = current_user
-    if @user.nil?
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_super_admin
       redirect_to root_url
       return
     end
 
-    # TODO update start times
+    # update start times
     updated_weeks = false
     confirmation_message = ""
     if !params["save"].nil?

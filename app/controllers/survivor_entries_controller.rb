@@ -451,13 +451,12 @@ class SurvivorEntriesController < ApplicationController
 
   # GET /all_entries
   def all_entries
-    # TODO check admin user
-    @user = current_user
-    if @user.nil?
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
       redirect_to root_url
       return
     end
-
+    
     @users = User.order(:last_name, :first_name)
     @current_year = Date.today.year
     entries = SurvivorEntry.where(year: @current_year)

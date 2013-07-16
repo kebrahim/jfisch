@@ -28,6 +28,25 @@
             <td><%= f.label :email %></td>
             <td><%= f.email_field :email, :required => true %></td>
           </tr>
+          <% if @current_user %>
+          <tr>
+            <td><%= f.label :role %></td>
+            <% if @admin_function && @current_user.is_admin && !@user.is_super_admin %>
+              <td class='tdselect'>
+                <select name='user[role]'>
+                  <% User::ASSIGNABLE_ROLES[@current_user.role_type].each { |role| %>
+                    <option value=<%= "'" + role.to_s + "'" %>
+                            <%= @user.role == role .to_s ? "selected" : "" %>>
+                      <%= role.to_s %>
+                    </option>
+                  <% } %>
+                </select>
+              </td>
+            <% else %>
+              <td><%= @user.role %></td>
+            <% end %>
+          </tr>
+          <% end %>
         </table>
       </fieldset>
     </div>
@@ -51,6 +70,9 @@
   <div class="actions">
     <%= f.submit class: 'btn btn-primary' %>&nbsp
     <input class='btn' name='cancel' type='submit' value='Cancel' />
+    <% if @admin_function == true %>
+      <input type=hidden name='admin_fxn' value='' />
+    <% end %>
   </div>
 
 <% end %>

@@ -4,9 +4,8 @@ class NflSchedulesController < ApplicationController
   # GET /nfl_schedules
   # GET /nfl_schedules.json
   def index
-    # TODO check admin user
-    @user = current_user
-    if @user.nil?
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
       redirect_to root_url
       return
     end
@@ -26,9 +25,8 @@ class NflSchedulesController < ApplicationController
   # GET /nfl_schedules/1
   # GET /nfl_schedules/1.json
   def show
-    # TODO check admin user
-    @user = current_user
-    if @user.nil?
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
       redirect_to root_url
       return
     end
@@ -48,9 +46,8 @@ class NflSchedulesController < ApplicationController
 
   # POST /nfl_schedules/1
   def update
-    # TODO check admin user
-    @user = current_user
-    if @user.nil?
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
       redirect_to root_url
       return
     end

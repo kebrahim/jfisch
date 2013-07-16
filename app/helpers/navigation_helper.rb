@@ -11,8 +11,9 @@ module NavigationHelper
   # Admin buttons
   ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
   ADMIN_SURVIVOR_ENTRIES_BUTTON = "ADMIN_SURVIVOR_ENTRIES_BUTTON"
+  ADMIN_USERS_BUTTON = "ADMIN_USERS_BUTTON"
 
-  # TODO Super-admin buttons
+  # Super-admin buttons
   ADMIN_NFL_TEAMS_BUTTON = "ADMIN_NFL_TEAMS_BUTTON"
   ADMIN_SCORING_WEEKS_BUTTON = "ADMIN_SCORING_WEEKS_BUTTON"
 
@@ -30,20 +31,30 @@ module NavigationHelper
          <ul class='nav'>" <<
          vertical_divider <<
          button_link(DASHBOARD_BUTTON, "Dashboard", "/dashboard", selected_button) <<
-         # TODO only show my entries before season begins
          button_link(MY_ENTRIES_BUTTON, "My Entries", "/my_entries", selected_button) <<
          vertical_divider <<
          drop_down("Survivor Games", selected_button, 
              [{ btn: SURVIVOR_GAME_BUTTON, txt: "Survivor", lnk: "/survivor" },
               { btn: ANTI_GAME_BUTTON, txt: "Anti-Survivor", lnk: "/anti_survivor" },
-              { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/high_roller" }]) <<
-         # TODO only show Admin dropdown for admin users
-         drop_down("Admin", selected_button,
-             [{ btn: ADMIN_SURVIVOR_ENTRIES_BUTTON, txt: "All Entries", lnk: "/all_entries" },
-              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" },
-              { type: "divider" },
-              { btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" },
-              { btn: ADMIN_SCORING_WEEKS_BUTTON, txt: "Scoring Weeks", lnk: "/weeks" }]) <<
+              { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/high_roller" }])
+
+      # only show Admin dropdown for admin users
+      if current_user.is_admin
+        admin_buttons =
+            [{ btn: ADMIN_SURVIVOR_ENTRIES_BUTTON, txt: "All Entries", lnk: "/all_entries" },
+             { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" },
+             { btn: ADMIN_USERS_BUTTON, txt: "Manage Users", lnk: "/users" }]
+        # only show super-admin options for super-admin users
+        if current_user.is_super_admin
+          admin_buttons <<
+             { type: "divider" } <<
+             { btn: ADMIN_NFL_TEAMS_BUTTON, txt: "NFL Teams", lnk: "/nfl_teams" } <<
+             { btn: ADMIN_SCORING_WEEKS_BUTTON, txt: "Scoring Weeks", lnk: "/weeks" }
+        end
+        navbar << drop_down("Admin", selected_button, admin_buttons)
+      end
+
+      navbar <<
         "</ul>" <<
         "<ul class='nav pull-right'>" <<
          vertical_divider <<

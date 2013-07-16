@@ -2,22 +2,17 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @users = User.order("lower(last_name), lower(first_name)")
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @users }
-    end
-  end
-
-  # GET /users/1
-  # GET /users/1.json
-  def show
-    @user = User.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @user }
     end
   end
 
@@ -34,12 +29,21 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @admin_function = true
     @user = User.find(params[:id])
   end
 
   # GET /profile
   def profile
-    @user = current_user
+    @admin_function = false
+    @current_user = current_user
+    @user = @current_user
     if @user.nil?
       redirect_to root_url
     end
@@ -73,18 +77,29 @@ class UsersController < ApplicationController
   def update
     @user = User.find(params[:id])
 
-    if !params["commit"].nil?
+    redirect_url = params.has_key?("admin_fxn") ? ('/users/' + @user.id.to_s + '/edit') : '/profile'
+
+    if params["commit"]
       respond_to do |format|
         if @user.update_attributes(params[:user])
-          format.html { redirect_to '/profile', notice: 'User successfully updated.' }
+          format.html { redirect_to redirect_url, notice: 'User successfully updated.' }
           format.json { head :no_content }
         else
-          format.html { render action: 'profile' }
+          format.html {
+            if params.has_key?("admin_fxn")
+              @admin_function = true
+              @current_user = current_user
+              render action: 'edit'
+            else
+              @admin_function = false
+              render action: 'profile'
+            end
+          }
           format.json { render json: @user.errors, status: :unprocessable_entity }
         end
       end
     else
-      redirect_to '/profile'
+      redirect_to redirect_url
     end
   end
 

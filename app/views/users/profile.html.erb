@@ -10,18 +10,7 @@
 <div class='row-fluid'>
   <div class='span12 center'>
     <br/>
-
-    <!-- Show confirmation message if one exists -->
-    <% if !notice.nil? && !notice.empty? %>
-      <% if notice.starts_with?("Error:") %>
-        <div class='alert alert-error'>
-      <% else %>
-        <div class='alert alert-success'>
-      <% end %>
-       	  <strong><%= notice %></strong>
-        </div>
-    <% end %>
-
+    <%= show_notice_as_alert(notice) %>
     <%= render 'form' %>
   </div>
 </div>

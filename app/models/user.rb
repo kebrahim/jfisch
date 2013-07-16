@@ -17,6 +17,10 @@ class User < ActiveRecord::Base
   validates_presence_of :last_name
   validates_presence_of :role
 
+  ALL_ROLES_ARRAY = [:user, :captain, :admin, :super_admin, :demo]
+  ASSIGNABLE_ROLES = { admin: [:user, :captain, :admin, :demo],
+                       super_admin: ALL_ROLES_ARRAY }
+
   def self.authenticate(email, password)
     user = find_by_email(email)
     if user && user.password_hash == BCrypt::Engine.hash_secret(password, user.password_salt)
@@ -47,5 +51,30 @@ class User < ActiveRecord::Base
   def self.find_by_names(first_name, last_name)
     User.find(:all, :conditions => ["lower(first_name) = lower(?) AND lower(last_name) = lower(?)", 
                                     first_name, last_name]).first
+  end
+
+  # returns true if this user is an admin or super-admin
+  def is_admin
+    return [:admin.to_s, :super_admin.to_s].include?(self.role)
+  end
+
+  # returns true if this user is a super-admin
+  def is_super_admin
+    return self.role == :super_admin.to_s
+  end
+
+  # returns the role associated with this user's role string
+  def role_type
+    return User.role_type_from_string(self.role)
+  end
+
+  # returns the role associated with the specified role string
+  def self.role_type_from_string(role_string)
+    ALL_ROLES_ARRAY.each { |role|
+      if role.to_s == role_string
+        return role
+      end
+    }
+    return nil
   end
 end
