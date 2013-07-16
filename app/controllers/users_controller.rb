@@ -92,6 +92,7 @@ class UsersController < ApplicationController
               render action: 'edit'
             else
               @admin_function = false
+              @current_user = current_user
               render action: 'profile'
             end
           }

@@ -1,7 +1,8 @@
 class User < ActiveRecord::Base
   extend Enumerize
 
-  attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role
+  attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role,
+                  :captain_code
 
   enumerize :role, in: [:demo, :user, :captain, :admin, :super_admin]
 
@@ -16,6 +17,7 @@ class User < ActiveRecord::Base
   validates_presence_of :first_name
   validates_presence_of :last_name
   validates_presence_of :role
+  validates_presence_of :captain_code
 
   ALL_ROLES_ARRAY = [:user, :captain, :admin, :super_admin, :demo]
   ASSIGNABLE_ROLES = { admin: [:user, :captain, :admin, :demo],
