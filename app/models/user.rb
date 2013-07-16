@@ -65,6 +65,11 @@ class User < ActiveRecord::Base
     return self.role == :super_admin.to_s
   end
 
+  # returns true if this user is a captain
+  def is_captain
+    return self.role == :captain.to_s
+  end
+
   # returns the role associated with this user's role string
   def role_type
     return User.role_type_from_string(self.role)

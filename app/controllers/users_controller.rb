@@ -58,7 +58,10 @@ class UsersController < ApplicationController
       begin
         if User.find_by_names(@user.first_name, @user.last_name)
           redirect_to "/sign_up",
-              notice: "Error: That first and last name is already taken. Please try again."
+              notice: "Error: First/last name is already taken. Please try again."
+        elsif !User.uniq.pluck(:captain_code).include?(@user.captain_code)
+          redirect_to "/sign_up",
+              notice: "Error: Invalid captain code. Please try again."
         elsif @user.save
           redirect_to root_url, notice: 'User was successfully created.'
         else

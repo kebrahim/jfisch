@@ -71,6 +71,11 @@
         <% elsif @admin_function && @current_user.is_admin %>
           <tr>
             <td><%= f.label :captain_code %></td>
+            <td><%= f.text_field :captain_code %></td>
+          </tr>
+        <% elsif @current_user.is_captain || @current_user.is_admin %>
+          <tr>
+            <td><%= f.label :captain_code %></td>
             <td><%= @user.captain_code %></td>
           </tr>
         <% end %>
