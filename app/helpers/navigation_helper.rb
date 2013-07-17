@@ -10,7 +10,7 @@ module NavigationHelper
 
   # Admin buttons
   ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
-  ADMIN_SURVIVOR_ENTRIES_BUTTON = "ADMIN_SURVIVOR_ENTRIES_BUTTON"
+  ADMIN_ENTRY_COUNTS_BUTTON = "ADMIN_ENTRY_COUNTS_BUTTON"
   ADMIN_USERS_BUTTON = "ADMIN_USERS_BUTTON"
 
   # Super-admin buttons
@@ -41,7 +41,7 @@ module NavigationHelper
       # only show Admin dropdown for admin users
       if current_user.is_admin
         admin_buttons =
-            [{ btn: ADMIN_SURVIVOR_ENTRIES_BUTTON, txt: "All Entries", lnk: "/all_entries" },
+            [{ btn: ADMIN_ENTRY_COUNTS_BUTTON, txt: "Entry Counts", lnk: "/entry_counts" },
              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" },
              { btn: ADMIN_USERS_BUTTON, txt: "Manage Users", lnk: "/users" }]
         # only show super-admin options for super-admin users

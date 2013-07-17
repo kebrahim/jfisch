@@ -449,7 +449,7 @@ class SurvivorEntriesController < ApplicationController
     return week_to_entry_stats_map
   end
 
-  # GET /all_entries
+  # GET /entry_counts
   def all_entries
     @current_user = current_user
     if @current_user.nil? || !@current_user.is_admin
