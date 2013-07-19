@@ -16,15 +16,7 @@
 
 <div class='row-fluid'>
   <div class='span10 offset1 center chooser'>
-    <label>Choose week:</label>&nbsp&nbsp
-    <select class='input-large' id="week_chooser">
-    <% 1.upto(@current_week) { |week| %>
-      <option value=<%= week %>
-              <%= week == @current_week ? "selected" : "" %>>
-        Week <%= week %>
-      </option>
-    <% } %>
-    </select>
+    <%= display_week_chooser(@current_week, @current_week) %>
   </div>
 </div>
 

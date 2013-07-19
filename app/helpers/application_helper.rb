@@ -29,4 +29,18 @@ module ApplicationHelper
     end
     return noticeHTML.html_safe
   end
+
+  # returns a select tag, allowing user to choose from a list of weeks, from 1 to the specified
+  # current week, marking the specified selected week as selected
+  def display_week_chooser(current_week, selected_week)
+    week_chooser_html = "<label>Choose week:</label>&nbsp&nbsp
+                         <select class='input-large' id='week_chooser'>"
+    1.upto(current_week) { |week|
+      week_chooser_html << "<option value=" + week.to_s
+      week_chooser_html << " selected" if week == selected_week
+      week_chooser_html << ">Week " + week.to_s + "</option>"
+    }
+    week_chooser_html << "</select>"
+    return week_chooser_html.html_safe
+  end
 end

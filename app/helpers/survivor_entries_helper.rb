@@ -442,4 +442,24 @@ module SurvivorEntriesHelper
     all_entries_html << "</tr></table>"
     return all_entries_html.html_safe
   end
+
+  # returns a table of the specified entries, indicating username, game type & whether the entry is
+  # alive
+  def kill_entries_table(entries_without_bets)
+    kill_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
+                    <thead><tr>
+                      <th>Entry</th>
+                      <th>Game Type</th>
+                      <th>Status</th>
+                    </tr></thead>"
+    entries_without_bets.each { |entry|
+      kill_html << "<tr>
+                      <td>" + entry.user.full_name + " " + entry.entry_number.to_s + "</td>
+                      <td>" + entry.type_title + "</td>
+                      <td>" + (entry.is_alive ? "Alive" : "Dead") + "</td>
+                    </tr>"
+    }
+    kill_html << "</table>"
+    return kill_html.html_safe
+  end
 end

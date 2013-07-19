@@ -481,4 +481,72 @@ class SurvivorEntriesController < ApplicationController
     entry_count_map[user_id][:anti_survivor] = [0,0]
     entry_count_map[user_id][:high_roller] = [0,0]
   end
+
+  # GET /kill_entries
+  def kill_entries
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+    @current_year = Date.today.year
+    @current_week = current_week
+    @selected_week = @current_week
+  end
+
+  # GET /kill_entries/week/:number
+  def kill_entries_week
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+    @current_year = Date.today.year
+    @current_week = current_week
+    @selected_week = params[:number].to_i
+    
+    render "kill_entries"
+  end 
+
+  # GET /ajax/kill_entries/week/:number
+  def ajax_kill_week
+    # only let user see weeks that have completed
+    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    if @week && DateTime.now > @week.start_time
+      @entries_without_bets = get_entries_without_bets(@week.number)
+    end
+    render :layout => "ajax"
+  end
+
+  # DELETE /kill_entries/week/:number
+  def kill_all
+    week_number = params[:number].to_i
+    @entries_without_bets = get_entries_without_bets(week_number)
+    
+    confirmation_message = ""
+    SurvivorEntry.transaction {
+      begin
+        @entries_without_bets.each { |entry|
+          entry.update_attributes({is_alive: false, knockout_week: week_number})
+        }
+      rescue Exception => e
+        confirmation_message = "Error: Unexpected problem occurred while killing entries"
+      end
+      confirmation_message = "Entries successfully killed!"
+    }
+
+    redirect_to "/kill_entries/week/" + week_number.to_s, notice: confirmation_message
+  end
+
+  # returns the entries which do not have bets during the specified week, which are currently alive,
+  # or were killed during the specified week.
+  def get_entries_without_bets(week)
+    entry_ids_for_week = SurvivorBet.where(week: week)
+                                    .select(:survivor_entry_id)
+                                    .collect { |bet| bet.survivor_entry_id }
+    return SurvivorEntry.includes(:user)
+                        .where(year: Date.today.year)
+                        .where("id not in (?)", entry_ids_for_week)
+                        .where("is_alive = true OR knockout_week = " + week.to_s)
+  end
 end

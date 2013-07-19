@@ -138,7 +138,7 @@ table th {background-color: black; color:white;}
 }
 
 .row-fluid [class*="span"] .dead {
-  /*background-color:#F2DEDE;*/
+  background-color:#F2DEDE;
 }
 
 /* Labels */

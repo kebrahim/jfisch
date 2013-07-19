@@ -9,8 +9,9 @@ module NavigationHelper
   HIGH_ROLLER_GAME_BUTTON = "HIGH_ROLLER_GAME_BUTTON"
 
   # Admin buttons
-  ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
   ADMIN_ENTRY_COUNTS_BUTTON = "ADMIN_ENTRY_COUNTS_BUTTON"
+  ADMIN_KILL_ENTRIES_BUTTON = "ADMIN_KILL_ENTRIES_BUTTON"
+  ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
   ADMIN_USERS_BUTTON = "ADMIN_USERS_BUTTON"
 
   # Super-admin buttons
@@ -41,9 +42,13 @@ module NavigationHelper
       # only show Admin dropdown for admin users
       if current_user.is_admin
         admin_buttons =
-            [{ btn: ADMIN_ENTRY_COUNTS_BUTTON, txt: "Entry Counts", lnk: "/entry_counts" },
+            [
+             { btn: ADMIN_USERS_BUTTON, txt: "Users", lnk: "/users" },
+             { btn: ADMIN_ENTRY_COUNTS_BUTTON, txt: "Entry Counts", lnk: "/entry_counts" },
+             { type: "divider" },
              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" },
-             { btn: ADMIN_USERS_BUTTON, txt: "Manage Users", lnk: "/users" }]
+             { btn: ADMIN_KILL_ENTRIES_BUTTON, txt: "Kill Entries", lnk: "/kill_entries" },
+            ]
         # only show super-admin options for super-admin users
         if current_user.is_super_admin
           admin_buttons <<

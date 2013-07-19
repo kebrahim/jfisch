@@ -11,6 +11,11 @@ Jfisch::Application.routes.draw do
   get 'anti_survivor' => 'survivor_entries#anti_survivor'
   get 'high_roller' => 'survivor_entries#high_roller'
   get 'entry_counts' => 'survivor_entries#all_entries'
+  
+  get 'kill_entries' => 'survivor_entries#kill_entries'
+  get 'kill_entries/week/:number' => 'survivor_entries#kill_entries_week'
+  get '/ajax/kill_entries/week/:number' => 'survivor_entries#ajax_kill_week'
+  delete 'kill_entries/week/:number' => 'survivor_entries#kill_all'
 
   # TODO remove unused routes
   resources :survivor_bets
