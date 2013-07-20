@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130716214749) do
+ActiveRecord::Schema.define(:version => 20130720163910) do
 
   create_table "nfl_schedules", :force => true do |t|
     t.integer  "year"
@@ -81,6 +81,7 @@ ActiveRecord::Schema.define(:version => 20130716214749) do
     t.datetime "updated_at",    :null => false
     t.string   "role"
     t.string   "captain_code"
+    t.string   "referred_by"
   end
 
   add_index "users", ["email"], :name => "users_email_uq", :unique => true

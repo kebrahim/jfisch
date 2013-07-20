@@ -20,7 +20,9 @@ class UsersController < ApplicationController
   # GET /users/new.json
   def new
     @user = User.new
-
+    @captain_code_feature = false
+    @current_week = current_week
+    
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @user }
@@ -53,6 +55,8 @@ class UsersController < ApplicationController
   def create
     @user = User.new(params[:user])
     @user.role = :user
+    # when captain code is supported, remove this hard-coded captain code & require user to enter it
+    @user.captain_code = "blahblah"
 
     if params["commit"]
       begin

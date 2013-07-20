@@ -12,7 +12,7 @@
   <% end %>
 
   <div class="row-fluid">
-    <div class="span7">
+    <div class="span6">
       <fieldset>
         <legend>User Settings</legend>
         <table class="table vertmiddle table-striped table-condensed table-bordered">
@@ -50,7 +50,7 @@
         </table>
       </fieldset>
     </div>
-    <div class="span5">
+    <div class="span6">
       <fieldset>
         <legend>Password Settings</legend>
       </fieldset>
@@ -64,15 +64,26 @@
           <td><%= f.password_field :password_confirmation %></td>
         </tr>
         <% if @current_user.nil? %>
-          <tr>
-            <td><%= f.label :captain_code %></td>
-            <td><%= f.text_field :captain_code %></td>        
-          </tr>
+          <% if @captain_code_feature %>
+            <tr>
+              <td><%= f.label :captain_code %></td>
+              <td><%= f.text_field :captain_code %></td>        
+            </tr>
+          <% else %>
+            <tr>
+              <td><%= f.label :referred_by %></td>
+              <td><%= f.text_field :referred_by %></td>
+            </tr>
+          <% end %>
         <% elsif @admin_function && @current_user.is_admin %>
-          <tr>
-            <td><%= f.label :captain_code %></td>
-            <td><%= f.text_field :captain_code %></td>
-          </tr>
+         <tr>
+          <td><%= f.label :captain_code %></td>
+          <td><%= f.text_field :captain_code %></td>        
+         </tr>
+         <tr>
+           <td><%= f.label :referred_by %></td>
+           <td><%= f.text_field :referred_by %></td>
+         </tr>
         <% elsif @current_user.is_captain || @current_user.is_admin %>
           <tr>
             <td><%= f.label :captain_code %></td>
@@ -83,12 +94,22 @@
     </div>
   </div>
 
-  <div class="actions">
-    <%= f.submit class: 'btn btn-primary' %>&nbsp
-    <input class='btn' name='cancel' type='submit' value='Cancel' />
-    <% if @admin_function == true %>
-      <input type=hidden name='admin_fxn' value='' />
-    <% end %>
-  </div>
-
+  <% if @current_user || @current_week == 0 %>
+    <div class="actions">
+      <%= f.submit class: 'btn btn-primary' %>&nbsp
+      <% if @current_user %>
+        <input class='btn' name='cancel' type='submit' value='Cancel' />
+      <% else %>
+        <a href='/' class='btn'>Cancel</a>
+      <% end %>
+      
+      <% if @admin_function == true %>
+        <input type=hidden name='admin_fxn' value='' />
+      <% end %>
+    </div>
+  <% else %>
+    <div class='alert alert-info'>
+      <strong>Sorry! No new users can be created at this time. Check back later!</strong>
+    </div>
+  <% end %>
 <% end %>
