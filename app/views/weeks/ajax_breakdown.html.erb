@@ -2,5 +2,5 @@
   <h4>Coming Soon...</h4>
 <% else %>
   <h4>Week <%= @week.number.to_s %> Breakdown</h4>
-  <%= bets_by_week_table(@team_map, @team_to_results_map) %>
+  <%= bets_by_week_table(@team_map, @team_to_results_map, @week.number, @current_week) %>
 <% end %>

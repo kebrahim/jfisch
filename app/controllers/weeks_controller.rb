@@ -63,6 +63,7 @@ class WeeksController < ApplicationController
 
     @game_type = :survivor
     @current_week = current_week
+    @game_week = game_week
     render "breakdown"
   end
 
@@ -82,6 +83,7 @@ class WeeksController < ApplicationController
 
     @game_type = :anti_survivor
     @current_week = current_week
+    @game_week = game_week
     render "breakdown"
   end
 
@@ -101,6 +103,7 @@ class WeeksController < ApplicationController
 
     @game_type = :high_roller
     @current_week = current_week
+    @game_week = game_week
     render "breakdown"
   end
   
@@ -114,10 +117,11 @@ class WeeksController < ApplicationController
   def load_week_breakdown_data(game_type)
     # only let user see weeks that have completed
     @week = Week.where({year: Date.today.year, number: params[:id].to_i}).first
-    if @week.nil? || DateTime.now < @week.start_time
+    if @week.nil?
       return
     end
 
+    @current_week = current_week
     @team_map = build_team_map
     game_bets = get_game_bets(game_type, @week.number, Date.today.year)
     team_to_bet_counts_map = game_bets.group(:nfl_team_id).count(:nfl_team_id)
@@ -157,6 +161,7 @@ class WeeksController < ApplicationController
         team_to_results_map[bet.nfl_team_id]["oppo_id"] =
             bet.nfl_game.opponent_team_id(bet.nfl_team_id)
         team_to_results_map[bet.nfl_team_id]["result"] = bet.game_result
+        team_to_results_map[bet.nfl_team_id]["start_time"] = bet.nfl_game.start_time
       end
     }
     return team_to_results_map
