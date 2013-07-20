@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   helper_method :current_user
   helper_method :current_week
+  helper_method :game_week
 
   private
 
@@ -26,5 +27,19 @@ class ApplicationController < ActionController::Base
       end
     }
     return weeks.last.number
+  end
+
+  # returns the week number based on whether any games in that particular week have already started
+  def game_week
+    now = DateTime.now
+    all_games = NflSchedule.where(year: Date.today.year)
+                           .order(:start_time)
+    week_started = 0
+    all_games.each { |game|
+      if (week_started < game.week) && (now > game.start_time)
+        week_started = game.week
+      end
+    }
+    return week_started
   end
 end

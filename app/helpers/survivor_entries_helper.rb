@@ -103,15 +103,19 @@ module SurvivorEntriesHelper
                           "</h5>"
 
         # Show all bets for the entry
-        entries_html << "<table class='" + ApplicationHelper::TABLE_STRIPED_CLASS + "'>
-                           <thead><tr>
-                             <th>Week</th>
-                             <th>Team</th>
-                           </tr></thead>"
+        entries_html <<
+            "<table class='" + ApplicationHelper::TABLE_STRIPED_CLASS + " table-dashboard'>
+               <thead><tr>
+                 <th>Week</th>
+                 <th>Team</th>
+               </tr></thead>"
+
+        has_knockout_bet = current_entry.is_alive
         if entry_to_bets_map.has_key?(current_entry.id)
           entry_to_bets_map[current_entry.id].each { |bet|
             entries_html << "<tr"
-            if !bet.is_correct.nil?
+            if !bet.is_correct.nil? &&
+                (current_entry.is_alive || bet.week <= current_entry.knockout_week)
               entries_html << " class='" + (bet.is_correct ? "green-row" : "red-row") + "'"
             elsif !current_entry.is_alive
               entries_html << " class='dead-row'"
@@ -124,7 +128,17 @@ module SurvivorEntriesHelper
             end
             entries_html <<       ">" + bet.nfl_team.abbreviation + "</td>
                              </tr>"
+
+            if !has_knockout_bet && bet.week == current_entry.knockout_week
+              has_knockout_bet = true
+            end
           }
+        end
+        if !has_knockout_bet
+          entries_html << "<tr class='red-row'>
+                             <td>" + current_entry.knockout_week.to_s + "</td>
+                             <td>--</td>
+                           </tr>"
         end
         entries_html << "</table></div>"
       end
@@ -181,10 +195,19 @@ module SurvivorEntriesHelper
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
         entry_html << "<tr"
         existing_bet = selector_to_bet_map[SurvivorBet.bet_selector(week, bet_number)]
-        if !existing_bet.nil? && !existing_bet.is_correct.nil?
-          entry_html << " class='" + (existing_bet.is_correct ? "green-row" : "red-row") + "'"
+        if !existing_bet.nil?
+          if !existing_bet.is_correct.nil? &&
+              (survivor_entry.is_alive || existing_bet.week <= survivor_entry.knockout_week)
+            entry_html << " class='" + (existing_bet.is_correct ? "green-row" : "red-row") + "'"
+          elsif !survivor_entry.is_alive
+            entry_html << " class='dead-row'"
+          end
         elsif !survivor_entry.is_alive
-          entry_html << " class='dead-row'"
+          if survivor_entry.knockout_week == week
+            entry_html << " class='red-row dead-row'"
+          else
+            entry_html << " class='dead-row'"
+          end
         end
         entry_html << ">
                         <td>" + week.to_s + "</td>"
@@ -203,7 +226,11 @@ module SurvivorEntriesHelper
             (!existing_bet.is_correct.nil? || !survivor_entry.is_alive || pick_locked)
           entry_html << "<td>" + existing_bet.nfl_team.full_name + "</td>"
         elsif !survivor_entry.is_alive || pick_locked
-          entry_html << "<td></td>"
+          if !survivor_entry.is_alive && survivor_entry.knockout_week == week
+            entry_html << "<td>--</td>"
+          else
+            entry_html << "<td></td>"
+          end
         else
           entry_html << get_team_select(week, bet_number, existing_bet, nfl_teams_map,
         	                            week_team_to_game_map, selector_to_bet_map)
@@ -281,19 +308,22 @@ module SurvivorEntriesHelper
   end
 
   # shows the table of all bets for all users, for the specified game type
-  def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user, current_week)
+  def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user, current_week,
+                     game_week)
     bets_html = "<h4>Entry Breakdown</h4>
                  <table class='" + ApplicationHelper::TABLE_CLASS + "'>
                    <thead>
                      <tr>
                        <th rowspan='2'>Entry</th>"
-    if current_week > 0
+    
+    max_week = [current_week, game_week].max
+    if max_week > 0
       bets_html << "<th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
     end
     bets_html <<    "</tr>
                      <tr>"
     # Show bets for all weeks up to the current week.
-    1.upto(current_week) { |week|
+    1.upto(max_week) { |week|
       bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" +
                    week.to_s + "</th>"
     }
@@ -323,23 +353,36 @@ module SurvivorEntriesHelper
       end
       bets_html << "</td>"
       bets = entry_to_bets_map[entry.id]
-      1.upto(current_week) { |week|
+      1.upto(max_week) { |week|
         1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
           # Show selected team, marking correct/incorrect, if game is complete.
           bets_html << "<td"
           if !bets.nil?
             bet = bets[SurvivorBet.bet_selector(week, bet_number)]
             if !bet.nil?
-              if !bet.is_correct.nil?
-                bets_html << " class='" + (bet.is_correct ? "green-cell" : "red-cell").to_s + "'
-                               title='" + bet.game_result + "'"  
-              elsif !entry.is_alive
-                bets_html << " class='dead-cell'"
+              if entry.is_alive || week <= entry.knockout_week
+                if !bet.is_correct.nil?
+                  bets_html << " class='" + (bet.is_correct ? "green-cell" : "red-cell").to_s + "'
+                                 title='" + bet.game_result + "'"
+                end
+                bets_html << ">"
+
+                # only show bet if it's marked as correct/incorrect or the game has already started
+                if !bet.is_correct.nil? || DateTime.now > bet.nfl_game.start_time
+                  bets_html << bet.nfl_team.abbreviation
+                end
+              else
+                bets_html << ">"
               end
-              bets_html << ">" + bet.nfl_team.abbreviation
+            elsif entry.knockout_week == week
+              # no bets were made during week & entry was knocked out
+              bets_html << " class='red-cell'>--"
             else
               bets_html << ">"
             end
+          elsif entry.knockout_week == week
+            # no bets were made, but entry was knocked out in week 1
+            bets_html << " class='red-cell'>--"
           else
             bets_html << ">"
           end

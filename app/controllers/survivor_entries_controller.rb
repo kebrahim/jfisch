@@ -344,7 +344,7 @@ class SurvivorEntriesController < ApplicationController
   end
 
   # GET /anti_survivor
-  def anti_s  urvivor
+  def anti_survivor
     @user = current_user
     if @user.nil?
       redirect_to root_url
@@ -374,6 +374,7 @@ class SurvivorEntriesController < ApplicationController
     @entries_by_type = get_entries_by_type(game_type)
     @entry_to_bets_map = get_bets_map_by_type(game_type)
     @current_week = get_current_week
+    @game_week = game_week
     @week_to_entry_stats_map = build_week_to_entry_stats_map(@entries_by_type, @current_week)
   end
 

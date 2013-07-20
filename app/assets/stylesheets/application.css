@@ -98,6 +98,14 @@ table th {background-color: black; color:white;}
   background-color:#F2DEDE !important;
 }
 
+.table-dashboard td, th {
+  border-left: thin solid black !important;
+  border-bottom: thin solid black !important;
+}
+.table-dashboard td:nth-child(2), th:nth-child(2) {
+  border-right: thin solid black !important;
+}
+
 .table-striped .my-row td {
   background-color:#E3F2F9 !important;
   font-weight: bold;
