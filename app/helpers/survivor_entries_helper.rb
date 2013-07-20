@@ -272,10 +272,10 @@ module SurvivorEntriesHelper
                      <option value=0></option>"
     selected_team_ids = selector_to_bet_map.values.map { |bet| bet.nfl_team_id }                  
     nfl_teams_map.values.each { |nfl_team|
-      # Only allow team to be selected if it has a game during that week, and it has not already
-      # been selected in a different week.
+      # Only allow team to be selected if it has a game during that week, which hasn't yet started,
+      # and it has not already been selected in a different week.
       team_game = week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
-      if !team_game.nil?
+      if !team_game.nil? && DateTime.now < team_game.start_time
         is_selected_team = !existing_bet.nil? && (existing_bet.nfl_team_id == nfl_team.id)
       	if is_selected_team || !selected_team_ids.include?(nfl_team.id)
           select_html << "<option "
