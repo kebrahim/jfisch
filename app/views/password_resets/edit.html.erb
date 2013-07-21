@@ -1,0 +1,25 @@
+
+<%= navigationBar(nil) %>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+
+	<h3>Reset Password</h3>
+
+	<%= form_for @user, :url => password_reset_path(params[:id]) do |f| %>
+	  <%= show_notice_as_alert(notice) %>
+	  <% if @user.errors.any? %>
+	    <%= show_errors_as_alert(@user.errors.full_messages) %>
+	  <% end %>
+	  <div class="field resetfield">
+	    <%= f.label :password %>
+	    <%= f.password_field :password, required: "" %>
+	  </div>
+	  <div class="field resetfield">
+	    <%= f.label :password_confirmation %>
+	    <%= f.password_field :password_confirmation, required: "" %>
+	  </div>
+	  <div class="actions"><%= f.submit "Update Password", class: "btn btn-primary" %></div>
+	<% end %>
+  </div>
+</div>

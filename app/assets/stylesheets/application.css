@@ -191,7 +191,7 @@ label {
 
 .form-signin {
     max-width: 300px;
-    padding: 19px 29px 29px;
+    padding: 19px 29px 19px;
     margin: 0 10px 20px;
     background-color: #fff;
     border: 1px solid #1B75BB;
@@ -285,6 +285,11 @@ th > a, td > a#hover {
   color: black !important;
   text-decoration: underline !important;
 }
+.btn-link-blue {
+  color: blue !important;
+  text-decoration: underline !important;
+  background-color: transparent !important;
+}
 
 .chooser {
   height: 44px;
@@ -296,4 +301,10 @@ th > a, td > a#hover {
 
 .finger {
   margin-bottom: 10px;
+}
+
+.resetfield > .field_with_errors {
+  display: block;
+  padding: 0;
+  background-color: white;
 }

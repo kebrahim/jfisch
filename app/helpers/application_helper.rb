@@ -30,6 +30,26 @@ module ApplicationHelper
     return noticeHTML.html_safe
   end
 
+  # shows the specified list of errors as an error alert
+  def show_errors_as_alert(errors)
+    return show_errors_as_alert_with_class_string(errors, nil)
+  end
+
+  # shows the specified list of errors as an error alert, with the additional classes
+  def show_errors_as_alert_with_class_string(errors, class_string)
+    errors_html = "<div class='alert alert-error alert-center"
+    if !class_string.nil? && !class_string.empty?
+      errors_html << " " + class_string
+    end
+    errors_html << "'><button type='button' class='close' data-dismiss='alert'>&times;</button>" +
+                    "<strong>Errors occurred: "
+    errors.each {
+      errors_html << errors.join("; ")
+    }
+    errors_html << "</strong></div>"
+    return errors_html.html_safe
+  end
+
   # returns a select tag, allowing user to choose from a list of weeks, from 1 to the specified
   # current week, marking the specified selected week as selected
   def display_week_chooser(current_week, selected_week)
