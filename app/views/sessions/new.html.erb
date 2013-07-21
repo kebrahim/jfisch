@@ -24,13 +24,14 @@
     <form class="form-signin pull-right" action="/sessions" method="post">
       <h3 class="form-signin-heading">Please sign in</h3>
       <input type="email" id="email" name="email" class="input-block-level"
-             placeholder="Email" required="">
+             placeholder="Email" required="" tabindex="1" autofocus="autofocus">
       <input type="password" id="password" name="password" class="input-block-level"
-             placeholder="Password" required="">
-      <!-- label class="checkbox">
-        <input type="checkbox" value="remember-me">Remember me
-      </label -->
-      <button class="btn btn-primary" type="submit" name="commit">Sign in</button>
+             placeholder="Password" required="" tabindex="2">
+      <label class="checkbox">
+        <input type="checkbox" id="remember_me" name="remember_me" value="remember-me"
+               tabindex="3">Remember me
+      </label>
+      <button class="btn btn-primary" type="submit" name="commit" tabindex="4">Sign in</button>
     </form>
   </div>
 </div>

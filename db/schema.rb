@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130720163910) do
+ActiveRecord::Schema.define(:version => 20130721191047) do
 
   create_table "nfl_schedules", :force => true do |t|
     t.integer  "year"
@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(:version => 20130720163910) do
     t.string   "role"
     t.string   "captain_code"
     t.string   "referred_by"
+    t.string   "auth_token"
   end
 
   add_index "users", ["email"], :name => "users_email_uq", :unique => true

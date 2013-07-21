@@ -18,4 +18,16 @@ namespace :importuser do
     end
     puts "Imported " + usercount.to_s + " Users!"
   end
+
+  desc "Adds auth tokens to all existing users"
+  task :auth => :environment do
+    usercount = 0
+    users = User.where(auth_token: nil)
+    users.each { |user|
+      user.generate_token(:auth_token)
+      user.save
+      usercount += 1
+    }
+    puts "Updated auth_token of " + usercount.to_s + " users!"
+  end
 end

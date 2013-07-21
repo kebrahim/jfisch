@@ -1,7 +1,7 @@
 class SessionsController < ApplicationController
   def new
-  	if session[:user_id]
-      user = User.find(session[:user_id])
+  	if cookies[:auth_token]
+      user = User.find_by_auth_token(cookies[:auth_token])
     end
     if !user.nil?
       redirect_to dashboard_url
@@ -11,7 +11,11 @@ class SessionsController < ApplicationController
   def create
     user = User.authenticate(params[:email], params[:password])
     if user
-      session[:user_id] = user.id
+      if params[:remember_me]
+        cookies.permanent[:auth_token] = user.auth_token
+      else
+        cookies[:auth_token] = user.auth_token  
+      end
       redirect_to dashboard_url
     else
       redirect_to root_url, notice: "Error: Invalid email or password"
@@ -19,7 +23,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    session[:user_id] = nil
+    cookies.delete(:auth_token)
     redirect_to root_url
   end
 end
