@@ -4,6 +4,8 @@
 <div class='row-fluid'>
   <div class='span12 center'>
 	<h3>Reset Password</h3>
+    
+    <%= show_notice_as_alert(notice) %>
 
 	<%= form_tag password_resets_path, :method => :post do %>
 	  <div class="field">
