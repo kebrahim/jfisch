@@ -9,8 +9,8 @@ class SurvivorEntry < ActiveRecord::Base
   MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2 }
   MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
   MAX_BETS_MAP = { survivor: 22, anti_survivor: 22, high_roller: 21 }
+  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil}
   GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller]
-  TWO_GAME_WEEK_THRESHOLD = 13
 
   # Returns the game_type matching the specified name
   def self.name_to_game_type(game_type_name)
@@ -73,16 +73,11 @@ class SurvivorEntry < ActiveRecord::Base
 
   # returns the number of bets required for the specified game_type and week
   def self.bets_in_week(game_type, week)
-    case game_type
-    when :survivor
-      return (week < TWO_GAME_WEEK_THRESHOLD) ? 1 : 2
-    when :anti_survivor
-      return (week < TWO_GAME_WEEK_THRESHOLD) ? 1 : 2
-    when :high_roller
-      return 1
-    else
-      return 0
+    threshold_week = SurvivorEntry::TWO_GAME_WEEK_THRESHOLD_MAP[game_type]
+    if threshold_week
+      return (week < threshold_week) ? 1 : 2
     end
+    return 1
   end
 
   # returns the maximum number of weeks for this entry
