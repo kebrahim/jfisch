@@ -8,6 +8,16 @@ module NavigationHelper
   ANTI_GAME_BUTTON = "ANTI_GAME_BUTTON"
   HIGH_ROLLER_GAME_BUTTON = "HIGH_ROLLER_GAME_BUTTON"
 
+  # Weekly breakdown buttons
+  SURVIVOR_WEEKLY_BUTTON = "SURVIVOR_WEEKLY_BUTTON"
+  ANTI_WEEKLY_BUTTON = "ANTI_WEEKLY_BUTTON"
+  HIGH_ROLLER_WEEKLY_BUTTON = "HIGH_ROLLER_WEEKLY_BUTTON"
+
+  # Rules buttons
+  SURVIVOR_RULES_BUTTON = "SURVIVOR_RULES_BUTTON"
+  ANTI_RULES_BUTTON = "ANTI_RULES_BUTTON"
+  HIGH_ROLLER_RULES_BUTTON = "HIGH_ROLLER_RULES_BUTTON"
+
   # Admin buttons
   ADMIN_ENTRY_COUNTS_BUTTON = "ADMIN_ENTRY_COUNTS_BUTTON"
   ADMIN_KILL_ENTRIES_BUTTON = "ADMIN_KILL_ENTRIES_BUTTON"
@@ -23,6 +33,10 @@ module NavigationHelper
 
   GAME_BUTTON_MAP = { survivor: SURVIVOR_GAME_BUTTON, anti_survivor: ANTI_GAME_BUTTON, 
                       high_roller: HIGH_ROLLER_GAME_BUTTON }
+  WEEKLY_BUTTON_MAP = { survivor: SURVIVOR_WEEKLY_BUTTON, anti_survivor: ANTI_WEEKLY_BUTTON, 
+                        high_roller: HIGH_ROLLER_WEEKLY_BUTTON }
+  RULES_BUTTON_MAP = { survivor: SURVIVOR_RULES_BUTTON, anti_survivor: ANTI_RULES_BUTTON, 
+                       high_roller: HIGH_ROLLER_RULES_BUTTON }
 
   def navigationBar(selected_button)
     navbar = "<div class='navbar'><div class='navbar-inner'>"
@@ -34,10 +48,7 @@ module NavigationHelper
          button_link(DASHBOARD_BUTTON, "Dashboard", "/dashboard", selected_button) <<
          button_link(MY_ENTRIES_BUTTON, "My Entries", "/my_entries", selected_button) <<
          vertical_divider <<
-         drop_down("Survivor Games", selected_button, 
-             [{ btn: SURVIVOR_GAME_BUTTON, txt: "Survivor", lnk: "/survivor" },
-              { btn: ANTI_GAME_BUTTON, txt: "Anti-Survivor", lnk: "/anti_survivor" },
-              { btn: HIGH_ROLLER_GAME_BUTTON, txt: "High Roller", lnk: "/high_roller" }])
+         game_dropdown(selected_button)
 
       # only show Admin dropdown for admin users
       if current_user.is_admin
@@ -75,42 +86,86 @@ module NavigationHelper
     return navbar.html_safe
   end
 
+  def game_dropdown(selected_button)
+    game_buttons = []
+    SurvivorEntry::GAME_TYPE_ARRAY.each {|game_type|
+      submenu_buttons = [
+        { btn: GAME_BUTTON_MAP[game_type], txt: "Entry Breakdown", lnk: "/" + game_type.to_s },
+        { btn: WEEKLY_BUTTON_MAP[game_type], txt: "Weekly Breakdown",
+          lnk: "/" + game_type.to_s + "/week" },
+        { btn: RULES_BUTTON_MAP[game_type], txt: "Rules", lnk: "/" + game_type.to_s + "/rules" }
+      ]
+      game_buttons << { btn: GAME_BUTTON_MAP[game_type],
+                        txt: SurvivorEntry.game_type_title(game_type),
+                        lnk: "#",
+                        sub: submenu_buttons
+                      }
+    }
+    return drop_down("Survivor Games", selected_button, game_buttons)
+  end
+
+  def get_buttons(button_maps)
+    buttons = []
+    button_maps.each { |button_map|
+      buttons << button_map[:btn]
+      if button_map[:sub]
+        buttons.push(*get_buttons(button_map[:sub]))
+      end
+    }
+    return buttons
+  end
+
   def drop_down(dropdown_text, selected_button, button_maps)
     drop_down_html = "<li class='dropdown"
     # if selected_button in list of child buttons, then add "active" class
-    if button_maps.map do |button_map| button_map[:btn] end.include?(selected_button)
+    if get_buttons(button_maps).include?(selected_button)
       drop_down_html << " active"
     end
     drop_down_html <<
       "'>
-       <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
+         <a href='#' class='dropdown-toggle profiledropdown' data-toggle='dropdown'>
            " + dropdown_text + "&nbsp<b class='caret'></b>
-       </a>
-       <ul class='dropdown-menu'>"
-    # construct child buttons
-    button_maps.each do |button_map|
-      if button_map[:type] == "divider"
-        drop_down_html << horizontal_divider
-      else
-        drop_down_html << button_link(button_map[:btn], button_map[:txt],
-                                      button_map[:lnk], selected_button, button_map[:icon])
-      end
-    end
-    drop_down_html << "  </ul>
-                       </li>"
+         </a>" <<
+         drop_down_list(selected_button, button_maps) <<
+       "</li>"
     return drop_down_html
   end
 
-  def button_link(navigation_button, button_text, link_text, selected_button, icon = nil)
-    button_html = "<li"
-    if (selected_button == navigation_button)
-      button_html << " class='active'"
+  def drop_down_list(selected_button, button_maps)
+    list_html = "<ul class='dropdown-menu'>"
+    # construct child buttons
+    button_maps.each do |button_map|
+      if button_map[:type] == "divider"
+        list_html << horizontal_divider
+      else
+        list_html << button_link(button_map[:btn], button_map[:txt],
+                                      button_map[:lnk], selected_button, button_map[:icon],
+                                      button_map[:sub])
+      end
     end
-    button_html << "><a href='" + link_text + "'>"
-    if !icon.nil?
+    list_html << "</ul>"
+  end
+
+  def button_link(navigation_button, button_text, link_text, selected_button, icon = nil,
+                  submenu_buttons = nil)
+    button_html = "<li class='"
+    if (selected_button == navigation_button) ||
+       (submenu_buttons && get_buttons(submenu_buttons).include?(selected_button))
+      button_html << " active "
+    end
+    if submenu_buttons
+      button_html << " dropdown-submenu "
+    end
+    button_html << "'><a href='" + link_text + "'>"
+    if icon
       button_html << "<i class='icon-" + icon + "'></i>&nbsp&nbsp"
     end
-    button_html << button_text + "</a></li>"
+    button_html << button_text + "</a>"
+
+    if submenu_buttons
+      button_html << drop_down_list(selected_button, submenu_buttons)
+    end
+    button_html << "</li>"
     return button_html
   end
 

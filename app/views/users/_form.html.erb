@@ -71,7 +71,7 @@
             </tr>
           <% else %>
             <tr>
-              <td><%= f.label :referred_by %></td>
+              <td><%= f.label :referred_by, "If new participant, referred by" %></td>
               <td><%= f.text_field :referred_by %></td>
             </tr>
           <% end %>
@@ -81,7 +81,7 @@
           <td><%= f.text_field :captain_code %></td>        
          </tr>
          <tr>
-           <td><%= f.label :referred_by %></td>
+           <td><%= f.label :referred_by, "If new participant, referred by" %></td>
            <td><%= f.text_field :referred_by %></td>
          </tr>
         <% elsif @current_user.is_captain || @current_user.is_admin %>

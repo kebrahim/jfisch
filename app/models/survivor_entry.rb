@@ -61,7 +61,7 @@ class SurvivorEntry < ActiveRecord::Base
   def self.game_type_title(game_type)
     case game_type
     when :survivor
-      return "Survivor"
+      return "Regular Survivor"
     when :anti_survivor
       return "Anti-Survivor"
     when :high_roller

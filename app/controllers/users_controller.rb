@@ -69,6 +69,7 @@ class UsersController < ApplicationController
         elsif @user.save
           redirect_to root_url, notice: 'User was successfully created.'
         else
+          @current_week = current_week
           render action: 'new'
         end
       rescue Exception => e

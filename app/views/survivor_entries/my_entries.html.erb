@@ -13,8 +13,8 @@
     <%= show_notice_as_alert(notice) %>
     
     <div class='row-fluid'>
-      <%= entries_selector(:anti_survivor, @type_to_entry_map, 3, @before_season) %>
       <%= entries_selector(:survivor, @type_to_entry_map, 6, @before_season) %>
+      <%= entries_selector(:anti_survivor, @type_to_entry_map, 3, @before_season) %>
       <%= entries_selector(:high_roller, @type_to_entry_map, 3, @before_season) %>
     </div>
     <%= entries_buttons(@before_season) %>

@@ -50,6 +50,11 @@ Jfisch::Application.routes.draw do
   get '/high_roller/week' => 'weeks#high_roller'
   get '/ajax/high_roller/week/:id' => 'weeks#ajax_high_roller'
 
+  # rules
+  get '/survivor/rules' => 'rules#survivor'
+  get '/anti_survivor/rules' => 'rules#anti_survivor'
+  get '/high_roller/rules' => 'rules#high_roller'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

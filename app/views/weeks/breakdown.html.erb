@@ -1,9 +1,11 @@
 
-<%= navigationBar(NavigationHelper::GAME_BUTTON_MAP[@game_type]) %>
+<%= navigationBar(NavigationHelper::WEEKLY_BUTTON_MAP[@game_type]) %>
 
 <div class='row-fluid'>
   <div class='span3 center nexttoh1'>
-    <a href='/dashboard' class='btn btn-inverse'>Dashboard</a>
+    <a href=<%= "'/" + @game_type.to_s + "/rules'" %> class='btn btn-inverse'>
+      <%= SurvivorEntry.game_type_title(@game_type) %> Rules
+    </a>
   </div>
   <div class='span6 center'>
     <h3>NFL <%= SurvivorEntry.game_type_title(@game_type) %></h3>
