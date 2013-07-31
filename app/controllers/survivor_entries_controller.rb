@@ -305,8 +305,11 @@ class SurvivorEntriesController < ApplicationController
 
               if import_result.failed_instances.empty?
                 confirmation_message = "Picks successfully updated!"
-                UserMailer.survivor_bet_summary(
-                    @user, bets_to_create, bets_to_update, week_team_to_game_map).deliver
+                # send bet summary email if user receives emails
+                if @user.send_emails
+                  UserMailer.survivor_bet_summary(
+                      @user, bets_to_create, bets_to_update, week_team_to_game_map).deliver
+                end
               else
                 confirmation_message = "Error: Failed instances while saving bets"
               end

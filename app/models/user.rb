@@ -2,7 +2,7 @@ class User < ActiveRecord::Base
   extend Enumerize
 
   attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role,
-                  :captain_code, :referred_by
+                  :captain_code, :referred_by, :send_emails
 
   enumerize :role, in: [:demo, :user, :captain, :admin, :super_admin]
 
