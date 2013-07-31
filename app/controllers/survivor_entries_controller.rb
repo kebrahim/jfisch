@@ -178,15 +178,16 @@ class SurvivorEntriesController < ApplicationController
 
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
       @selector_to_bet_map = build_selector_to_bet_map(
-            SurvivorBet.where(survivor_entry_id: @survivor_entry))
+            SurvivorBet.includes(:nfl_game)
+                       .where(survivor_entry_id: @survivor_entry))
       
       current_year = Date.today.year
       @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
-      @week_to_start_time_map = build_week_to_start_time_map
       @weeks = Week.where(year: Date.today.year)
                    .where("number <= (?)", @survivor_entry.max_weeks)
                    .order(:number)
+      @week_to_start_time_map = build_week_to_start_time_map(@weeks)
       @current_week = get_current_week_from_weeks(@weeks)
 
       respond_to do |format|
@@ -228,9 +229,9 @@ class SurvivorEntriesController < ApplicationController
   end
  
   # returns a map of week number to start_time for that week
-  def build_week_to_start_time_map
+  def build_week_to_start_time_map(weeks)
     week_to_start_time_map = {}
-    Week.where(year: Date.today.year).each { |week|
+    weeks.each { |week|
       week_to_start_time_map[week.number] = week.start_time
     }
     return week_to_start_time_map
@@ -304,6 +305,8 @@ class SurvivorEntriesController < ApplicationController
 
               if import_result.failed_instances.empty?
                 confirmation_message = "Picks successfully updated!"
+                UserMailer.survivor_bet_summary(
+                    @user, bets_to_create, bets_to_update, week_team_to_game_map).deliver
               else
                 confirmation_message = "Error: Failed instances while saving bets"
               end

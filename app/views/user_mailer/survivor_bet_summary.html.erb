@@ -1,0 +1,30 @@
+<h3>J-Fisch Survivor Bet Summary</h3>
+<h4><%= @user.full_name %></h4>
+<table border>
+  <thead><tr>
+    <th>Entry</th>
+    <th>Week</th>
+    <th>Selected Team</th>
+    <th>Opponent</th>
+  </tr></thead>
+  <% @bets.each { |bet| %>
+    <tr>
+      <% entry = bet.survivor_entry %>
+      <td><%= entry.type_title + " " + entry.entry_number.to_s %></td>
+      <td><%= bet.week.to_s %></td>
+
+      <%
+        if !bet.destroyed?
+          game = @week_team_to_game_map[NflSchedule.game_selector(bet.week, bet.nfl_team_id)]
+          opponent_team_id = game.opponent_team_id(bet.nfl_team_id)
+          opponent_team = @team_map[opponent_team_id]
+      %>
+        <td><%= @team_map[bet.nfl_team_id].full_name %></td>
+        <td><%= game.matchup_string(opponent_team) %></td>
+      <% else %>
+        <td>--</td>
+        <td>--</td>
+      <% end %>
+    </tr>
+  <% } %>
+</table>
