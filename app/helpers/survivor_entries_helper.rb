@@ -439,7 +439,7 @@ module SurvivorEntriesHelper
   def all_entries_table(users, user_to_entries_count_map)
     all_entries_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
                           <thead><tr>
-                            <th rowspan=2>User</th>
+                            <th rowspan=2 colspan=2>User</th>
                             <th colspan=2>Survivor</th>
                             <th colspan=2>Anti-Survivor</th>
                             <th colspan=2>High-Roller</th>
@@ -452,7 +452,8 @@ module SurvivorEntriesHelper
     
     # number of (total & alive) entries per user
     users.each { |user|
-      all_entries_html << "<tr><td>" + user.full_name + "</td>"
+      all_entries_html << "<tr><td>" + user.full_name + "</td>
+                               <td>" + user.email + "</td>"
       if user_to_entries_count_map.has_key?(user.id)
         [:survivor, :anti_survivor, :high_roller].each { |game_type|
           0.upto(1) { |idx|
@@ -473,7 +474,7 @@ module SurvivorEntriesHelper
     }
 
     # total entries for all users
-    all_entries_html << "<tr class='bold-row'><td class='topborderme'>Totals</td>"
+    all_entries_html << "<tr class='bold-row'><td class='topborderme' colspan=2>Totals</td>"
     [:survivor, :anti_survivor, :high_roller].each { |game_type|
       0.upto(1) { |idx|
         all_entries_html << "<td class='topborderme"
