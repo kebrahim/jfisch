@@ -3,42 +3,13 @@ module SurvivorEntriesHelper
   # Displays the currently selected entries for the specified game_type, as well as allows the user
   # to update the number of selected entries, if the season has not yet begun.
   def entries_selector(game_type, type_to_entry_map, span_size, before_season)
-    entries_html = "<div class='span" + span_size.to_s + " survivorspan center'>
+    entries_html = "<div class='span" + span_size.to_s + " bigentryspan center'>
                       <h4>" + link_to(SurvivorEntry.game_type_title(game_type),
                       	              "/" + game_type.to_s,
                       	              class: 'btn-link-black') + "</h4>"
-    
-    # Show existing entries
     current_entries = type_to_entry_map[game_type]
-    if !current_entries.nil?
-      entries_html << "<div class='row-fluid'>"
-      span_size = get_span_size(current_entries.size, SurvivorEntry::MAX_ENTRIES_MAP[game_type])
-      offset_size = get_offset_size(current_entries.size, span_size)
+    entry_count = current_entries ? current_entries.size : 0
 
-      entry_count = 0
-      current_entries.each do |current_entry|
-        entry_count += 1
-        entries_html << "<div class='survivorspan span" + span_size.to_s
-        if (offset_size > 0)
-          entries_html << " offset" + offset_size.to_s
-          offset_size = 0
-        end
-        entries_html << "'><h5>" +
-                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
-                                         current_entry.entry_number.to_s,
-                                     "/survivor_entries/" + current_entry.id.to_s,
-                                     class: 'btn-link-black') +
-                          "</h5>"
-
-        # TODO Allow user to change picks in bulk
-
-        entries_html << "</div>"
-      end
-      entries_html << "</div>"
-    else
-      entry_count = 0
-    end
-    
     # If season has not begun, allow user to update count of entries
     if before_season
       entries_html << "<p><strong>Entry count:</strong>
@@ -53,8 +24,135 @@ module SurvivorEntriesHelper
       entries_html << "   </select>
                        </p>"
     end
+
+    # Show existing entries
+    if !current_entries.nil?
+      entries_html << "<div class='row-fluid'>"
+      span_size = get_span_size(current_entries.size, SurvivorEntry::MAX_ENTRIES_MAP[game_type])
+      offset_size = get_offset_size(current_entries.size, span_size)
+
+      current_entries.each do |current_entry|
+        entries_html << "<div class='entriesspan span" + span_size.to_s
+        if (offset_size > 0)
+          entries_html << " offset" + offset_size.to_s
+          offset_size = 0
+        end
+        if !current_entry.is_alive
+          # TODO remove link if entry is dead
+          #entries_html << " dead"
+        end
+        entries_html << "'><h5>" +
+                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+                                         current_entry.entry_number.to_s,
+                                     "/survivor_entries/" + current_entry.id.to_s,
+                                     class: 'btn-link-black') +
+                          "</h5>"
+
+        # Allow user to change picks in bulk
+        entries_html << mini_entry_bets_table(current_entry)
+
+        entries_html << "</div>"
+      end
+      entries_html << "</div>"
+    end
+    
     entries_html << "</div>"
     return entries_html.html_safe
+  end
+
+  # returns the miniature version of the entry_bets_table, which only includes week number and
+  # selected team
+  def mini_entry_bets_table(survivor_entry)
+    bet_html = "<table class='" + ApplicationHelper::TABLE_STRIPED_CLASS + " table-dashboard'>
+                    <thead><tr>
+                      <th>Wk</th>
+                      <th>Team</th>
+                    </tr></thead>"
+    game_type = survivor_entry.get_game_type
+    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+      1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
+        existing_bet = @selector_to_bet_map[SurvivorBet.bet_entry_selector(
+            survivor_entry.id, week, bet_number)]
+        
+        if survivor_entry.is_alive || (week <= survivor_entry.knockout_week) || existing_bet
+          bet_html << "<tr"
+          if !existing_bet.nil?
+            if !existing_bet.is_correct.nil? &&
+                (survivor_entry.is_alive || existing_bet.week <= survivor_entry.knockout_week)
+              bet_html << " class='" + (existing_bet.is_correct ? "green-row" : "red-row") + "'"
+            elsif !survivor_entry.is_alive
+              bet_html << " class='dead-row'"
+            end
+          elsif !survivor_entry.is_alive
+            if survivor_entry.knockout_week == week
+              bet_html << " class='red-row'"
+            else
+              bet_html << " class='dead-row'"
+            end
+          end
+
+          # week number
+          bet_html << "><td>" + week.to_s + "</td>"
+
+          # if pick is locked for this week [game has already started or week start time has already
+          # passed], show as read-only
+          pick_locked = false
+          if (DateTime.now > @week_to_start_time_map[week]) ||
+             (!existing_bet.nil? && (DateTime.now > existing_bet.nfl_game.start_time))
+            pick_locked = true
+          end
+
+          # If bet exists & game is complete, show result; otherwise, show dropdown with available
+          # teams
+          if !existing_bet.nil? && 
+              (!existing_bet.is_correct.nil? || !survivor_entry.is_alive || pick_locked)
+            bet_html << "<td>" + existing_bet.nfl_team.abbreviation + "</td>"
+          elsif !survivor_entry.is_alive || pick_locked
+            if !survivor_entry.is_alive && survivor_entry.knockout_week == week
+              bet_html << "<td>--</td>"
+            else
+              bet_html << "<td></td>"
+            end
+          else
+            bet_html << get_mini_team_select(week, bet_number, survivor_entry, existing_bet)
+          end
+          bet_html << "</tr>"
+        end
+      }
+    }
+    bet_html << "</table>"
+    return bet_html
+  end
+
+  def get_mini_team_select(week, bet_number, survivor_entry, existing_bet)
+    select_html = "<td class='tdselect'>
+                     <select class='input-entries' name='" +
+                         SurvivorBet.bet_entry_selector(survivor_entry.id, week, bet_number) + "'>
+                     <option value=0></option>"
+
+    # TODO week_team_to_game_map should be aware of survivor_entry_id
+    selected_team_ids = @selector_to_bet_map.values.map { |bet| bet.nfl_team_id }
+    @nfl_teams_map.values.each { |nfl_team|
+      # Only allow team to be selected if it has a game during that week, which hasn't yet started,
+      # and it has not already been selected in a different week.
+      team_game = @week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
+      if !team_game.nil? && DateTime.now < team_game.start_time
+        is_selected_team = !existing_bet.nil? && (existing_bet.nfl_team_id == nfl_team.id)
+        if is_selected_team || !selected_team_ids.include?(nfl_team.id)
+          select_html << "<option "
+            
+          # show bet is selected if bet already exists
+          if is_selected_team
+            select_html << "selected "
+          end
+
+          # dropdown shows name of NFL team
+          select_html << "value=" + nfl_team.id.to_s + ">" + nfl_team.abbreviation + "</option>"
+        end
+      end
+    }
+    select_html << "</select></td>"
+    return select_html
   end
 
   # displays the buttons at the bottom of the my_entries page

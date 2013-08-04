@@ -5,6 +5,7 @@ class SurvivorBet < ActiveRecord::Base
   attr_accessible :is_correct, :week, :bet_number
 
   # returns the name of the select param for selecting a team to bet on
+  # TODO remove these 2 methods
   def self.bet_selector(week, bet_number)
     return "bet_" + week.to_s + "_" + bet_number.to_s
   end
@@ -12,6 +13,17 @@ class SurvivorBet < ActiveRecord::Base
   # returns the name of the select param for selecting a team to bet on, for this bet
   def selector
     return SurvivorBet.bet_selector(self.week, self.bet_number)
+  end
+
+  # returns the name of the select param for selecting a team to bet on for a particular entry
+  def self.bet_entry_selector(survivor_entry_id, week, bet_number)
+    return "bet_" + survivor_entry_id.to_s + "_" + week.to_s + "_" + bet_number.to_s
+  end
+
+  # returns the name of the select param for selecting a team to bet on for a particular entry, for
+  # this bet
+  def entry_selector
+    return SurvivorBet.bet_entry_selector(self.survivor_entry_id, self.week, self.bet_number)
   end
 
   # calculates whether this bet is correct based on the result of the associated game and the type

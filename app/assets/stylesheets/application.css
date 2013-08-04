@@ -42,6 +42,16 @@ html, body {
     padding: 0 5px 0 5px;
 }
 
+.row-fluid [class*="bigentryspan"] {
+    padding: 0;
+    border:none;
+}
+
+.row-fluid [class*="entriesspan"] {
+    padding: 0;
+    border: none;
+}
+
 .dashboardtable {
     font-size: 10px;
 }
@@ -245,6 +255,10 @@ label {
 .input-tourney {
   width: 125px;
   font-size: 12px;
+}
+.input-entries {
+  width: 53px;
+  font-size: 10px;
 }
 
 .tourney {

@@ -33,6 +33,20 @@ class SurvivorEntriesController < ApplicationController
       @type_to_entry_map = build_type_to_entry_map(
           SurvivorEntry.where({user_id: @user.id, year: current_year})
                        .order(:game_type, :entry_number))
+
+      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                             .joins(:survivor_entry)
+                             .joins(:nfl_game)
+                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
+                             .order("survivor_entries.id, nfl_schedules.week")
+      @selector_to_bet_map = build_entry_selector_to_bet_map(user_bets)
+      @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
+      @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
+
+      @weeks = Week.where(year: Date.today.year)
+                   .order(:number)
+      @week_to_start_time_map = build_week_to_start_time_map(@weeks)
+      @current_week = get_current_week_from_weeks(@weeks)
     else
       redirect_to root_url
     end
@@ -213,6 +227,15 @@ class SurvivorEntriesController < ApplicationController
     selector_to_bet_map = {}
     bets.each { |bet|
       selector_to_bet_map[bet.selector] = bet
+    }
+    return selector_to_bet_map
+  end
+
+  # returns a map of entry-id/week/bet-number to the corresponding existing bet.
+  def build_entry_selector_to_bet_map(bets)
+    selector_to_bet_map = {}
+    bets.each { |bet|
+      selector_to_bet_map[bet.entry_selector] = bet
     }
     return selector_to_bet_map
   end
