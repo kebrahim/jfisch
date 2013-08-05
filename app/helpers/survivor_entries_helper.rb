@@ -12,7 +12,7 @@ module SurvivorEntriesHelper
 
     # If season has not begun, allow user to update count of entries
     if before_season
-      entries_html << "<p><strong>Entry count:</strong>
+      entries_html << "<strong>Entry count:</strong>
                           <select name='game_" + game_type.to_s + "' class='input-mini'>"
       0.upto(SurvivorEntry::MAX_ENTRIES_MAP[game_type]) { |num_games|
         entries_html << "   <option value=" + num_games.to_s
@@ -21,8 +21,7 @@ module SurvivorEntriesHelper
         end
         entries_html << ">" + num_games.to_s + "</option>"
       }
-      entries_html << "   </select>
-                       </p>"
+      entries_html << "   </select>"
     end
 
     # Show existing entries
@@ -37,16 +36,17 @@ module SurvivorEntriesHelper
           entries_html << " offset" + offset_size.to_s
           offset_size = 0
         end
-        if !current_entry.is_alive
-          # TODO remove link if entry is dead
-          #entries_html << " dead"
+        entries_html << "'><h5>"
+        if current_entry.is_alive
+          entries_html << link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+                                      current_entry.entry_number.to_s,
+                                  "/survivor_entries/" + current_entry.id.to_s,
+                                  class: 'btn-link-black')
+        else
+          entries_html << SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+                                      current_entry.entry_number.to_s
         end
-        entries_html << "'><h5>" +
-                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
-                                         current_entry.entry_number.to_s,
-                                     "/survivor_entries/" + current_entry.id.to_s,
-                                     class: 'btn-link-black') +
-                          "</h5>"
+        entries_html << "</h5>"
 
         # Allow user to change picks in bulk
         entries_html << mini_entry_bets_table(current_entry)
@@ -130,11 +130,11 @@ module SurvivorEntriesHelper
                          SurvivorBet.bet_entry_selector(survivor_entry.id, week, bet_number) + "'>
                      <option value=0></option>"
 
-    # TODO week_team_to_game_map should be aware of survivor_entry_id
-    selected_team_ids = @selector_to_bet_map.values.map { |bet| bet.nfl_team_id }
+    # collect selected team ids for the given entry
+    selected_team_ids = get_selected_team_ids(survivor_entry)
     @nfl_teams_map.values.each { |nfl_team|
       # Only allow team to be selected if it has a game during that week, which hasn't yet started,
-      # and it has not already been selected in a different week.
+      # and it has not already been selected in a different week within the same entry.
       team_game = @week_team_to_game_map[NflSchedule.game_selector(week, nfl_team.id)]
       if !team_game.nil? && DateTime.now < team_game.start_time
         is_selected_team = !existing_bet.nil? && (existing_bet.nfl_team_id == nfl_team.id)
@@ -154,6 +154,18 @@ module SurvivorEntriesHelper
     select_html << "</select></td>"
     return select_html
   end
+  
+  # returns the selected nfl team ids for all bets for a particular user, which are associated with
+  # the specified entry
+  def get_selected_team_ids(survivor_entry)
+    selected_team_ids = []
+    @selector_to_bet_map.values.each { |bet|
+      if bet.survivor_entry_id == survivor_entry.id
+        selected_team_ids << bet.nfl_team_id
+      end
+    }
+    return selected_team_ids
+  end
 
   # displays the buttons at the bottom of the my_entries page
   def entries_buttons(before_season)
@@ -169,7 +181,7 @@ module SurvivorEntriesHelper
 
   # Displays all bets for all entries for a specific game type
   def entries_bet_display(game_type, type_to_entry_map, entry_to_bets_map, span_size)
-    entries_html = "<div class='span" + span_size.to_s + " center survivorspan'>
+    entries_html = "<div class='span" + span_size.to_s + " center'>
                       <h4>" + link_to(SurvivorEntry.game_type_title(game_type),
                       	              "/" + game_type.to_s,
                       	              class: 'btn-link-black') +
@@ -193,18 +205,23 @@ module SurvivorEntriesHelper
         if !current_entry.is_alive
           entries_html << " dead"
         end
-        entries_html << "'><h5>" +
-                             link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+        entries_html << "'><h5>"
+        if current_entry.is_alive
+          entries_html << link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
                                          current_entry.entry_number.to_s,
                                      "/survivor_entries/" + current_entry.id.to_s,
-                                     class: 'btn-link-black') +
-                          "</h5>"
+                                     class: 'btn-link-black')
+        else
+          entries_html << SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
+                                         current_entry.entry_number.to_s
+        end
+        entries_html << "</h5>"
 
         # Show all bets for the entry
         entries_html <<
             "<table class='" + ApplicationHelper::TABLE_STRIPED_CLASS + " table-dashboard'>
                <thead><tr>
-                 <th>Week</th>
+                 <th>Wk</th>
                  <th>Team</th>
                </tr></thead>"
 

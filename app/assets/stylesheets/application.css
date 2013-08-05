@@ -40,11 +40,10 @@ html, body {
 
 .row-fluid [class*="survivorspan"] {
     padding: 0 5px 0 5px;
+    border:none;
 }
 
 .row-fluid [class*="bigentryspan"] {
-    padding: 0;
-    border:none;
 }
 
 .row-fluid [class*="entriesspan"] {
