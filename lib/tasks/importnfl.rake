@@ -18,12 +18,21 @@ namespace :importnfl do
     puts "Imported " + teamcount.to_s + " NFL teams!"
   end
 
+  desc "Imports NFL preseason schedule data from CSV file"
+  task :preseason_schedule => :environment do
+    import_nfl_schedule("/lib/assets/nfl_preseason_schedule.csv")
+  end
+
   desc "Imports NFL schedule data from CSV file"
   task :schedule => :environment do
+    import_nfl_schedule("/lib/assets/nfl_schedule.csv")
+  end
+
+  def import_nfl_schedule(filename)
     require 'csv'
     schedcount = 0
     year = Date.today.year
-    CSV.foreach(File.join(File.expand_path(::Rails.root), "/lib/assets/nfl_schedule.csv")) do |row|
+    CSV.foreach(File.join(File.expand_path(::Rails.root), filename)) do |row|
       # skip comment line
       if row[0].starts_with?("#")
         next
@@ -64,11 +73,20 @@ namespace :importnfl do
   end
 
   desc "Imports NFL weeks data from CSV file"
+  task :preseason_weeks => :environment do
+    import_weeks("/lib/assets/nfl_preseason_weeks.csv")
+  end
+
+  desc "Imports NFL weeks data from CSV file"
   task :weeks => :environment do
+    import_weeks("/lib/assets/nfl_weeks.csv")
+  end
+
+  def import_weeks(filename)
     require 'csv'
     wkcount = 0
     year = Date.today.year
-    CSV.foreach(File.join(File.expand_path(::Rails.root), "/lib/assets/nfl_weeks.csv")) do |row|
+    CSV.foreach(File.join(File.expand_path(::Rails.root), filename)) do |row|
       # skip comment line
       if row[0].starts_with?("#")
         next
