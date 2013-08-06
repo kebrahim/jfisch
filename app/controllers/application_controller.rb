@@ -29,6 +29,16 @@ class ApplicationController < ActionController::Base
     return weeks.last.number
   end
 
+  def get_current_week_object_from_weeks(weeks)
+    now = DateTime.now
+    weeks.each { |week|
+      if now < week.start_time
+        return week
+      end
+    }
+    return weeks.last
+  end
+
   # returns the week number based on whether any games in that particular week have already started
   def game_week
     now = DateTime.now

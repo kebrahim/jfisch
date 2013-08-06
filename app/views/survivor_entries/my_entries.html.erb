@@ -10,8 +10,15 @@
   <div class='span12 center'>
     <br/>
     <form action='/my_entries' method='post'>
+
     <%= show_notice_as_alert(notice) %>
     
+    <div class='alert alert-info'>
+      <strong>
+        Click on an individual entry name to see matchups and the NFL schedule. 
+      </strong>
+    </div>
+
     <div class='row-fluid'>
       <%= entries_selector(:survivor, @type_to_entry_map, 6, @before_season) %>
       <%= entries_selector(:anti_survivor, @type_to_entry_map, 3, @before_season) %>

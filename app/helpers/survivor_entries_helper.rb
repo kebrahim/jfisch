@@ -173,7 +173,7 @@ module SurvivorEntriesHelper
     
     # Show update bets button if user has entries
     if !@type_to_entry_map.values.empty?
-      buttons_html << "<button class='btn btn-primary' name='updatebets'>Update Bets</button>
+      buttons_html << "<button class='btn btn-primary' name='updatebets'>Make Picks</button>
                       &nbsp&nbsp"
     end
 

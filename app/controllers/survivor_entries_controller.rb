@@ -6,6 +6,8 @@ class SurvivorEntriesController < ApplicationController
     @user = current_user
     if !@user.nil?
       current_year = Date.today.year
+      @current_week = get_current_week_object_from_weeks(
+          Week.where(year: Date.today.year).order(:number))
       @type_to_entry_map = build_type_to_entry_map(
           SurvivorEntry.where({user_id: @user.id, year: current_year})
                        .order(:game_type, :entry_number))
