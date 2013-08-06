@@ -7,9 +7,12 @@ class SurvivorEntry < ActiveRecord::Base
   enumerize :game_type, in: [:survivor, :anti_survivor, :high_roller, :second_chance]
 
   MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2 }
-  MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
-  MAX_BETS_MAP = { survivor: 22, anti_survivor: 22, high_roller: 21 }
-  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil}
+  MAX_WEEKS_MAP = { survivor: 4, anti_survivor: 4, high_roller: 4 }
+  #MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
+  MAX_BETS_MAP = { survivor: 7, anti_survivor: 6, high_roller: 4 }
+  #MAX_BETS_MAP = { survivor: 22, anti_survivor: 22, high_roller: 21 }
+  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 2, anti_survivor: 3, high_roller: nil}
+  #TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil}
   GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller]
 
   # Returns the game_type matching the specified name
