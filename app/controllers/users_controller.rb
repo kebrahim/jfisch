@@ -56,8 +56,9 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
 
     # new user defaults to "user" role and receiving bet summary emails.
+    # TODO default send_emails to true when sendgrid is enabled
     @user.role = :user
-    @user.send_emails = true
+    @user.send_emails = false
     
     # when captain code is supported, remove this hard-coded captain code & require user to enter it
     @user.captain_code = "blahblah"
