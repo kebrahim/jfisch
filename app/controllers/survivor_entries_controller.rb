@@ -83,9 +83,9 @@ class SurvivorEntriesController < ApplicationController
   def save_entries
     @user = current_user
     if !@user.nil?
-      is_updated, has_creates = false
-      if params["cancel"].nil?
-        current_year = Date.today.year
+      current_year = Date.today.year
+      if params["updateentries"]
+        is_updated, has_creates = false
         type_to_entry_map = build_type_to_entry_map(
             SurvivorEntry.where({user_id: @user.id, year: current_year}))
 
@@ -99,18 +99,111 @@ class SurvivorEntriesController < ApplicationController
           existing_size = existing_entries.nil? ? 0 : existing_entries.size
           has_creates |= params["game_" + game_type.to_s].to_i > existing_size
         }
+        if is_updated
+          confirmation_message = has_creates ?
+              "Congratulations! Click on an individual entry to start making picks!" :
+              "Entries successfully deleted!"
+        end
+      elsif params["updatebets"]
+        user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                             .joins(:survivor_entry)
+                             .joins(:nfl_game)
+                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
+                             .order("survivor_entries.id, nfl_schedules.week")
+        selector_to_bet_map = build_entry_selector_to_bet_map(user_bets)
+        week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
+        user_entries = SurvivorEntry.where({user_id: @user.id, year: current_year})
+                                    .order(:game_type, :entry_number)
+        
+        # collect bets, separating into create/update
+        bets = {}
+        bets[:create] = []
+        bets[:update] = []
+        user_entries.each { |survivor_entry|
+          get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map)
+        }
+
+        # create/update bets
+        confirmation_message = create_update_bets(bets, week_team_to_game_map)
       end
 
       # re-direct user to my_entries page, with confirmation
-      if is_updated
-        confirmation_message = has_creates ?
-            "Congratulations! Click on an individual entry to start making picks!" :
-            "Entries successfully deleted!"
-      end
       redirect_to my_entries_url, notice: confirmation_message
     else
       redirect_to root_url
     end
+  end
+
+  # creates/updates the specified bets and returns a confirmation message
+  def create_update_bets(user_entry_bets, week_team_to_game_map)
+    confirmation_message = ""
+    if !user_entry_bets[:create].empty? || !user_entry_bets[:update].empty?
+      # Wrap creates/updates/deletes in a single transaction, in case any of the operations
+      # violates an index, at which point all of the operations are rolled back.
+      SurvivorBet.transaction do 
+        begin
+          # First, bulk-import new bets
+          import_result = SurvivorBet.import user_entry_bets[:create]
+
+          # Next, update each existing bet, deleting if no team is selected
+          user_entry_bets[:update].each { |bet_to_update|
+            if bet_to_update.nfl_team_id > 0
+              bet_to_update.save
+            else
+              bet_to_update.destroy
+            end
+          }
+
+          if import_result.failed_instances.empty?
+            confirmation_message = "Picks successfully updated!"
+            # send bet summary email if user receives emails
+            if @user.send_emails
+              UserMailer.survivor_bet_summary(@user, user_entry_bets[:create],
+                  user_entry_bets[:update], week_team_to_game_map).deliver
+            end
+          else
+            confirmation_message = "Error: Failed instances while saving bets"
+          end
+        rescue Exception => e
+          confirmation_message = "Error: Cannot select same team twice."
+        end
+      end
+    end
+    return confirmation_message
+  end
+
+  # constructs the bets to create/update/delete for the specified entry and populates them in the
+  # specified bets hashmap
+  def get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map)
+    game_type = SurvivorEntry.name_to_game_type(survivor_entry.game_type)
+    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+      1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
+        selector = SurvivorBet.bet_entry_selector(survivor_entry.id, week, bet_number)
+        existing_bet = selector_to_bet_map[selector]
+        selected_team_id = params[selector].to_i
+        if !params[selector].nil? &&
+            (!existing_bet.nil? || selected_team_id > 0)
+          if existing_bet.nil?
+            # Bet does not exist, create new bet.
+            new_bet = SurvivorBet.new
+            new_bet.survivor_entry_id = survivor_entry.id
+            new_bet.week = week
+            new_bet.bet_number = bet_number
+            new_bet.nfl_game_id =
+                week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
+            new_bet.nfl_team_id = selected_team_id
+            new_bet.is_correct = nil
+            bets[:create] << new_bet
+          elsif existing_bet.nfl_team_id != selected_team_id
+            # Bet already exists and is changed, update.
+            existing_bet.nfl_team_id = selected_team_id
+            existing_bet.nfl_game_id = selected_team_id == 0 ? 0 :
+                week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
+            bets[:update] << existing_bet
+          end
+        end
+      }
+    }
   end
 
   # Updates the number of entries for the specified game type, logged-in user & year, based on the

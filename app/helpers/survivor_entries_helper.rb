@@ -170,11 +170,20 @@ module SurvivorEntriesHelper
   # displays the buttons at the bottom of the my_entries page
   def entries_buttons(before_season)
   	buttons_html = "<p class='center'>"
+    
+    # Show update bets button if user has entries
+    if !@type_to_entry_map.values.empty?
+      buttons_html << "<button class='btn btn-primary' name='updatebets'>Update Bets</button>
+                      &nbsp&nbsp"
+    end
+
+    # Show update entries button if season has not yet begun
     if before_season
-      buttons_html << "<button class='btn btn-primary' name='save'>Update Entry Counts</button>
+      buttons_html << "<button class='btn btn-inverse' name='updateentries'>Update Entry Counts</button>
                        &nbsp&nbsp"
     end
-    # TODO add button to update bets in bulk
+
+    # Always show cancel button
     buttons_html << "<button class='btn' name='cancel'>Cancel</button></p>"
     return buttons_html.html_safe
   end
