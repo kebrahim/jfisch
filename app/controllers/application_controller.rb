@@ -4,12 +4,17 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
   helper_method :current_week
   helper_method :game_week
+  before_filter :set_time_zone
 
   private
 
   # returns the current logged-in user
   def current_user
     @current_user ||= User.find_by_auth_token(cookies[:auth_token]) if cookies[:auth_token]
+  end
+
+  def set_time_zone
+    Time.zone = nil #current_user.time_zone if current_user
   end
 
   # returns the current week of all weeks for the given year
