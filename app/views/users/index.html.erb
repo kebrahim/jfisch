@@ -13,6 +13,7 @@
         <th>Send Emails</th>
         <th>Captain Code</th>
         <th>Referred By</th>
+        <th>Time Zone</th>
         <th></th>
         <th></th>
       </tr></thead>
@@ -26,6 +27,7 @@
         <td><%= user.send_emails %></td>
         <td><%= user.captain_code %></td>
         <td><%= user.referred_by %></td>
+        <td><%= user.time_zone %></td>
         <td><%= link_to 'Edit', edit_user_path(user) %></td>
         <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>

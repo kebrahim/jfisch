@@ -18,7 +18,7 @@
           <td><%= week.number %></td>
           <td><input class='input-xlarge center' type='datetime'
                      name=<%= "'weekstart" + week.number.to_s + "'" %> required 
-                     value=<%= "'" + week.start_time.time.localtime.strftime("%m/%d/%Y %I:%M %p %Z") + "'" %>>
+                     value=<%= "'" + week.start_time.utc.in_time_zone.strftime("%m/%d/%Y %I:%M %p %Z") + "'" %>>
           </td>
         </tr>
       <% end %>

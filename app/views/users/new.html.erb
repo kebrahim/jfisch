@@ -17,3 +17,16 @@
 
   </div>
 </div>
+
+<script type='text/javascript'>
+  $(document).ready(function () {
+      var tz = jstz.determine();
+      response_text = 'No timezone found';      
+      if (typeof (tz) === 'undefined') {
+          response_text = 'No timezone found';
+      } else {
+          response_text = tz.name(); 
+      }
+      document.getElementById("tz").value = response_text 
+  });
+</script>

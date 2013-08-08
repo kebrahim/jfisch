@@ -28,6 +28,7 @@
             <td><%= f.label :email %></td>
             <td><%= f.email_field :email, :required => true %></td>
           </tr>
+          <input type='hidden' id='tz' name='tz' value='' />
           <% if @current_user && @admin_function && @current_user.is_admin %>
           <tr>
             <td><%= f.label :role %></td>

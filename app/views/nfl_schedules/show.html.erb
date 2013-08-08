@@ -19,9 +19,9 @@
             <tr><td><strong>Year:</strong></td><td><%= @nfl_game.year %></td></tr>
             <tr><td><strong>Week:</strong></td><td><%= @nfl_game.week %></td></tr>
             <tr><td><strong>Date:</strong></td>
-                <td><%= @nfl_game.start_time.time.localtime.strftime("%m/%d/%Y") %></td></tr>
+                <td><%= @nfl_game.start_time.utc.in_time_zone.strftime("%m/%d/%Y") %></td></tr>
             <tr><td><strong>Time:</strong></td>
-                <td><%= @nfl_game.start_time.time.localtime.strftime("%I:%M %p %Z") %></td></tr>
+                <td><%= @nfl_game.start_time.utc.in_time_zone.strftime("%I:%M %p %Z") %></td></tr>
           </table>
         </div>
         <div class='span6 center'>

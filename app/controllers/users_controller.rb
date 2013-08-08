@@ -59,6 +59,7 @@ class UsersController < ApplicationController
     # TODO default send_emails to true when sendgrid is enabled
     @user.role = :user
     @user.send_emails = false
+    @user.time_zone = params["tz"]
     
     # when captain code is supported, remove this hard-coded captain code & require user to enter it
     @user.captain_code = "blahblah"

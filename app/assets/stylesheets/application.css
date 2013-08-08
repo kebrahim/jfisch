@@ -27,7 +27,7 @@ html, body {
   height: 100%;
   /* Negative indent footer by it's height */
   margin: 0 auto -120px;
-  background-image: url("sports.png")
+  background-image: url("/assets/sports.png");
 }
 
 .row-fluid [class*="span"] {

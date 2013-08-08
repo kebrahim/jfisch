@@ -10,7 +10,7 @@ module NflSchedulesHelper
                    </tr></thead>"
     games.each { |game|
       week_html << "<tr>
-                      <td>" + game.start_time.time.localtime.strftime("%a %m/%d/%y %l%P") + "</td>
+                      <td>" + game.start_time.utc.in_time_zone.strftime("%a %m/%d/%y %l%P") + "</td>
                       <td>" + game.home_nfl_team.abbreviation + "</td>
                       <td>" + game.home_score.to_s + "</td>
                       <td>" + game.away_nfl_team.abbreviation + "</td>
