@@ -15,7 +15,7 @@
     <div class='alert alert-info'>
       <strong>
         Please make sure all Week <%= @current_week.number.to_s %> picks are submitted by
-        <%= @current_week.start_time.utc.in_time_zone.strftime("%I:%M %p %Z on %A, %m/%d/%y") %>! 
+        <%= @current_week.start_time.utc.in_time_zone.strftime("%-I:%M %p %Z on %A, %-m/%-d/%y") %>! 
       </strong>
     </div>
 
