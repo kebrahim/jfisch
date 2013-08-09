@@ -32,12 +32,12 @@ namespace :importuser do
     puts "Updated auth_token of " + usercount.to_s + " users!"
   end
 
-  desc "Adds default time zones to all existing users"
+  desc "Adds default time zone to all existing users"
   task :timezone => :environment do
     usercount = 0
     users = User.where(time_zone: nil)
     users.each { |user|
-      user.time_zone = "Eastern Time (US & Canada)"
+      user.time_zone = "America/New_York"
       user.save
       usercount += 1
     }
