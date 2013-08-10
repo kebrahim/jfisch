@@ -1,5 +1,9 @@
 
-<%= navigationBar(NavigationHelper::DASHBOARD_BUTTON) %>
+<% if @admin_function %>
+  <%= navigationBar(NavigationHelper::ADMIN_USERS_BUTTON) %>
+<% else %>
+  <%= navigationBar(NavigationHelper::DASHBOARD_BUTTON) %>
+<% end %>
 
 <div class='row-fluid'>
   <div class='span12 center'>
@@ -15,7 +19,8 @@
     <div class='alert alert-info'>
       <strong>
         Please make sure all Week <%= @current_week.number.to_s %> picks are submitted by
-        <%= @current_week.start_time.utc.in_time_zone.strftime("%-I:%M %p %Z on %A, %-m/%-d/%y") %>! 
+        <%= @current_week.start_time.utc.in_time_zone.strftime("%-I:%M %p %Z on %A, %b ") + 
+            @current_week.start_time.utc.in_time_zone.strftime("%-d").to_i.ordinalize %>! 
       </strong>
     </div>
 
@@ -28,10 +33,20 @@
 
     <p>
       <% if @type_to_entry_map.empty? %>
-        <h5>Welcome to Fisch Madness Survivor! Click the "Manage Entries" button below to create your entries!</h5>
+        <h5>Welcome to Fisch Madness Survivor! Click the "Manage Entries" button below to create
+            your entries!</h5>
         <img class='img_50_49 finger' src='/assets/downpointer.svg'><br/>
       <% end %>
-      <%= link_to("Manage Entries", "/my_entries", class: 'btn btn-primary') %>
+
+      <% if @admin_function %>
+        <%=
+          # TODO - add link to user's my entries page for admin
+          #link_to("Manage Entries", "/users/" + @user.id.to_s + "/entries",
+           #         class: 'btn btn-primary')
+        %>
+      <% else %>
+        <%= link_to("Manage Entries", "/my_entries", class: 'btn btn-primary') %>
+      <% end %>
     </p>
   </div>
 </div>

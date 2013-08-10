@@ -442,14 +442,15 @@ module SurvivorEntriesHelper
     
     max_week = [current_week, game_week].max
     if max_week > 0
-      bets_html << "<th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
+      bets_html << "<th class='leftborderme' colspan='" +
+          SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
     end
     bets_html <<    "</tr>
                      <tr>"
     # Show bets for all weeks up to the current week.
     1.upto(max_week) { |week|
-      bets_html << "<th colspan='" + SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" +
-                   week.to_s + "</th>"
+      bets_html << "<th class='leftborderme' colspan='" +
+          SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" + week.to_s + "</th>"
     }
     bets_html <<    "</tr>
                    </thead>"
@@ -491,8 +492,10 @@ module SurvivorEntriesHelper
                 end
                 bets_html << ">"
 
-                # only show bet if it's marked as correct/incorrect or the game has already started
-                if !bet.is_correct.nil? || DateTime.now > bet.nfl_game.start_time
+                # only show bet if it's marked as correct/incorrect, the game has already started,
+                # or the game's week lock has already occurred
+                if !bet.is_correct.nil? || (DateTime.now > bet.nfl_game.start_time) ||
+                    (bet.week <= current_week)
                   bets_html << bet.nfl_team.abbreviation
                 end
               else
@@ -529,11 +532,12 @@ module SurvivorEntriesHelper
                      <tr>
                        <th rowspan=2>Stat</th>"
     if current_week > 0
-      stats_html << "<th colspan='" + SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
+      stats_html << "<th class='leftborderme' colspan='" +
+          SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
     end
     stats_html <<   "</tr><tr>"
     1.upto(current_week) { |week|
-      stats_html << "<th>" + week.to_s + "</th>"
+      stats_html << "<th class='leftborderme'>" + week.to_s + "</th>"
     }
     stats_html <<   "</thead>"
 
@@ -563,21 +567,22 @@ module SurvivorEntriesHelper
   def all_entries_table(users, user_to_entries_count_map)
     all_entries_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
                           <thead><tr>
-                            <th rowspan=2 colspan=2>User</th>
-                            <th colspan=2>Survivor</th>
-                            <th colspan=2>Anti-Survivor</th>
+                            <th rowspan=2 colspan=2 class='rightborderme'>User</th>
+                            <th colspan=2 class='rightborderme'>Survivor</th>
+                            <th colspan=2 class='rightborderme'>Anti-Survivor</th>
                             <th colspan=2>High-Roller</th>
                           </tr>
                           <tr>
-                            <th>Total</th><th>Alive</th>
-                            <th>Total</th><th>Alive</th>
-                            <th>Total</th><th>Alive</th>
+                            <th class='rightborderme'>Total</th><th class='rightborderme'>Alive</th>
+                            <th class='rightborderme'>Total</th><th class='rightborderme'>Alive</th>
+                            <th class='rightborderme'>Total</th><th>Alive</th>
                           </tr></thead>"
     
     # number of (total & alive) entries per user
     users.each { |user|
-      all_entries_html << "<tr><td>" + user.full_name + "</td>
-                               <td>" + user.email + "</td>"
+      all_entries_html <<
+          "<tr><td>" + link_to(user.full_name, '/users/' + user.id.to_s + "/dashboard") + "</td>
+               <td>" + user.email + "</td>"
       if user_to_entries_count_map.has_key?(user.id)
         [:survivor, :anti_survivor, :high_roller].each { |game_type|
           0.upto(1) { |idx|

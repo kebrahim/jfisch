@@ -5,22 +5,45 @@ class SurvivorEntriesController < ApplicationController
   def dashboard
     @user = current_user
     if !@user.nil?
-      current_year = Date.today.year
-      @current_week = get_current_week_object_from_weeks(
-          Week.where(year: Date.today.year).order(:number))
-      @type_to_entry_map = build_type_to_entry_map(
-          SurvivorEntry.where({user_id: @user.id, year: current_year})
-                       .order(:game_type, :entry_number))
-
-      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
-                             .joins(:survivor_entry)
-                             .joins(:nfl_game)
-                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
-                             .order("survivor_entries.id, nfl_schedules.week")
-      @entry_to_bets_map = build_entry_id_to_bets_map(user_bets)
+      get_dashboard_data(@user)
     else
       redirect_to root_url
     end
+  end
+
+  # GET /users/:user_id/dashboard
+  def user_dashboard
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @admin_function = true
+    @user = User.find_by_id(params[:user_id])
+    if !@user.nil?
+      get_dashboard_data(@user)
+      render "dashboard"
+    else
+      redirect_to root_url
+    end
+  end
+
+  # loads the data needed for the dashboard, for the specified user
+  def get_dashboard_data(user)
+    current_year = Date.today.year
+    @current_week = get_current_week_object_from_weeks(
+        Week.where(year: Date.today.year).order(:number))
+    @type_to_entry_map = build_type_to_entry_map(
+        SurvivorEntry.where({user_id: user.id, year: current_year})
+                     .order(:game_type, :entry_number))
+
+    user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                           .joins(:survivor_entry)
+                           .joins(:nfl_game)
+                           .where(:survivor_entries => {year: current_year, user_id: user.id})
+                           .order("survivor_entries.id, nfl_schedules.week")
+    @entry_to_bets_map = build_entry_id_to_bets_map(user_bets)
   end
 
   # GET /my_entries

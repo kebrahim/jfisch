@@ -6,8 +6,7 @@
 
     <table class=<%= "'" + ApplicationHelper::TABLE_CLASS + "'" %>>
       <thead><tr>
-        <th>First name</th>
-        <th>Last name</th>
+        <th>Name</th>
         <th>Email</th>
         <th>Role</th>
         <th>Send Emails</th>
@@ -19,8 +18,7 @@
 
     <% @users.each do |user| %>
       <tr>
-        <td><%= user.first_name %></td>
-        <td><%= user.last_name %></td>
+        <td><%= link_to(user.full_name, "/users/" + user.id.to_s + "/dashboard") %></td>
         <td><%= user.email %></td>
         <td><%= user.role %></td>
         <td><%= user.send_emails %></td>

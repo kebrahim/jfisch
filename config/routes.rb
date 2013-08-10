@@ -36,6 +36,7 @@ Jfisch::Application.routes.draw do
   resources :users
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'profile' => 'users#profile'
+  get '/users/:user_id/dashboard' => 'survivor_entries#user_dashboard'
 
   resources :password_resets
 

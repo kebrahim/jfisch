@@ -153,6 +153,15 @@ table th {background-color: black; color:white;}
 .table td.rightborderme {
   border-right: thin solid black;
 }
+.table th.topborderme {
+  border-top: thin solid white;
+}
+.table th.leftborderme {
+  border-left: thin solid white !important;
+}
+.table th.rightborderme {
+  border-right: thin solid white !important;
+}
 
 .row-fluid [class*="span"] .dead {
   background-color:#F2DEDE;

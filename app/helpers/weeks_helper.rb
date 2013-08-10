@@ -6,7 +6,7 @@ module WeeksHelper
                          <thead><tr>
                            <th>Team</th>
                            <th>Opponent</th>
-                           <th>Result</th>
+                           <th class='rightborderme'>Result</th>
                            <th>Entry Count</th>
                          </tr></thead>"
 
