@@ -2,7 +2,8 @@ class User < ActiveRecord::Base
   extend Enumerize
 
   attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role,
-                  :captain_code, :referred_by, :send_emails, :time_zone
+                  :captain_code, :referred_by, :send_emails, :time_zone, :is_confirmed,
+                  :confirmation_token
 
   enumerize :role, in: [:demo, :user, :captain, :admin, :super_admin]
 
@@ -54,6 +55,13 @@ class User < ActiveRecord::Base
     UserMailer.password_reset(self).deliver
   end
 
+  def send_confirmation
+    generate_token(:confirmation_token)
+    self.is_confirmed = false
+    save!
+    UserMailer.account_confirmation(self).deliver
+  end
+  
   # Returns the full name of the user
   def full_name
     return self.first_name + " " + self.last_name

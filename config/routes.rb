@@ -3,7 +3,10 @@ Jfisch::Application.routes.draw do
   # survivor_entries
   get 'my_entries' => 'survivor_entries#my_entries'
   post 'my_entries' => 'survivor_entries#save_entries'
+  
   get 'dashboard' => 'survivor_entries#dashboard'
+  get '/users/:user_id/dashboard' => 'survivor_entries#user_dashboard'
+
   post 'save_entry_bets' => 'survivor_entries#save_entry_bets'
   get '/survivor_entries/:id(.:format)' => 'survivor_entries#show'
  
@@ -36,7 +39,7 @@ Jfisch::Application.routes.draw do
   resources :users
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'profile' => 'users#profile'
-  get '/users/:user_id/dashboard' => 'survivor_entries#user_dashboard'
+  get '/confirm/:confirmation_code' => 'users#confirm', :as=>'confirm_user'
 
   resources :password_resets
 

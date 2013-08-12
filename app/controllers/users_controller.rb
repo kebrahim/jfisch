@@ -59,10 +59,9 @@ class UsersController < ApplicationController
     # TODO default send_emails to true when sendgrid is enabled
     @user.role = :user
     @user.send_emails = false
-    
+
     # when captain code is supported, remove this hard-coded captain code & require user to enter it
     @user.captain_code = "blahblah"
-
     if params["commit"]
       begin
         if User.find_by_names(@user.first_name, @user.last_name)
@@ -72,7 +71,10 @@ class UsersController < ApplicationController
           redirect_to "/sign_up",
               notice: "Error: Invalid captain code. Please try again."
         elsif @user.save
-          redirect_to root_url, notice: 'User was successfully created.'
+          # send confirmation email
+          @user.send_confirmation
+          redirect_to root_url,
+              notice: 'User was successfully created; please check your email to confirm account creation!'
         else
           @current_week = current_week
           render action: 'new'
@@ -83,6 +85,19 @@ class UsersController < ApplicationController
     else
       redirect_to root_url
     end
+  end
+
+  # GET /users/:confirmation_code/confirm
+  def confirm
+    @user = User.find_by_confirmation_token(params[:confirmation_code])
+    notice_message = ""
+    if @user
+      @user.update_attributes({ is_confirmed: true, confirmation_token: nil })
+      notice_message = "Successfully confirmed account; please login!"
+    else
+      notice_message = "Error: Invalid confirmation URL; token does not exist"
+    end
+    redirect_to root_url, notice: notice_message
   end
 
   # PUT /users/1

@@ -7,10 +7,16 @@ class UserMailer < ActionMailer::Base
   #   en.user_mailer.password_reset.subject
   #
 
+  # Sends an account confirmation email to the specified user
+  def account_confirmation(user)
+    @user = user
+    mail :to => user.email, :subject => "Confirm Fisch Survivor Madness Account"
+  end
+  
   # Sends a password reset email to the specified user
   def password_reset(user)
     @user = user
-    mail :to => user.email, :subject => "J-Fisch Survivor Password Reset"
+    mail :to => user.email, :subject => "Fisch Survivor Madness Password Reset"
   end
 
   # Sends a survivor bet summary email to the specified user
@@ -20,7 +26,7 @@ class UserMailer < ActionMailer::Base
     @bets.push(*bets_to_update)
     @team_map = build_id_to_team_map(NflTeam.all)
     @week_team_to_game_map = week_team_to_game_map
-    mail :to => user.email, :subject => "J-Fisch Survivor Bets Updated"
+    mail :to => user.email, :subject => "Fisch Survivor Madness Bets Updated"
   end
 
   # returns a map of nfl team id to team

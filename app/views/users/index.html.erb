@@ -17,7 +17,11 @@
       </tr></thead>
 
     <% @users.each do |user| %>
-      <tr>
+      <% if user.is_confirmed %>
+        <tr>
+      <% else %>
+        <tr class='red-row'>
+      <% end %>
         <td><%= link_to(user.full_name, "/users/" + user.id.to_s + "/dashboard") %></td>
         <td><%= user.email %></td>
         <td><%= user.role %></td>

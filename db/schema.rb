@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130806211023) do
+ActiveRecord::Schema.define(:version => 20130812193516) do
 
   create_table "nfl_schedules", :force => true do |t|
     t.integer  "year"
@@ -87,6 +87,8 @@ ActiveRecord::Schema.define(:version => 20130806211023) do
     t.datetime "password_reset_sent_at"
     t.boolean  "send_emails",            :default => false, :null => false
     t.string   "time_zone"
+    t.string   "confirmation_token"
+    t.boolean  "is_confirmed",           :default => false, :null => false
   end
 
   add_index "users", ["email"], :name => "users_email_uq", :unique => true

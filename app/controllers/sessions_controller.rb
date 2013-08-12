@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  skip_before_filter :verify_authenticity_token
+
   def new
   	if cookies[:auth_token]
       user = User.find_by_auth_token(cookies[:auth_token])
@@ -10,7 +12,7 @@ class SessionsController < ApplicationController
 
   def create
     user = User.authenticate(params[:email], params[:password])
-    if user
+    if user && user.is_confirmed
       if params[:remember_me]
         cookies.permanent[:auth_token] = user.auth_token
       else
@@ -18,7 +20,9 @@ class SessionsController < ApplicationController
       end
       redirect_to dashboard_url
     else
-      redirect_to root_url, notice: "Error: Invalid email or password"
+      error_message = !user ? "Error: Invalid email or password" :
+          "Error: Account not confirmed yet; please check your email!"
+      redirect_to root_url, notice: error_message
     end
   end
 

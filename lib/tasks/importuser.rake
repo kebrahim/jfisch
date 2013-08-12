@@ -14,7 +14,7 @@ namespace :importuser do
       User.create(email: email, password: 'changeme', password_confirmation: 'changeme',
                   first_name: first_name, last_name: last_name, captain_code: captain_code,
                   role: (is_super_admin == 'true' ? :super_admin : :admin).to_s,
-                  send_emails: false)
+                  send_emails: false, is_confirmed: true)
       usercount += 1
     end
     puts "Imported " + usercount.to_s + " Users!"
@@ -42,5 +42,17 @@ namespace :importuser do
       usercount += 1
     }
     puts "Updated time zones of " + usercount.to_s + " users!"
+  end
+
+  desc "Confirms all existing users"
+  task :confirm => :environment do
+    usercount = 0
+    users = User.where(is_confirmed: false)
+    users.each { |user|
+      user.is_confirmed = true
+      user.save
+      usercount += 1
+    }
+    puts "Confirmed " + usercount.to_s + " users!"
   end
 end
