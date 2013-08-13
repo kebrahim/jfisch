@@ -84,6 +84,11 @@ class SurvivorEntry < ActiveRecord::Base
     return 1
   end
 
+  # returns the number of bets required for this entry, during the specified week
+  def number_bets_required(week)
+    return SurvivorEntry::bets_in_week(self.get_game_type, week)
+  end
+
   # returns the maximum number of weeks for this entry
   def max_weeks
     return SurvivorEntry::MAX_WEEKS_MAP[self.get_game_type]

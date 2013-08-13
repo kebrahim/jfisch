@@ -236,9 +236,15 @@ module SurvivorEntriesHelper
           entries_html << " offset" + offset_size.to_s
           offset_size = 0
         end
+        
         if !current_entry.is_alive
+          # if entry is dead, highlight entry in red
           entries_html << " dead"
+        elsif entry_missing_pick_in_week(current_entry, @current_week.number)
+          # if entry is missing a pick for current week, highlight entry in yellow
+          entries_html << " missing"
         end
+
         entries_html << "'><h5>"
         if current_entry.is_alive
           entries_html << link_to(SurvivorEntry.game_type_abbreviation(game_type) + " #" + 
@@ -659,5 +665,28 @@ module SurvivorEntriesHelper
     }
     kill_html << "</table>"
     return kill_html.html_safe
+  end
+
+  # returns true if the user is missing a bet for any of their entries, during the specified week
+  def entries_missing_picks_for_week(week_number)
+    @type_to_entry_map.values.flatten.each { |entry|
+      if entry.is_alive && entry_missing_pick_in_week(entry, week_number)
+        return true
+      end
+    }
+    return false
+  end
+
+  # returns true if the specified entry is missing a pick during the specified week_number
+  def entry_missing_pick_in_week(entry, week_number)
+    num_picks = 0
+    if @entry_to_bets_map.has_key?(entry.id)
+      @entry_to_bets_map[entry.id].each { |bet|
+        if bet.week == week_number
+          num_picks += 1
+        end
+      }
+    end
+    return num_picks < entry.number_bets_required(week_number)
   end
 end

@@ -167,6 +167,10 @@ table th {background-color: black; color:white;}
   background-color:#F2DEDE;
 }
 
+.row-fluid [class*="span"] .missing {
+  background-color:#fcf8e3;
+}
+
 /* Labels */
 label {
   display: inline !important;

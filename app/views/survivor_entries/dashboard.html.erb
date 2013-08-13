@@ -20,9 +20,17 @@
       <strong>
         Please make sure all Week <%= @current_week.number.to_s %> picks are submitted by
         <%= @current_week.start_time.utc.in_time_zone.strftime("%-I:%M %p %Z on %A, %b ") + 
-            @current_week.start_time.utc.in_time_zone.strftime("%-d").to_i.ordinalize %>! 
+            @current_week.start_time.utc.in_time_zone.strftime("%-d").to_i.ordinalize %>!
       </strong>
     </div>
+
+    <% if entries_missing_picks_for_week(@current_week.number) %>
+      <div class='alert alert-warning'>
+        <strong>
+          Entries missing picks for Week <%= @current_week.number.to_s %> are highlighted in yellow! 
+        </strong>
+      </div>
+    <% end %>
 
     <div class='row-fluid'>
       <%= entries_bet_display(:survivor, @type_to_entry_map, @entry_to_bets_map, 6) %>
