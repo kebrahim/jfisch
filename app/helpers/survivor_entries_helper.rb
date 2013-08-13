@@ -37,7 +37,13 @@ module SurvivorEntriesHelper
       span_size = get_span_size(current_entries.size, SurvivorEntry::MAX_ENTRIES_MAP[game_type])
       offset_size = get_offset_size(current_entries.size, span_size)
 
+      entry_count = 0
       current_entries.each do |current_entry|
+        entry_count += 1
+        if (entry_count > 1 && ((entry_count % SurvivorEntry::MAX_ENTRIES_MAP[game_type]) == 1))
+          entries_html << "</div><div class='row-fluid'>"
+        end
+
         entries_html << "<div class='entriesspan span" + span_size.to_s
         if (offset_size > 0)
           entries_html << " offset" + offset_size.to_s
@@ -175,8 +181,14 @@ module SurvivorEntriesHelper
   end
 
   # displays the buttons at the bottom of the my_entries page
-  def entries_buttons(before_season)
+  def entries_buttons
   	buttons_html = "<p class='center'>"
+
+    if @admin_function
+      buttons_html << "<a href='/users/" + @user.id.to_s + "/dashboard' class='btn btn-success'>
+                         Back to Dashboard
+                       </a>&nbsp&nbsp"
+    end
     
     # Show update bets button if user has entries
     # TODO show make picks button when admin can make picks
@@ -186,7 +198,7 @@ module SurvivorEntriesHelper
     end
 
     # Show update entries button if season has not yet begun
-    if before_season
+    if @before_season
       buttons_html <<
           "<button class='btn btn-inverse' name='updateentries'>Update Entry Counts</button>
            &nbsp&nbsp"
@@ -208,13 +220,17 @@ module SurvivorEntriesHelper
     # Show all bets, separated by entries
     current_entries = type_to_entry_map[game_type]
     if !current_entries.nil?
-      entries_html << "<div class='row-fluid'>"
       span_size = get_span_size(current_entries.size, SurvivorEntry::MAX_ENTRIES_MAP[game_type])
       offset_size = get_offset_size(current_entries.size, span_size)
 
       entry_count = 0
+      entries_html << "<div class='row-fluid'>"
       current_entries.each do |current_entry|
         entry_count += 1
+        if (entry_count > 1 && ((entry_count % SurvivorEntry::MAX_ENTRIES_MAP[game_type]) == 1))
+          entries_html << "</div><div class='row-fluid'>"
+        end
+
         entries_html << "<div class='survivorspan span" + span_size.to_s
         if (offset_size > 0)
           entries_html << " offset" + offset_size.to_s

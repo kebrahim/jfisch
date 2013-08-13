@@ -174,7 +174,7 @@ label {
 }
 
 /* Links */
-.btn-primary, .btn-danger, .btn-inverse, .btn-warning {color:white !important; }
+.btn-primary, .btn-danger, .btn-inverse, .btn-warning, .btn-success {color:white !important; }
 
 .nexttoh1 {
   height:62px;
