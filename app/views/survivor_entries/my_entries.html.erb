@@ -1,4 +1,9 @@
-<%= navigationBar(NavigationHelper::MY_ENTRIES_BUTTON) %>
+
+<% if @admin_function %>
+  <%= navigationBar(NavigationHelper::ADMIN_ENTRIES_BUTTON) %>
+<% else %>
+  <%= navigationBar(NavigationHelper::MY_ENTRIES_BUTTON) %>
+<% end %>
 
 <div class='row-fluid'>
   <div class='span12 center'>
@@ -9,15 +14,21 @@
 <div class='row-fluid'>
   <div class='span12 center'>
     <br/>
-    <form action='/my_entries' method='post'>
+    <% if @admin_function %>
+      <form action=<%= "'/user_entries/" + @user.id.to_s + "'" %> method='post'>
+    <% else %>
+      <form action='/my_entries' method='post'>
+    <% end %>
 
     <%= show_notice_as_alert(notice) %>
-    
-    <div class='alert alert-info'>
-      <strong>
-        Click on an individual entry name to see matchups and the NFL schedule. 
-      </strong>
-    </div>
+
+    <% if !@admin_function %>
+      <div class='alert alert-info'>
+        <strong>
+          Click on an individual entry name to see matchups and the NFL schedule.
+        </strong>
+      </div>
+    <% end %>
 
     <div class='row-fluid'>
       <%= entries_selector(:survivor, @type_to_entry_map, 6, @before_season) %>

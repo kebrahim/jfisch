@@ -31,6 +31,8 @@ class SurvivorEntriesController < ApplicationController
 
   # loads the data needed for the dashboard, for the specified user
   def get_dashboard_data(user)
+    @before_season =
+        DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
     current_year = Date.today.year
     @current_week = get_current_week_object_from_weeks(
         Week.where(year: Date.today.year).order(:number))
@@ -50,31 +52,54 @@ class SurvivorEntriesController < ApplicationController
   def my_entries
     @user = current_user
     if !@user.nil?
-      # before_season depends on start of season
-      @before_season =
-          DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
-
-      current_year = Date.today.year
-      @type_to_entry_map = build_type_to_entry_map(
-          SurvivorEntry.where({user_id: @user.id, year: current_year})
-                       .order(:game_type, :entry_number))
-
-      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
-                             .joins(:survivor_entry)
-                             .joins(:nfl_game)
-                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
-                             .order("survivor_entries.id, nfl_schedules.week")
-      @selector_to_bet_map = build_entry_selector_to_bet_map(user_bets)
-      @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
-      @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
-
-      @weeks = Week.where(year: Date.today.year)
-                   .order(:number)
-      @week_to_start_time_map = build_week_to_start_time_map(@weeks)
-      @current_week = get_current_week_from_weeks(@weeks)
+      get_entries_data(@user)
     else
       redirect_to root_url
     end
+  end
+
+  # GET /users/:user_id/entries
+  def user_entries
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @admin_function = true
+    @user = User.find_by_id(params[:user_id])
+    if !@user.nil?
+      get_entries_data(@user)
+      render "my_entries"
+    else
+      redirect_to root_url
+    end
+  end
+
+  # Loads the data needed for the my_entries page, for the specified user
+  def get_entries_data(user)
+    # before_season depends on start of season
+    @before_season =
+        DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
+
+    current_year = Date.today.year
+    @type_to_entry_map = build_type_to_entry_map(
+        SurvivorEntry.where({user_id: user.id, year: current_year})
+                     .order(:game_type, :entry_number))
+
+    user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                           .joins(:survivor_entry)
+                           .joins(:nfl_game)
+                           .where(:survivor_entries => {year: current_year, user_id: user.id})
+                           .order("survivor_entries.id, nfl_schedules.week")
+    @selector_to_bet_map = build_entry_selector_to_bet_map(user_bets)
+    @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
+    @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
+
+    @weeks = Week.where(year: Date.today.year)
+                 .order(:number)
+    @week_to_start_time_map = build_week_to_start_time_map(@weeks)
+    @current_week = get_current_week_from_weeks(@weeks)
   end
 
   # Returns a hash of survivor entry id to an array of bets for that entry
@@ -108,6 +133,7 @@ class SurvivorEntriesController < ApplicationController
   def save_entries
     @user = current_user
     if !@user.nil?
+      # TODO use update_user_entries_and_bets method
       current_year = Date.today.year
       if params["updateentries"]
         is_updated, has_creates = false
@@ -115,9 +141,9 @@ class SurvivorEntriesController < ApplicationController
             SurvivorEntry.where({user_id: @user.id, year: current_year}))
 
         # Update entry count for each game type.
-        is_updated |= update_entries(:survivor, type_to_entry_map, params, current_year)
-        is_updated |= update_entries(:anti_survivor, type_to_entry_map, params, current_year)
-        is_updated |= update_entries(:high_roller, type_to_entry_map, params, current_year)
+        is_updated |= update_entries(:survivor, @user, type_to_entry_map, params, current_year)
+        is_updated |= update_entries(:anti_survivor, @user, type_to_entry_map, params, current_year)
+        is_updated |= update_entries(:high_roller, @user, type_to_entry_map, params, current_year)
 
         SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
           existing_entries = type_to_entry_map[game_type]
@@ -157,6 +183,56 @@ class SurvivorEntriesController < ApplicationController
     else
       redirect_to root_url
     end
+  end
+
+  # POST /user_entries/:user_id
+  def save_user_entries
+    @admin_function = true
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @user = User.find_by_id(params[:user_id])
+    if !@user.nil?
+      confirmation_message = update_user_entries_and_bets(@user, params)
+
+      # re-direct user to my_entries page, with confirmation
+      redirect_to "/users/" + @user.id.to_s + "/entries", notice: confirmation_message
+    else
+      redirect_to root_url
+    end
+  end
+
+  # Updates the specified user's entry counts and picks, based on the specified posted params
+  def update_user_entries_and_bets(user, params)
+    confirmation_message = ""
+    current_year = Date.today.year
+    if params["updateentries"]
+      is_updated, has_creates = false
+      type_to_entry_map = build_type_to_entry_map(
+          SurvivorEntry.where({user_id: user.id, year: current_year}))
+
+      # Update entry count for each game type.
+      is_updated |= update_entries(:survivor, @user, type_to_entry_map, params, current_year)
+      is_updated |= update_entries(:anti_survivor, @user, type_to_entry_map, params, current_year)
+      is_updated |= update_entries(:high_roller, @user, type_to_entry_map, params, current_year)
+
+      SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
+        existing_entries = type_to_entry_map[game_type]
+        existing_size = existing_entries.nil? ? 0 : existing_entries.size
+        has_creates |= params["game_" + game_type.to_s].to_i > existing_size
+      }
+      if is_updated
+        confirmation_message = has_creates ?
+            "Congratulations! Click on an individual entry to start making picks!" :
+            "Entries successfully deleted!"
+      end
+    elsif params["updatebets"]
+      # TODO
+    end
+    return confirmation_message
   end
 
   # creates/updates the specified bets and returns a confirmation message
@@ -231,9 +307,9 @@ class SurvivorEntriesController < ApplicationController
     }
   end
 
-  # Updates the number of entries for the specified game type, logged-in user & year, based on the
-  # specified count and how many entries currently exist for the user.
-  def update_entries(game_type, type_to_entry_map, params, year)
+  # Updates the number of entries for the specified game type, user & year, based on the specified
+  # count and how many entries currently exist for the user.
+  def update_entries(game_type, user, type_to_entry_map, params, year)
     # based on updated count, create new entries or delete existing
     existing_entries = type_to_entry_map[game_type]
     existing_size = existing_entries.nil? ? 0 : existing_entries.size
@@ -241,7 +317,7 @@ class SurvivorEntriesController < ApplicationController
     
     if existing_size < updated_count
       # count is higher than existing, create the difference
-      create_entries(existing_size, updated_count, year, game_type)
+      create_entries(existing_size, updated_count, user, year, game_type)
       return true
     elsif existing_size > updated_count
       # existing is higher than count, delete the difference
@@ -251,12 +327,12 @@ class SurvivorEntriesController < ApplicationController
     return false
   end
 
-  # Creates entries of the specified game type, for the specified year, for the logged-in user. so
+  # Creates entries of the specified game type, for the specified year, for the specified user. so
   # that the user now has updated_count entries.
-  def create_entries(existing_size, updated_count, year, game_type)
+  def create_entries(existing_size, updated_count, user, year, game_type)
     (existing_size + 1).upto(updated_count) { |entry_number|
       new_entry = SurvivorEntry.new
-      new_entry.user_id = current_user.id
+      new_entry.user_id = user.id
       new_entry.year = year
       new_entry.game_type = game_type
       new_entry.entry_number = entry_number
@@ -597,7 +673,7 @@ class SurvivorEntriesController < ApplicationController
     return week_to_entry_stats_map
   end
 
-  # GET /entry_counts
+  # GET /entries
   def all_entries
     @current_user = current_user
     if @current_user.nil? || !@current_user.is_admin

@@ -25,14 +25,13 @@
     </div>
 
     <div class='row-fluid'>
-      <!-- TODO Manage span sizes, depending on how many entries per type -->
       <%= entries_bet_display(:survivor, @type_to_entry_map, @entry_to_bets_map, 6) %>
       <%= entries_bet_display(:anti_survivor, @type_to_entry_map, @entry_to_bets_map, 3) %>
       <%= entries_bet_display(:high_roller, @type_to_entry_map, @entry_to_bets_map, 3) %>
     </div>
 
     <p>
-      <% if @type_to_entry_map.empty? %>
+      <% if @type_to_entry_map.empty? && @before_season %>
         <h5>Welcome to Fisch Madness Survivor! Click the "Manage Entries" button below to create
             your entries!</h5>
         <img class='img_50_49 finger' src='/assets/downpointer.svg'><br/>
@@ -40,9 +39,8 @@
 
       <% if @admin_function %>
         <%=
-          # TODO - add link to user's my entries page for admin
-          #link_to("Manage Entries", "/users/" + @user.id.to_s + "/entries",
-           #         class: 'btn btn-primary')
+          link_to("Manage Entries", "/users/" + @user.id.to_s + "/entries",
+                  class: 'btn btn-primary')
         %>
       <% else %>
         <%= link_to("Manage Entries", "/my_entries", class: 'btn btn-primary') %>

@@ -3,6 +3,8 @@ Jfisch::Application.routes.draw do
   # survivor_entries
   get 'my_entries' => 'survivor_entries#my_entries'
   post 'my_entries' => 'survivor_entries#save_entries'
+  get '/users/:user_id/entries' => 'survivor_entries#user_entries'
+  post 'user_entries/:user_id' => 'survivor_entries#save_user_entries'
   
   get 'dashboard' => 'survivor_entries#dashboard'
   get '/users/:user_id/dashboard' => 'survivor_entries#user_dashboard'
@@ -13,7 +15,7 @@ Jfisch::Application.routes.draw do
   get 'survivor' => 'survivor_entries#survivor'
   get 'anti_survivor' => 'survivor_entries#anti_survivor'
   get 'high_roller' => 'survivor_entries#high_roller'
-  get 'entry_counts' => 'survivor_entries#all_entries'
+  get 'entries' => 'survivor_entries#all_entries'
   
   get 'kill_entries' => 'survivor_entries#kill_entries'
   get 'kill_entries/week/:number' => 'survivor_entries#kill_entries_week'

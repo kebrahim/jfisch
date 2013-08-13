@@ -14,7 +14,14 @@ module SurvivorEntriesHelper
     if before_season
       entries_html << "<strong>Entry count:</strong>
                           <select name='game_" + game_type.to_s + "' class='input-mini'>"
-      0.upto(SurvivorEntry::MAX_ENTRIES_MAP[game_type]) { |num_games|
+      
+      if @admin_function
+        max_entries = SurvivorEntry::ADMIN_MAX_ENTRIES_MAP[game_type]
+      else
+        max_entries = [SurvivorEntry::MAX_ENTRIES_MAP[game_type], entry_count].max
+      end
+
+      0.upto(max_entries) { |num_games|
         entries_html << "   <option value=" + num_games.to_s
         if num_games == entry_count
           entries_html << " selected"
@@ -172,15 +179,17 @@ module SurvivorEntriesHelper
   	buttons_html = "<p class='center'>"
     
     # Show update bets button if user has entries
-    if !@type_to_entry_map.values.empty?
+    # TODO show make picks button when admin can make picks
+    if !@type_to_entry_map.values.empty? && !@admin_function
       buttons_html << "<button class='btn btn-primary' name='updatebets'>Make Picks</button>
                       &nbsp&nbsp"
     end
 
     # Show update entries button if season has not yet begun
     if before_season
-      buttons_html << "<button class='btn btn-inverse' name='updateentries'>Update Entry Counts</button>
-                       &nbsp&nbsp"
+      buttons_html <<
+          "<button class='btn btn-inverse' name='updateentries'>Update Entry Counts</button>
+           &nbsp&nbsp"
     end
 
     # Always show cancel button
@@ -581,7 +590,7 @@ module SurvivorEntriesHelper
     # number of (total & alive) entries per user
     users.each { |user|
       all_entries_html <<
-          "<tr><td>" + link_to(user.full_name, '/users/' + user.id.to_s + "/dashboard") + "</td>
+          "<tr><td>" + link_to(user.full_name, '/users/' + user.id.to_s + "/entries") + "</td>
                <td>" + user.email + "</td>"
       if user_to_entries_count_map.has_key?(user.id)
         [:survivor, :anti_survivor, :high_roller].each { |game_type|

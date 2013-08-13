@@ -7,6 +7,7 @@ class SurvivorEntry < ActiveRecord::Base
   enumerize :game_type, in: [:survivor, :anti_survivor, :high_roller, :second_chance]
 
   MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2 }
+  ADMIN_MAX_ENTRIES_MAP = { survivor: 8, anti_survivor: 4, high_roller: 4 }
   MAX_WEEKS_MAP = { survivor: 4, anti_survivor: 4, high_roller: 4 }
   #MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
   MAX_BETS_MAP = { survivor: 7, anti_survivor: 6, high_roller: 4 }
