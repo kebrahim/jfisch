@@ -13,4 +13,7 @@ class RulesController < ApplicationController
   	@game_type = :high_roller
     render "breakdown"
   end
+
+  def sendgrid
+  end
 end

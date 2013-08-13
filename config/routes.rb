@@ -61,6 +61,8 @@ Jfisch::Application.routes.draw do
   get '/anti_survivor/rules' => 'rules#anti_survivor'
   get '/high_roller/rules' => 'rules#high_roller'
 
+  get '/sendgrid' => 'rules#sendgrid'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
