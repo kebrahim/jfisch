@@ -26,7 +26,7 @@ class UserMailer < ActionMailer::Base
     @bets.push(*bets_to_update)
     @team_map = build_id_to_team_map(NflTeam.all)
     @week_team_to_game_map = week_team_to_game_map
-    mail :to => user.email, :subject => "Fisch Survivor Madness Bets Updated"
+    mail :to => user.email, :subject => "Fisch Survivor Madness Picks Summary"
   end
 
   # returns a map of nfl team id to team
