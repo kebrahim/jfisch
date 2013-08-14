@@ -658,7 +658,8 @@ module SurvivorEntriesHelper
                     </tr></thead>"
     entries_without_bets.each { |entry|
       kill_html << "<tr>
-                      <td>" + entry.user.full_name + " " + entry.entry_number.to_s + "</td>
+                      <td>" + link_to(entry.user.full_name + " " + entry.entry_number.to_s,
+                                      "/users/" + entry.user_id.to_s + "/dashboard") + "</td>
                       <td>" + entry.type_title + "</td>
                       <td>" + (entry.is_alive ? "Alive" : "Dead") + "</td>
                     </tr>"

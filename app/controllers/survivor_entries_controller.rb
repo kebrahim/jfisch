@@ -762,15 +762,35 @@ class SurvivorEntriesController < ApplicationController
     redirect_to "/kill_entries/week/" + week_number.to_s, notice: confirmation_message
   end
 
-  # returns the entries which do not have bets during the specified week, which are currently alive,
-  # or were killed during the specified week.
+  # returns the entries which do not have the correct number of bets during the specified week,
+  # which are currently alive, or were killed during the specified week.
   def get_entries_without_bets(week)
-    entry_ids_for_week = SurvivorBet.where(week: week)
-                                    .select(:survivor_entry_id)
-                                    .collect { |bet| bet.survivor_entry_id }
-    return SurvivorEntry.includes(:user)
-                        .where(year: Date.today.year)
-                        .where("id not in (?)", entry_ids_for_week)
-                        .where("is_alive = true OR knockout_week = " + week.to_s)
+    entries = SurvivorEntry.includes(:user)
+                           .joins(:user)
+                           .where(year: Date.today.year)
+                           .where("is_alive = true OR knockout_week = " + week.to_s)
+                           .order(:game_type, :user_id, :entry_number)
+
+    week_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                           .joins(:survivor_entry)
+                           .joins(:nfl_game)
+                           .where(week: week)
+                           .where(:survivor_entries => {year: Date.today.year})
+                           .order("survivor_entries.id, nfl_schedules.week")
+    entry_id_to_bets_map = build_entry_id_to_bets_map(week_bets)
+
+    entries_without_bets = []
+    entries.each { |entry|
+      if entry_missing_pick_in_week(entry, week, entry_id_to_bets_map)
+        entries_without_bets << entry
+      end
+    }
+    return entries_without_bets
+  end
+
+  # returns true if the specified entry is missing a pick during the specified week_number
+  def entry_missing_pick_in_week(entry, week_number, entry_id_to_bets_map)
+    num_picks = entry_id_to_bets_map.has_key?(entry.id) ? entry_id_to_bets_map[entry.id].size : 0
+    return num_picks < entry.number_bets_required(week_number)
   end
 end

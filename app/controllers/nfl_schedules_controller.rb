@@ -75,6 +75,8 @@ class NflSchedulesController < ApplicationController
                   bet.update_attribute(:is_correct, has_correct_bet)
       
                   # update entry's is_alive status, if it should change.
+                  # TODO entry should not be set to alive if week requires 2 bets, both were
+                  # initially incorrect and now one is being changed to correct.
                   if entry.is_alive != has_correct_bet
                     attributes_to_update = {}
 

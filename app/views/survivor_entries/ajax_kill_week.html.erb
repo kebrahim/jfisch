@@ -3,7 +3,7 @@
 <% else %>
   <h4>Week <%= @week.number.to_s %> Killfest</h4>
   <%= kill_entries_table(@entries_without_bets) %>
-  <% if @entries_without_bets.uniq.pluck(:is_alive).include?(true) %>
+  <% if @entries_without_bets.collect { |entry| entry.is_alive }.uniq.include?(true) %>
     <%= link_to 'Kill \'em all!', ('/kill_entries/week/' + @week.number.to_s), method: :delete, 
             data: { confirm: 'Are you sure?' }, class: 'btn btn-primary' %>
     <br/><br/>
