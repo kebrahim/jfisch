@@ -50,12 +50,7 @@
           <% if @current_user %>
             <tr>
               <td><%= f.label :send_emails, "Email bet summaries" %></td>
-              <% if @admin_function %>
-                <td><%= f.check_box(:send_emails) %></td>
-              <% else %>
-                <!-- TODO: enable checkbox when sendgrid is enabled -->
-                <td><%= f.check_box(:send_emails, disabled: 'true') %></td>
-              <% end %>
+              <td><%= f.check_box(:send_emails) %></td>
             </tr>
           <% end %>
           <tr class='tdselect'>

@@ -6,6 +6,7 @@
 
     <table class=<%= "'" + ApplicationHelper::TABLE_CLASS + "'" %>>
       <thead><tr>
+        <th></th>
         <th>Name</th>
         <th>Email</th>
         <th>Role</th>
@@ -16,16 +17,21 @@
         <th></th>
       </tr></thead>
 
-    <% @users.each do |user| %>
+    <% 
+      user_count = 0
+      @users.each do |user|
+      user_count += 1
+    %>
       <% if user.is_confirmed %>
         <tr>
       <% else %>
         <tr class='red-row'>
       <% end %>
+        <td><%= user_count.to_s %></td>
         <td><%= link_to(user.full_name, "/users/" + user.id.to_s + "/dashboard") %></td>
         <td><%= user.email %></td>
         <td><%= user.role %></td>
-        <td><%= user.send_emails %></td>
+        <td><%= image_tag(user.send_emails ? "check.jpg" : "cross.jpg", class: "img_20_20") %></td>
         <td><%= user.referred_by %></td>
         <td><%= user.time_zone %></td>
         <td><%= link_to 'Edit', edit_user_path(user) %></td>

@@ -168,7 +168,7 @@ table th {background-color: black; color:white;}
 }
 
 .row-fluid [class*="span"] .missing {
-  background-color:#fcf8e3;
+  background-color: khaki;
 }
 
 /* Labels */
@@ -204,6 +204,10 @@ label {
 .img_60_109 {
   width: 60px;
   height: 109px;
+}
+.img_20_20 {
+  width: 20px;
+  height: 20px;
 }
 
 /* login page */

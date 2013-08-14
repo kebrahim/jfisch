@@ -10,7 +10,6 @@ class NflSchedulesController < ApplicationController
       return
     end
 
-    # TODO show dates in user's time zone
     @nfl_games = NflSchedule.includes(:home_nfl_team)
                             .includes(:away_nfl_team)
                             .order(:week)

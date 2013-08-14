@@ -55,4 +55,16 @@ namespace :importuser do
     }
     puts "Confirmed " + usercount.to_s + " users!"
   end
+
+  desc "Enables bet emails for all users"
+  task :emails => :environment do
+    usercount = 0
+    users = User.where(send_emails: false)
+    users.each { |user|
+      user.send_emails = true
+      user.save
+      usercount += 1
+    }
+    puts "Enabled emailling for " + usercount.to_s + " users!"
+  end
 end
