@@ -13,6 +13,11 @@ class ApplicationController < ActionController::Base
     @current_user ||= User.find_by_auth_token(cookies[:auth_token]) if cookies[:auth_token]
   end
 
+  # logs the current user out of the system
+  def logout_user
+    cookies.delete(:auth_token)
+  end
+
   # sets the time zone to the time zone of the current user
   def set_time_zone
     Time.zone = current_user.time_zone if current_user

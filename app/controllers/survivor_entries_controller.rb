@@ -179,7 +179,7 @@ class SurvivorEntriesController < ApplicationController
       end
 
       # re-direct user to my_entries page, with confirmation
-      redirect_to my_entries_url, notice: confirmation_message
+      redirect_to dashboard_url, notice: confirmation_message
     else
       redirect_to root_url
     end

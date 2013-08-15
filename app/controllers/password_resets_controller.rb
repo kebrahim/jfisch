@@ -1,5 +1,6 @@
 class PasswordResetsController < ApplicationController
   def new
+    logout_user
   end
 
   def create
@@ -17,6 +18,7 @@ class PasswordResetsController < ApplicationController
   end
 
   def edit
+    logout_user
     @user = User.find_by_password_reset_token!(params[:id])
   end
 

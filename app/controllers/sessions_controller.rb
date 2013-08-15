@@ -27,7 +27,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    cookies.delete(:auth_token)
+    logout_user
     redirect_to root_url
   end
 end

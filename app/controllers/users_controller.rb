@@ -19,6 +19,8 @@ class UsersController < ApplicationController
   # GET /users/new
   # GET /users/new.json
   def new
+    logout_user
+    @current_user = current_user
     @user = User.new
     @captain_code_feature = false
     @current_week = current_week
@@ -88,6 +90,7 @@ class UsersController < ApplicationController
 
   # GET /users/:confirmation_code/confirm
   def confirm
+    logout_user
     @user = User.find_by_confirmation_token(params[:confirmation_code])
     notice_message = ""
     if @user
