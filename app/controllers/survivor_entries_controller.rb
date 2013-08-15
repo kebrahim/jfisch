@@ -787,10 +787,4 @@ class SurvivorEntriesController < ApplicationController
     }
     return entries_without_bets
   end
-
-  # returns true if the specified entry is missing a pick during the specified week_number
-  def entry_missing_pick_in_week(entry, week_number, entry_id_to_bets_map)
-    num_picks = entry_id_to_bets_map.has_key?(entry.id) ? entry_id_to_bets_map[entry.id].size : 0
-    return num_picks < entry.number_bets_required(week_number)
-  end
 end

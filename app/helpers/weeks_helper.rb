@@ -38,13 +38,19 @@ module WeeksHelper
     # total entries placing bets for the week
     week_table_html << "<tr class='bold-row'>
                           <td colspan=3 class='topborderme'>Total Entries</td>
-                          <td class='topborderme leftborderme'>" + total_bet_count.to_s + "</td>
+                          <td class='topborderme leftborderme'>" + (total_bet_count + @killed_entries.size).to_s + "</td>
                         </tr>"
 
     # eliminated entries during the week
     week_table_html << "<tr class='bold-row'>
                           <td colspan=3>Eliminated Entries</td>
                           <td class='leftborderme'>" + eliminated_bet_count.to_s + "</td>
+                        </tr>"
+  
+    # killed entries during the week
+    week_table_html << "<tr class='bold-row'>
+                          <td colspan=3>Killed Entries</td>
+                          <td class='leftborderme'>" + @killed_entries.size.to_s + "</td>
                         </tr>"
 
     # remaining entries during the week

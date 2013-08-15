@@ -126,6 +126,7 @@ class WeeksController < ApplicationController
     game_bets = get_game_bets(game_type, @week.number, Date.today.year)
     team_to_bet_counts_map = game_bets.group(:nfl_team_id).count(:nfl_team_id)
     @team_to_results_map = build_team_to_results_map(game_bets, team_to_bet_counts_map)
+    @killed_entries = get_killed_entries(game_bets, @week.number, game_type)
   end
   
   # returns a map of nfl team id to corresponding team
@@ -142,6 +143,7 @@ class WeeksController < ApplicationController
   def get_game_bets(game_type, week, year)
     return SurvivorBet.includes(:nfl_game)
                       .joins(:survivor_entry)
+                      .joins(:user)
                       .where({week: week, :survivor_entries => {year: year, game_type: game_type}})
                       .where("survivor_entries.knockout_week IS NULL OR 
                               survivor_entries.knockout_week >= " + week.to_s)
@@ -165,5 +167,23 @@ class WeeksController < ApplicationController
       end
     }
     return team_to_results_map
+  end
+
+  # returns the entries that were killed during the specified week, i.e. those entries where
+  # is_alive = false, knockout_week = week_number and are missing bets for the specified week.
+  def get_killed_entries(game_bets, week_number, game_type)
+    entries = SurvivorEntry.includes(:user)
+                           .joins(:user)
+                           .where({year: Date.today.year, game_type: game_type})
+    entry_id_to_bets_map = build_entry_id_to_bets_map(game_bets)
+
+    killed_entries = []
+    entries.each { |entry|
+      if !entry.is_alive && entry.knockout_week == week_number &&
+          entry_missing_pick_in_week(entry, week_number, entry_id_to_bets_map)
+        killed_entries << entry
+      end
+    }
+    return killed_entries
   end
 end

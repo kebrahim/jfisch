@@ -2,6 +2,8 @@ class SurvivorEntry < ActiveRecord::Base
   extend Enumerize
 
   belongs_to :user
+  has_many :survivor_bets, dependent: :destroy
+
   attr_accessible :game_type, :is_alive, :used_autopick, :year, :entry_number, :knockout_week
 
   enumerize :game_type, in: [:survivor, :anti_survivor, :high_roller, :second_chance]

@@ -63,4 +63,25 @@ class ApplicationController < ActionController::Base
     }
     return week_started
   end
+
+  # returns a map of survivor entry id to the bets belonging to that entry, from the specified array
+  # of bets
+  def build_entry_id_to_bets_map(bets)
+    entry_to_bets_map = {}
+    bets.each do |bet|
+      if entry_to_bets_map.has_key?(bet.survivor_entry_id)
+        entry_to_bets_map[bet.survivor_entry_id] << bet
+      else
+        entry_to_bets_map[bet.survivor_entry_id] = [bet]
+      end
+    end
+    return entry_to_bets_map
+  end
+
+  # returns true if the specified entry is missing a bet during the specified week, assuming the
+  # specified entry-to-bet map contains only bets for the specified week.
+  def entry_missing_pick_in_week(entry, week_number, entry_id_to_bets_map)
+    num_picks = entry_id_to_bets_map.has_key?(entry.id) ? entry_id_to_bets_map[entry.id].size : 0
+    return num_picks < entry.number_bets_required(week_number)
+  end
 end

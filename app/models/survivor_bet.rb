@@ -2,6 +2,8 @@ class SurvivorBet < ActiveRecord::Base
   belongs_to :survivor_entry
   belongs_to :nfl_game, :class_name => 'NflSchedule', :foreign_key => "nfl_game_id"
   belongs_to :nfl_team
+  has_one :user, :through => :survivor_entry
+
   attr_accessible :is_correct, :week, :bet_number
 
   # returns the name of the select param for selecting a team to bet on

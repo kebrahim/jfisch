@@ -1,6 +1,9 @@
 class User < ActiveRecord::Base
   extend Enumerize
 
+  has_many :survivor_entries, dependent: :destroy
+  has_many :survivor_bets, :through => :survivor_entries
+
   attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role,
                   :captain_code, :referred_by, :send_emails, :time_zone, :is_confirmed,
                   :confirmation_token
