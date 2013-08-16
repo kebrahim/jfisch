@@ -17,20 +17,24 @@
 
 <div class='row-fluid'>
   <div class='span7 center'>
+    <h4>My Picks</h4>
     <%= show_notice_as_alert_with_class_string(notice, "alert-top-margin") %>
-    <form action='/save_entry_bets' method='post'>
-      <h4><%= @survivor_entry.type_title %> Picks</h4>
-      <%= display_update_picks_buttons(@survivor_entry) %>
-      <%= entry_bets_table(@survivor_entry, @selector_to_bet_map, @week_team_to_game_map,
-                           @nfl_teams_map, @week_to_start_time_map) %>
-      <input type='hidden' name='id' value=<%= "'" + @survivor_entry.id.to_s + "'" %> />
-      <%= display_update_picks_buttons(@survivor_entry) %>
-    </form>
+    <label for='entry_chooser'>Select Entry: </label>
+    <select id='entry_chooser'>
+    <% @user_entries.each { |entry| %>
+      <option value=<%= entry.id %>
+              <%= ((entry.id == @survivor_entry.id) ? "selected" : "") %>>
+        <%= entry.type_title + " " + entry.entry_number.to_s %>
+      </option>
+    <% } %>
+    </select>
+    <div id='picksform'></div>
   </div>
 
   <div class='span5 center'>
     <h4>NFL Schedule</h4>
-    <select id='week_chooser'>
+    <label for='week_chooser'>Select Week: </label>
+    <select id='week_chooser' class='input-medium'>
     <% @weeks.each { |week| %>
       <option value=<%= week.number %>
               <%= (week.number == (@current_week + 1) ? "selected" : "") %>>
@@ -44,20 +48,36 @@
 </form>
 
 <script type="text/javascript">
+  // Loads the bets selection page for the selected entry asynchronously & populates the picksform
+  // div with the results
+  function entry_bets_ajax() {
+    $.ajax({
+      url: "/ajax/survivor_entries/" + document.getElementById("entry_chooser").value,
+      success: function(data) {
+        $("#picksform").html(data);
+      }
+    });
+  }
+
   // Loads the nfl schedule week page asynchronously & populates the schedresults div with the
   // results
   function week_schedule_ajax() {
     $.ajax({
-      url: "/ajax/nfl_schedule/week/" + (document.getElementById("week_chooser").selectedIndex + 1),
+      url: "/ajax/nfl_schedule/week/" + document.getElementById("week_chooser").value,
       success: function(data) {
         $("#schedresults").html(data);
       }
     });
   }
 
-  // On document ready, load the selected week's schedule, and set the selected week's schedule to
-  // be loaded whenever the week selector is changed.
+  // On document ready, load the selected entry's bets and the selected week's schedule, and set the
+  // selected data to be updated whenever the corresponding selectors are changed.
   $(document).ready(function() {
+    entry_bets_ajax();
+    $("#entry_chooser").change(function() {
+      entry_bets_ajax();
+    });
+
     week_schedule_ajax();
     $("#week_chooser").change(function() {
       week_schedule_ajax();

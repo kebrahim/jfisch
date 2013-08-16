@@ -1,0 +1,6 @@
+<form action='/save_entry_bets' method='post'>
+  <%= entry_bets_table(@survivor_entry, @selector_to_bet_map, @week_team_to_game_map,
+                       @nfl_teams_map, @week_to_start_time_map) %>
+  <input type='hidden' name='id' value=<%= "'" + @survivor_entry.id.to_s + "'" %> />
+  <%= display_update_picks_buttons(@survivor_entry) %>
+</form>

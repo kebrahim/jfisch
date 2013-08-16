@@ -11,6 +11,7 @@ Jfisch::Application.routes.draw do
 
   post 'save_entry_bets' => 'survivor_entries#save_entry_bets'
   get '/survivor_entries/:id(.:format)' => 'survivor_entries#show'
+  get '/ajax/survivor_entries/:id' => 'survivor_entries#ajaxshow'
  
   get 'survivor' => 'survivor_entries#survivor'
   get 'anti_survivor' => 'survivor_entries#anti_survivor'

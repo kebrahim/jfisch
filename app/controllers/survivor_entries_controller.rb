@@ -178,8 +178,12 @@ class SurvivorEntriesController < ApplicationController
         confirmation_message = create_update_bets(bets, week_team_to_game_map)
       end
 
-      # re-direct user to my_entries page, with confirmation
-      redirect_to dashboard_url, notice: confirmation_message
+      # if error occurs, re-direct to my_entries page, otherwise to dashboard
+      if confirmation_message.starts_with?("Error:")
+        redirect_to my_entries_url, notice: confirmation_message
+      else
+        redirect_to dashboard_url, notice: confirmation_message
+      end
     else
       redirect_to root_url
     end
@@ -198,8 +202,12 @@ class SurvivorEntriesController < ApplicationController
     if !@user.nil?
       confirmation_message = update_user_entries_and_bets(@user, params)
 
-      # re-direct user to my_entries page, with confirmation
-      redirect_to "/users/" + @user.id.to_s + "/entries", notice: confirmation_message
+      # if error occurs, re-direct to user entries page, otherwise to user dashboard
+      if confirmation_message.starts_with?("Error:")
+        redirect_to "/users/" + @user.id.to_s + "/entries", notice: confirmation_message
+      else
+        redirect_to "/users/" + @user.id.to_s + "/dashboard", notice: confirmation_message
+      end
     else
       redirect_to root_url
     end
@@ -385,6 +393,34 @@ class SurvivorEntriesController < ApplicationController
     end
 
     if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
+      @weeks = Week.where(year: Date.today.year)
+                   .where("number <= (?)", @survivor_entry.max_weeks)
+                   .order(:number)
+      @current_week = get_current_week_from_weeks(@weeks)
+      @user_entries = SurvivorEntry.where({ year: Date.today.year, user_id: @user.id })
+                                   .order(:game_type, :entry_number)
+
+      respond_to do |format|
+        format.html # show.html.erb
+        format.json { render json: @survivor_entry }
+      end
+    else
+      redirect_to root_url
+    end
+  end
+
+  # GET /ajax/survivor_entries/:id
+  def ajaxshow
+    # if logged-in user doesn't own entry, then redirect to home page.
+    @user = current_user
+    begin
+      @survivor_entry = SurvivorEntry.find(params[:id])
+    rescue ActiveRecord::RecordNotFound => e
+      redirect_to root_url
+      return
+    end
+
+    if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
       @selector_to_bet_map = build_selector_to_bet_map(
             SurvivorBet.includes(:nfl_game)
                        .where(survivor_entry_id: @survivor_entry))
@@ -397,15 +433,11 @@ class SurvivorEntriesController < ApplicationController
                    .order(:number)
       @week_to_start_time_map = build_week_to_start_time_map(@weeks)
       @current_week = get_current_week_from_weeks(@weeks)
-
-      respond_to do |format|
-        format.html # show.html.erb
-        format.json { render json: @survivor_entry }
-      end
-    else
-      redirect_to root_url
     end
+
+    render :layout => "ajax"
   end
+
 
   # returns a map of team id to nfl team
   def build_id_to_team_map(teams)
@@ -536,7 +568,12 @@ class SurvivorEntriesController < ApplicationController
           end
         end
       end
-      redirect_to "/survivor_entries/" + @survivor_entry.id.to_s, notice: confirmation_message
+      
+      if confirmation_message.starts_with?("Error:")
+        redirect_to "/survivor_entries/" + @survivor_entry.id.to_s, notice: confirmation_message
+      else
+        redirect_to dashboard_url, notice: confirmation_message
+      end
     else
       redirect_to root_url
     end

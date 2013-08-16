@@ -138,7 +138,6 @@ class UsersController < ApplicationController
   # DELETE /users/1.json
   def destroy
     @user = User.find(params[:id])
-    # TODO also destroy user's entries and bets
     @user.destroy
 
     respond_to do |format|
