@@ -191,17 +191,16 @@ module SurvivorEntriesHelper
     end
     
     # Show update bets button if user has entries
-    # TODO show make picks button when admin can make picks
-    if !@type_to_entry_map.values.empty? && !@admin_function
+    if !@type_to_entry_map.values.empty?
       buttons_html << "<button class='btn btn-primary' name='updatebets'>Make Picks</button>
-                      &nbsp&nbsp"
+                      &nbsp"
     end
 
     # Show update entries button if season has not yet begun
     if @before_season
       buttons_html <<
           "<button class='btn btn-inverse' name='updateentries'>Update Entry Counts</button>
-           &nbsp&nbsp"
+           &nbsp"
     end
 
     # Always show cancel button

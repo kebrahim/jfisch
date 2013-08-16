@@ -133,50 +133,8 @@ class SurvivorEntriesController < ApplicationController
   def save_entries
     @user = current_user
     if !@user.nil?
-      # TODO use update_user_entries_and_bets method
-      current_year = Date.today.year
-      if params["updateentries"]
-        is_updated, has_creates = false
-        type_to_entry_map = build_type_to_entry_map(
-            SurvivorEntry.where({user_id: @user.id, year: current_year}))
-
-        # Update entry count for each game type.
-        is_updated |= update_entries(:survivor, @user, type_to_entry_map, params, current_year)
-        is_updated |= update_entries(:anti_survivor, @user, type_to_entry_map, params, current_year)
-        is_updated |= update_entries(:high_roller, @user, type_to_entry_map, params, current_year)
-
-        SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
-          existing_entries = type_to_entry_map[game_type]
-          existing_size = existing_entries.nil? ? 0 : existing_entries.size
-          has_creates |= params["game_" + game_type.to_s].to_i > existing_size
-        }
-        if is_updated
-          confirmation_message = has_creates ?
-              "Congratulations! Click on an individual entry to start making picks!" :
-              "Entries successfully deleted!"
-        end
-      elsif params["updatebets"]
-        user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
-                             .joins(:survivor_entry)
-                             .joins(:nfl_game)
-                             .where(:survivor_entries => {year: current_year, user_id: @user.id})
-                             .order("survivor_entries.id, nfl_schedules.week")
-        selector_to_bet_map = build_entry_selector_to_bet_map(user_bets)
-        week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
-        user_entries = SurvivorEntry.where({user_id: @user.id, year: current_year})
-                                    .order(:game_type, :entry_number)
-        
-        # collect bets, separating into create/update
-        bets = {}
-        bets[:create] = []
-        bets[:update] = []
-        user_entries.each { |survivor_entry|
-          get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map)
-        }
-
-        # create/update bets
-        confirmation_message = create_update_bets(bets, week_team_to_game_map)
-      end
+      # update entries or bets, depending on which button was pressed
+      confirmation_message = update_user_entries_and_bets(@user, params)
 
       # if error occurs, re-direct to my_entries page, otherwise to dashboard
       if confirmation_message.starts_with?("Error:")
@@ -200,6 +158,7 @@ class SurvivorEntriesController < ApplicationController
 
     @user = User.find_by_id(params[:user_id])
     if !@user.nil?
+      # update entries or bets for impersonated user, depending on which button was pressed
       confirmation_message = update_user_entries_and_bets(@user, params)
 
       # if error occurs, re-direct to user entries page, otherwise to user dashboard
@@ -220,12 +179,13 @@ class SurvivorEntriesController < ApplicationController
     if params["updateentries"]
       is_updated, has_creates = false
       type_to_entry_map = build_type_to_entry_map(
-          SurvivorEntry.where({user_id: user.id, year: current_year}))
+          SurvivorEntry.where({user_id: user.id, year: current_year})
+                       .order(:game_type, :entry_number))
 
       # Update entry count for each game type.
-      is_updated |= update_entries(:survivor, @user, type_to_entry_map, params, current_year)
-      is_updated |= update_entries(:anti_survivor, @user, type_to_entry_map, params, current_year)
-      is_updated |= update_entries(:high_roller, @user, type_to_entry_map, params, current_year)
+      is_updated |= update_entries(:survivor, user, type_to_entry_map, params, current_year)
+      is_updated |= update_entries(:anti_survivor, user, type_to_entry_map, params, current_year)
+      is_updated |= update_entries(:high_roller, user, type_to_entry_map, params, current_year)
 
       SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
         existing_entries = type_to_entry_map[game_type]
@@ -238,13 +198,33 @@ class SurvivorEntriesController < ApplicationController
             "Entries successfully deleted!"
       end
     elsif params["updatebets"]
-      # TODO
+      user_bets = SurvivorBet.includes([:nfl_game, :nfl_team])
+                             .joins(:survivor_entry)
+                             .joins(:nfl_game)
+                             .where(:survivor_entries => {year: current_year, user_id: user.id})
+                             .order("survivor_entries.id, nfl_schedules.week")
+      selector_to_bet_map = build_entry_selector_to_bet_map(user_bets)
+      week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
+      user_entries = SurvivorEntry.where({user_id: user.id, year: current_year})
+                                  .order(:game_type, :entry_number)
+      
+      # collect bets, separating into create/update
+      bets = {}
+      bets[:create] = []
+      bets[:update] = []
+      user_entries.each { |survivor_entry|
+        get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map)
+      }
+
+      # create/update bets
+      confirmation_message = create_update_bets(user, bets, week_team_to_game_map)
     end
     return confirmation_message
   end
 
-  # creates/updates the specified bets and returns a confirmation message
-  def create_update_bets(user_entry_bets, week_team_to_game_map)
+  # creates/updates the specified bets for the specified user, emails that user if they have emails
+  # enabled, and returns a confirmation message
+  def create_update_bets(user, user_entry_bets, week_team_to_game_map)
     confirmation_message = ""
     if !user_entry_bets[:create].empty? || !user_entry_bets[:update].empty?
       # Wrap creates/updates/deletes in a single transaction, in case any of the operations
@@ -266,8 +246,8 @@ class SurvivorEntriesController < ApplicationController
           if import_result.failed_instances.empty?
             confirmation_message = "Picks successfully updated!"
             # send bet summary email if user receives emails
-            if @user.send_emails
-              UserMailer.survivor_bet_summary(@user, user_entry_bets[:create],
+            if user.send_emails
+              UserMailer.survivor_bet_summary(user, user_entry_bets[:create],
                   user_entry_bets[:update], week_team_to_game_map).deliver
             end
           else
@@ -358,13 +338,7 @@ class SurvivorEntriesController < ApplicationController
     start_idx.downto(end_idx) { |destroy_idx|
       entry_to_destroy = existing_entries[destroy_idx]
 
-      # if entry has any bets, first destroy them.
-      bets = SurvivorBet.where(survivor_entry_id: entry_to_destroy)
-      bets.each { |bet|
-        bet.destroy
-      }
-
-      # then, destroy entry
+      # destroy entry
       entry_to_destroy.destroy
     }
   end
