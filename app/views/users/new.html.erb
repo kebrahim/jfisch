@@ -27,6 +27,14 @@
       } else {
           response_text = tz.name(); 
       }
-      document.getElementById("user_time_zone").value = response_text 
+      if ($("#user_time_zone:has(option[value='"+ response_text +"'])").length > 0) {
+        document.getElementById("user_time_zone").value = response_text
+      } else {
+        if (response_text == "America/Los_Angeles") {
+          document.getElementById("user_time_zone").value = "Pacific Time (US & Canada)"
+        } else {
+          document.getElementById("user_time_zone").value = "Eastern Time (US & Canada)"
+        }
+      }
   });
 </script>
