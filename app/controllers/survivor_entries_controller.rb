@@ -366,12 +366,15 @@ class SurvivorEntriesController < ApplicationController
       return
     end
 
-    if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
+    if !@user.nil? && !@survivor_entry.nil? &&
+        (@survivor_entry.user_id == @user.id || @user.is_admin)
+      @admin_function = @user.is_admin && (@survivor_entry.user_id != @user.id)
       @weeks = Week.where(year: Date.today.year)
                    .where("number <= (?)", @survivor_entry.max_weeks)
                    .order(:number)
       @current_week = get_current_week_from_weeks(@weeks)
-      @user_entries = SurvivorEntry.where({ year: Date.today.year, user_id: @user.id })
+      @user_entries = SurvivorEntry.where({ year: Date.today.year,
+                                            user_id: @survivor_entry.user_id })
                                    .order(:game_type, :entry_number)
 
       respond_to do |format|
@@ -394,7 +397,9 @@ class SurvivorEntriesController < ApplicationController
       return
     end
 
-    if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
+    if !@user.nil? && !@survivor_entry.nil? &&
+        (@survivor_entry.user_id == @user.id || @user.is_admin)
+      @admin_function = @user.is_admin && (@survivor_entry.user_id != @user.id)
       @selector_to_bet_map = build_selector_to_bet_map(
             SurvivorBet.includes(:nfl_game)
                        .where(survivor_entry_id: @survivor_entry))
@@ -465,7 +470,10 @@ class SurvivorEntriesController < ApplicationController
     # if logged-in user doesn't own entry, then redirect to home page.
     @user = current_user
     @survivor_entry = SurvivorEntry.find(params[:id])
-    if !@user.nil? && !@survivor_entry.nil? && @survivor_entry.user_id == @user.id
+    if !@user.nil? && !@survivor_entry.nil? &&
+        (@survivor_entry.user_id == @user.id || @user.is_admin)
+      @admin_function = @user.is_admin && (@survivor_entry.user_id != @user.id)
+
       # save created/updated bets for selected entry
       if params["cancel"].nil?
         current_year = Date.today.year
@@ -529,9 +537,9 @@ class SurvivorEntriesController < ApplicationController
               if import_result.failed_instances.empty?
                 confirmation_message = "Picks successfully updated!"
                 # send bet summary email if user receives emails
-                if @user.send_emails
-                  UserMailer.survivor_bet_summary(
-                      @user, bets_to_create, bets_to_update, week_team_to_game_map).deliver
+                if @survivor_entry.user.send_emails
+                  UserMailer.survivor_bet_summary(@survivor_entry.user, bets_to_create,
+                      bets_to_update, week_team_to_game_map).deliver
                 end
               else
                 confirmation_message = "Error: Failed instances while saving bets"
@@ -546,7 +554,9 @@ class SurvivorEntriesController < ApplicationController
       if confirmation_message.starts_with?("Error:")
         redirect_to "/survivor_entries/" + @survivor_entry.id.to_s, notice: confirmation_message
       else
-        redirect_to dashboard_url, notice: confirmation_message
+        redirect_to (@admin_function ?
+            "/users/" + @survivor_entry.user_id.to_s + "/dashboard" : dashboard_url),
+            notice: confirmation_message
       end
     else
       redirect_to root_url

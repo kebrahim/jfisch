@@ -1,11 +1,17 @@
-<%= navigationBar(NavigationHelper::MY_ENTRIES_BUTTON) %>
+<% if @admin_function %>
+  <%= navigationBar(NavigationHelper::ADMIN_ENTRIES_BUTTON) %>
+<% else %>
+  <%= navigationBar(NavigationHelper::MY_ENTRIES_BUTTON) %>
+<% end %>
 
 <div class='row-fluid'>
   <div class='span2 center nexttoh1'>
-    <a href='/dashboard' class='btn btn-inverse'>Dashboard</a>
+    <a href=<%= @admin_function ?
+                "'/users/" + @survivor_entry.user_id.to_s + "/dashboard'" : "'/dashboard'" %>
+       class='btn btn-inverse'>Dashboard</a>
   </div>
   <div class='span8 center'>
-    <h3><%= @user.first_name + "'s " + @survivor_entry.type_title %> 
+    <h3><%= @survivor_entry.user.first_name + "'s " + @survivor_entry.type_title %> 
         #<%= @survivor_entry.entry_number.to_s %></h3>
   </div>
   <div class='span2 center nexttoh1'>
