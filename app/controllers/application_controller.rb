@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
     return weeks.last.number
   end
 
-  def get_current_week_object_from_weeks(weeks)
+  def get_next_week_object_from_weeks(weeks)
     now = DateTime.now
     weeks.each { |week|
       if now < week.start_time

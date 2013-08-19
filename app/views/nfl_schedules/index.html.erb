@@ -1,40 +1,40 @@
 
 <%= navigationBar(NavigationHelper::ADMIN_NFL_SCHEDULE_BUTTON) %>
 
-<div class='row-fluid'><div class='span12 center'>
-<h3>Manage NFL Schedule</h3>
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3>Manage NFL Schedule</h3>
 
-<table class='table table-striped table-bordered table-condensed center'>
-  <thead><tr>
-    <th>Year</th>
-    <th>Week</th>
-    <th>Date</th>
-    <th>Time</th>
-    <th>Home Team</th>
-    <th>Home Score</th>
-    <th>Away Team</th>
-    <th>Away Score</th>
-    <th></th>
-  </tr></thead>
-
-<% @nfl_games.each do |nfl_game| %>
-  <tr>
-    <td><%= nfl_game.year %></td>
-    <td><%= nfl_game.week %></td>
-    <td><%= nfl_game.start_time.utc.in_time_zone.strftime("%m/%d/%Y") %></td>
-    <td><%= nfl_game.start_time.utc.in_time_zone.strftime("%I:%M %p %Z") %></td>
-    <td><%= nfl_game.home_nfl_team.abbreviation %></td>
-    <td><%= nfl_game.home_score %></td>
-    <td><%= nfl_game.away_nfl_team.abbreviation %></td>
-    <td><%= nfl_game.away_score %></td>
-    <td><%= link_to 'Update Score', '/nfl_schedule/' + nfl_game.id.to_s %></td>
-  </tr>
-<% end %>
-</table>
-
-<br />
-
-<%= link_to 'Create New Matchup', new_nfl_schedule_path, class: 'btn btn-primary' %>
-
-<br/><br/>
+    <label for='week_chooser'>Select Week: </label>
+    <select id='week_chooser' class='input-medium'>
+    <% @weeks.each { |week| %>
+      <option value=<%= week.number %>
+              <%= (week.number == (@current_week) ? "selected" : "") %>>
+        Week <%= week.number %>
+      </option>
+    <% } %>
+    </select>
+    <div id='schedresults'></div>
 </div></div>
+
+<script type="text/javascript">
+  // Loads the nfl schedule week page asynchronously & populates the schedresults div with the
+  // results
+  function week_schedule_ajax() {
+    $.ajax({
+      url: "/ajax/nfl_schedule/adminweek/" + document.getElementById("week_chooser").value,
+      success: function(data) {
+        $("#schedresults").html(data);
+      }
+    });
+  }
+
+  // On document ready, load the selected week's schedule, and set the selected data to be updated
+  // whenever the corresponding selectors are changed.
+  $(document).ready(function() {
+    week_schedule_ajax();
+    $("#week_chooser").change(function() {
+      week_schedule_ajax();
+    });
+  });
+</script>

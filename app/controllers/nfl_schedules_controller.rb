@@ -15,6 +15,10 @@ class NflSchedulesController < ApplicationController
                             .order(:week)
                             .order(:start_time)
 
+    @weeks = Week.where(year: Date.today.year)
+                 .order(:number)
+    @current_week = game_week
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @nfl_games }
@@ -119,6 +123,15 @@ class NflSchedulesController < ApplicationController
 
   # GET /ajax/nfl_schedule/week/:number
   def ajaxweek
+    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    @games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
+                        .where({year: Date.today.year, week: @week.number})
+                        .order(:start_time)
+    render :layout => "ajax"
+  end
+
+  # GET /ajax/nfl_schedule/adminweek/:number
+  def ajaxadminweek
     @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
     @games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
                         .where({year: Date.today.year, week: @week.number})

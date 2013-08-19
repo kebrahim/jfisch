@@ -34,7 +34,7 @@ class SurvivorEntriesController < ApplicationController
     @before_season =
         DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
     current_year = Date.today.year
-    @current_week = get_current_week_object_from_weeks(
+    @current_week = get_next_week_object_from_weeks(
         Week.where(year: Date.today.year).order(:number))
     @type_to_entry_map = build_type_to_entry_map(
         SurvivorEntry.where({user_id: user.id, year: current_year})
