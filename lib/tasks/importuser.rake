@@ -14,7 +14,7 @@ namespace :importuser do
       User.create(email: email, password: 'changeme', password_confirmation: 'changeme',
                   first_name: first_name, last_name: last_name, captain_code: captain_code,
                   role: (is_super_admin == 'true' ? :super_admin : :admin).to_s,
-                  send_emails: false, is_confirmed: true)
+                  send_emails: true, is_confirmed: true, time_zone: "Eastern Time (US & Canada)")
       usercount += 1
     end
     puts "Imported " + usercount.to_s + " Users!"
