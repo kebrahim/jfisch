@@ -11,7 +11,7 @@
        class='btn btn-inverse'>Dashboard</a>
   </div>
   <div class='span8 center'>
-    <h3><%= @survivor_entry.user.first_name + "'s " + @survivor_entry.type_title %> 
+    <h3 id='entry_title'><%= @survivor_entry.user.first_name + "'s " + @survivor_entry.type_title %> 
         #<%= @survivor_entry.entry_number.to_s %></h3>
   </div>
   <div class='span2 center nexttoh1'>
@@ -30,7 +30,7 @@
     <% @user_entries.each { |entry| %>
       <option value=<%= entry.id %>
               <%= ((entry.id == @survivor_entry.id) ? "selected" : "") %>>
-        <%= entry.type_title + " " + entry.entry_number.to_s %>
+        <%= entry.type_title + " #" + entry.entry_number.to_s %>
       </option>
     <% } %>
     </select>
@@ -61,6 +61,12 @@
       url: "/ajax/survivor_entries/" + document.getElementById("entry_chooser").value,
       success: function(data) {
         $("#picksform").html(data);
+
+        // Reset title at top of page to match selected entry name.
+        var entry_name = $('#entry_title').text();
+        var user_name = entry_name.split(" ")[0];
+        var selected_text = $("#entry_chooser")[0].options[$("#entry_chooser")[0].selectedIndex].innerHTML;
+        $('#entry_title').text(user_name + " " + selected_text);
       }
     });
   }
