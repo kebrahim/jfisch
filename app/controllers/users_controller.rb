@@ -93,7 +93,7 @@ class UsersController < ApplicationController
     end
   end
 
-  # GET /users/:confirmation_code/confirm
+  # GET /confirm/:confirmation_code
   def confirm
     logout_user
     @user = User.find_by_confirmation_token(params[:confirmation_code])
@@ -105,6 +105,24 @@ class UsersController < ApplicationController
       notice_message = "Error: Invalid confirmation URL; token does not exist"
     end
     redirect_to root_url, notice: notice_message
+  end
+
+  # GET /users/:id/confirm
+  def confirm_user
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    user = User.find(params[:id])
+    if user && !user.is_confirmed
+      user.update_attributes({ is_confirmed: true, confirmation_token: nil })
+      confirmation_message = "Successfully confirmed user's account!"
+    else
+      confirmation_message = "Error: Invalid user for confirmation"
+    end
+    redirect_to users_url, notice: confirmation_message
   end
 
   # PUT /users/1

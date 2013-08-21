@@ -3,6 +3,7 @@
 <div class='row-fluid'>
   <div class='span12 center'>
     <h3>Manage Users</h3>
+    <%= show_notice_as_alert(notice) %>
 
     <table class=<%= "'" + ApplicationHelper::TABLE_CLASS + "'" %>>
       <thead class='rightborderme'><tr>
@@ -10,11 +11,12 @@
         <th><%= sortable :email.to_s %></th>
         <th><%= sortable :first_name.to_s %></th>
         <th><%= sortable :last_name.to_s %></th>
-        <th colspan=2><%= sortable :created_at.to_s %></th>
+        <th colspan=2><%= sortable :created_at.to_s, "Signup Date" %></th>
         <th><%= sortable :role.to_s %></th>
         <th><%= sortable(:send_emails.to_s, "Emails") %></th>
         <th><%= sortable :referred_by.to_s %></th>
         <th><%= sortable :time_zone.to_s %></th>
+        <th><%= sortable :is_confirmed.to_s, "Status" %></th>
         <th colspan=2>Actions</th>
       </tr></thead>
 
@@ -38,8 +40,17 @@
         <td><%= image_tag(user.send_emails ? "check.jpg" : "cross.jpg", class: "img_20_20") %></td>
         <td><%= user.referred_by %></td>
         <td><%= user.time_zone.split[0] %></td>
+        
+        <% if !user.is_confirmed %>
+          <td><%= link_to 'Confirm', admin_confirm_user_path(user),
+                          data: { confirm: 'Are you sure you want to confirm this user?' } %></td>
+        <% else %>
+          <td><%= image_tag("check.jpg", class: "img_20_20") %></td>
+        <% end %>
+
         <td><%= link_to 'Edit', edit_user_path(user) %></td>
-        <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', user, method: :delete,
+                        data: { confirm: 'Are you sure you want to delete this user?' } %></td>
       </tr>
     <% end %>
     </table>

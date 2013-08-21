@@ -44,6 +44,7 @@ Jfisch::Application.routes.draw do
   get 'sign_up' => 'users#new', :as => 'sign_up'
   get 'profile' => 'users#profile'
   get '/confirm/:confirmation_code' => 'users#confirm', :as=>'confirm_user'
+  get '/users/:id/confirm' => 'users#confirm_user', :as=>'admin_confirm_user'
 
   resources :password_resets
 

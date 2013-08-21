@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
   ASSIGNABLE_ROLES = { admin: [:user, :captain, :admin, :demo],
                        super_admin: ALL_ROLES_ARRAY }
   SORTABLE_COLUMNS = [:email, :first_name, :last_name, :created_at, :role, :send_emails,
-                      :referred_by, :time_zone].collect { |column| column.to_s }
+                      :referred_by, :time_zone, :is_confirmed].collect { |column| column.to_s }
   SORTABLE_STRING_COLUMNS =
       [:email, :first_name, :last_name, :referred_by].collect { |column| column.to_s }
 
