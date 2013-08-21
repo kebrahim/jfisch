@@ -3,7 +3,7 @@ module NflSchedulesHelper
   # displays a table of the specified nfl games
   def week_display_table(games)
     week_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
-                   <thead><tr>
+                   <thead class='rightborderme'><tr>
                      <th>Date</th>
                      <th colspan=2>Home Team</th>
                      <th colspan=2>Away Team</th>

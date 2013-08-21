@@ -165,6 +165,12 @@ table th {background-color: black; color:white;}
 .table thead.rightborderme th {
   border-right: thin solid white !important;
 }
+.table thead.rightborderme th:last-child {
+  border-right: none !important;
+}
+.smallfonttable td {
+  font-size: 11px;
+}
 
 .row-fluid [class*="span"] .dead {
   background-color:#F2DEDE;
