@@ -10,15 +10,41 @@ class UsersController < ApplicationController
       return
     end
   
-    # if sort column is a string column, wrap with "lower()"
+    # if sort column is a name column, also add other name
     column = sort_column
-    @users = User.order((User::SORTABLE_STRING_COLUMNS.include?(column) ?
-        "lower(" + column + ")" : column) + ' ' + sort_direction)
+    order_columns = [wrap_column_if_string(column)]
+    if column.ends_with?("name")
+      order_columns << wrap_column_if_string(
+          column == :first_name.to_s ? :last_name.to_s : :first_name.to_s)
+    end
+
+    @users = User.order(get_order_by_string(order_columns, sort_direction))
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @users }
     end
+  end
+
+  # wraps the specified column in a "lower()" if it's a string column
+  def wrap_column_if_string(column)
+    return User::SORTABLE_STRING_COLUMNS.include?(column) ?
+       "lower(" + column + ")" : column
+  end
+
+  # returns the order_by string for users, using the specified columns and direction
+  def get_order_by_string(order_columns, direction)
+    order_by_string = ''
+    first_column = true
+    order_columns.each { |column|
+      if first_column
+        first_column = false
+      else
+        order_by_string += ", "
+      end
+      order_by_string += column + ' ' + direction
+    }
+    return order_by_string
   end
 
   # GET /users/new

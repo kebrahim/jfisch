@@ -162,11 +162,8 @@ table th {background-color: black; color:white;}
 .table th.rightborderme {
   border-right: thin solid white !important;
 }
-.table thead.rightborderme th {
+.table thead.rightborderme th:not(:last-child) {
   border-right: thin solid white !important;
-}
-.table thead.rightborderme th:last-child {
-  border-right: none !important;
 }
 .smallfonttable td {
   font-size: 11px;
