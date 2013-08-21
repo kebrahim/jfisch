@@ -162,6 +162,9 @@ table th {background-color: black; color:white;}
 .table th.rightborderme {
   border-right: thin solid white !important;
 }
+.table thead.rightborderme th {
+  border-right: thin solid white !important;
+}
 
 .row-fluid [class*="span"] .dead {
   background-color:#F2DEDE;
@@ -319,6 +322,17 @@ th > a, td > a#hover {
   color: blue !important;
   text-decoration: underline !important;
   background-color: transparent !important;
+}
+th .current {
+  padding-right: 12px;
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+th .asc {
+  background-image: url(/assets/up_arrow.gif);
+}
+th .desc { 
+  background-image: url(/assets/down_arrow.gif);
 }
 
 .chooser {

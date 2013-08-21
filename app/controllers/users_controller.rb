@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  helper_method :sort_column, :sort_direction
+
   # GET /users
   # GET /users.json
   def index
@@ -7,8 +9,11 @@ class UsersController < ApplicationController
       redirect_to root_url
       return
     end
-
-    @users = User.order("lower(last_name), lower(first_name)")
+  
+    # if sort column is a string column, wrap with "lower()"
+    column = sort_column
+    @users = User.order((User::SORTABLE_STRING_COLUMNS.include?(column) ?
+        "lower(" + column + ")" : column) + ' ' + sort_direction)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -144,5 +149,14 @@ class UsersController < ApplicationController
       format.html { redirect_to users_url }
       format.json { head :no_content }
     end
+  end
+
+  private
+  def sort_column
+    User::SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : :first_name.to_s
+  end
+  
+  def sort_direction
+    %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
   end
 end

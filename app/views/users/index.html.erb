@@ -5,16 +5,17 @@
     <h3>Manage Users</h3>
 
     <table class=<%= "'" + ApplicationHelper::TABLE_CLASS + "'" %>>
-      <thead><tr>
+      <thead class='rightborderme'><tr>
         <th></th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Send Emails</th>
-        <th>Referred By</th>
-        <th>Time Zone</th>
-        <th></th>
-        <th></th>
+        <th><%= sortable :email.to_s %></th>
+        <th><%= sortable :first_name.to_s %></th>
+        <th><%= sortable :last_name.to_s %></th>
+        <th colspan=2><%= sortable :created_at.to_s %></th>
+        <th><%= sortable :role.to_s %></th>
+        <th><%= sortable(:send_emails.to_s, "Emails") %></th>
+        <th><%= sortable :referred_by.to_s %></th>
+        <th><%= sortable :time_zone.to_s %></th>
+        <th colspan=2>Actions</th>
       </tr></thead>
 
     <% 
@@ -28,12 +29,15 @@
         <tr class='red-row'>
       <% end %>
         <td><%= user_count.to_s %></td>
-        <td><%= link_to(user.full_name, "/users/" + user.id.to_s + "/dashboard") %></td>
-        <td><%= user.email %></td>
-        <td><%= user.role %></td>
+        <td><%= link_to(user.email, "/users/" + user.id.to_s + "/dashboard") %></td>
+        <td><%= user.first_name %></td>
+        <td><%= user.last_name %></td>
+        <td><%= user.created_at.utc.in_time_zone.strftime("%-m/%-d/%y") %></td>
+        <td><%= user.created_at.utc.in_time_zone.strftime("%-I:%M %p") %></td>
+        <td><%= user.role == :super_admin.to_s ? :admin : user.role %></td>
         <td><%= image_tag(user.send_emails ? "check.jpg" : "cross.jpg", class: "img_20_20") %></td>
         <td><%= user.referred_by %></td>
-        <td><%= user.time_zone %></td>
+        <td><%= user.time_zone.split[0] %></td>
         <td><%= link_to 'Edit', edit_user_path(user) %></td>
         <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
