@@ -97,4 +97,9 @@ class NflSchedule < ActiveRecord::Base
       return nil
     end
   end
+
+  # returns a string showing the two teams playing in this game
+  def matchup
+    return self.away_nfl_team.abbreviation + " @ " + self.home_nfl_team.abbreviation
+  end
 end

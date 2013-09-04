@@ -10,11 +10,6 @@ class NflSchedulesController < ApplicationController
       return
     end
 
-    @nfl_games = NflSchedule.includes(:home_nfl_team)
-                            .includes(:away_nfl_team)
-                            .order(:week)
-                            .order(:start_time)
-
     @weeks = Week.where(year: Date.today.year)
                  .order(:number)
     @current_week = game_week
@@ -135,7 +130,117 @@ class NflSchedulesController < ApplicationController
     @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
     @games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
                         .where({year: Date.today.year, week: @week.number})
-                        .order(:start_time)
+                        .order(:start_time, :id)
     render :layout => "ajax"
+  end
+
+  # GET /nfl_schedule/week/:number
+  def show_week
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @weeks = Week.where(year: Date.today.year)
+                 .order(:number)
+    @current_week = get_week_object_by_number(@weeks, params[:number].to_i).number
+    
+    render "index"
+  end
+
+  # POST /nfl_schedule/week/:number
+  def update_week
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+    
+    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    confirmation_message = ""
+    if params["updatescores"]
+      nfl_games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
+                             .where({year: Date.today.year, week: @week.number})
+                             .order(:start_time)
+
+      SurvivorBet.transaction do 
+        begin
+          error_messages = []
+          nfl_games.each { |nfl_game|
+            home_selector = nfl_game.id.to_s + "_home"
+            away_selector = nfl_game.id.to_s + "_away"
+     
+            # if score changed for a specific game, update scores and save entire game; also, update
+            # corresponding bets for game.
+            home_score = params[home_selector] == '' ? nil : params[home_selector].to_i
+            away_score = params[away_selector] == '' ? nil : params[away_selector].to_i
+            if ((home_score != nfl_game.home_score) || (away_score != nfl_game.away_score))
+              error_message = update_score_for_game(nfl_game, home_score, away_score)
+              if !error_message.nil?
+                error_messages << error_message
+              end
+            end
+          }
+          if error_messages.empty?
+            confirmation_message = "Successfully updated scores!"
+          else
+            confirmation_message = "Error: " + error_messages.join('; ')
+          end
+        rescue Exception => e
+          confirmation_message = "Error: Problem occurred while updating scores"
+        end
+      end
+    end
+
+    redirect_to "/nfl_schedule/week/" + params[:number], notice: confirmation_message
+  end
+
+  # Updates the scores of the specified game to the specified home & away scores, and also marks any
+  # bets on that game either correct or incorrect, based on the updated score. If a bet is marked
+  # incorrect, then the entry is killed if it's already alive.
+  def update_score_for_game(nfl_game, home_score, away_score)
+    if !home_score.nil? && !away_score.nil?
+      error_message = nil
+      if nfl_game.update_attributes({ home_score: home_score, 
+                                      away_score: away_score })
+        
+        # update win/loss on all bets in this game
+        bets_on_game = SurvivorBet.includes([:nfl_game, :survivor_entry])
+                                  .where(nfl_game_id: nfl_game)
+        bets_on_game.each { |bet|
+          has_correct_bet = bet.has_correct_bet
+          entry = bet.survivor_entry
+
+          # Only update bet's correct status if it has changed values, and the current entry
+          # is alive or this entry was knocked out during this week, and the score is being
+          # corrected.
+          if (bet.is_correct.nil? || (bet.is_correct != has_correct_bet)) &&
+             (entry.is_alive || (entry.knockout_week == bet.nfl_game.week))
+            bet.update_attribute(:is_correct, has_correct_bet)
+
+            # update entry's is_alive status, if it should change.
+            # TODO entry should not be set to alive if week requires 2 bets, both were
+            # initially incorrect and now one is being changed to correct.
+            if entry.is_alive != has_correct_bet
+              attributes_to_update = {}
+
+              # set is_alive status
+              attributes_to_update[:is_alive] = has_correct_bet
+              
+              # set knockout_week
+              attributes_to_update[:knockout_week] = has_correct_bet ? nil : bet.nfl_game.week
+
+              entry.update_attributes(attributes_to_update)
+            end
+          end
+        }
+      else
+        error_message = "Problem occurred while updating score"
+      end   
+    else
+      error_message = "Both scores are required for " + nfl_game.matchup
+    end
+    return error_message
   end
 end
