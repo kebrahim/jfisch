@@ -12,11 +12,13 @@ Jfisch::Application.routes.draw do
   post 'save_entry_bets' => 'survivor_entries#save_entry_bets'
   get '/survivor_entries/:id(.:format)' => 'survivor_entries#show'
   get '/ajax/survivor_entries/:id' => 'survivor_entries#ajaxshow'
+  get '/ajax/survivor_entries/game/:game_type' => 'survivor_entries#ajaxshowall'
  
   get 'survivor' => 'survivor_entries#survivor'
   get 'anti_survivor' => 'survivor_entries#anti_survivor'
   get 'high_roller' => 'survivor_entries#high_roller'
   get 'entries' => 'survivor_entries#all_entries'
+  get 'picks' => 'survivor_entries#all_bets'
   
   get 'kill_entries' => 'survivor_entries#kill_entries'
   get 'kill_entries/week/:number' => 'survivor_entries#kill_entries_week'

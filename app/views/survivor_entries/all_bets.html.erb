@@ -1,0 +1,47 @@
+<%= navigationBar(NavigationHelper::ADMIN_ALL_PICKS_BUTTON) %>
+
+<div class='row-fluid'>
+  <div class='span12 center'>
+    <h3 id='page_title'><%= @current_year %> Regular Survivor Picks</h3>
+    <label for='game_chooser'>Select Game: </label>
+    <select id='game_chooser'>
+    <% SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type| %>
+      <option value=<%= game_type.to_s %>
+              <%= ((game_type == @game_type) ? "selected" : "") %>>
+        <%= SurvivorEntry.game_type_title(game_type) %>
+      </option>
+    <% } %>
+    </select>
+    <div id='betstable'></div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  // Loads the bets display page for the selected game_type asynchronously & populates the betstable
+  // div with the results
+  function game_bets_ajax() {
+    $.ajax({
+      url: "/ajax/survivor_entries/game/" + document.getElementById("game_chooser").value,
+      success: function(data) {
+        $("#betstable").html(data);
+
+
+        // Reset title at top of page to match selected entry name.
+        var page_title = $('#page_title').text();
+        var current_year = page_title.split(" ")[0];
+        var selected_game_type =
+            $("#game_chooser")[0].options[$("#game_chooser")[0].selectedIndex].innerHTML;
+        $('#page_title').text(current_year + " " + selected_game_type + " Picks");
+      }
+    });
+  }
+
+  // On document ready, load the bets for the selected game type, and set the selected data to be
+  // updated whenever the selector is changed.
+  $(document).ready(function() {
+    game_bets_ajax();
+    $("#game_chooser").change(function() {
+      game_bets_ajax();
+    });
+  });
+</script>

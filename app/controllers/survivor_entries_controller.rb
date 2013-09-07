@@ -790,6 +790,30 @@ class SurvivorEntriesController < ApplicationController
     entry_count_map[user_id][:high_roller] = [0,0]
   end
 
+  # GET /all_bets
+  def all_bets
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+    @current_year = Date.today.year
+  end
+
+  # GET /ajax/survivor_entries/game/:game_type
+  def ajaxshowall
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
+    @game_type = SurvivorEntry.name_to_game_type(params[:game_type])
+    @entries_by_type = get_entries_by_type(@game_type)
+    @entry_to_bets_map = get_bets_map_by_type(@game_type)
+    render :layout => "ajax"
+  end
+
   # GET /kill_entries
   def kill_entries
     @current_user = current_user
@@ -818,6 +842,12 @@ class SurvivorEntriesController < ApplicationController
 
   # GET /ajax/kill_entries/week/:number
   def ajax_kill_week
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
     # only let user see weeks that have completed
     @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
     if @week && DateTime.now > @week.start_time
@@ -828,6 +858,12 @@ class SurvivorEntriesController < ApplicationController
 
   # DELETE /kill_entries/week/:number
   def kill_all
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+
     week_number = params[:number].to_i
     @entries_without_bets = get_entries_without_bets(week_number)
     

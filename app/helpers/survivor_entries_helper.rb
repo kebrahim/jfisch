@@ -689,4 +689,68 @@ module SurvivorEntriesHelper
     end
     return num_picks < entry.number_bets_required(week_number)
   end
+
+  # displays table of all bets for all users, for the admin to view
+  def all_user_bets_table
+    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
+                   <thead>
+                     <tr>
+                       <th rowspan='2'>Entry</th>
+                       <th class='leftborderme' colspan='" +
+                           SurvivorEntry::MAX_BETS_MAP[@game_type].to_s + "'>Weeks</th>
+                     </tr>
+                     <tr>"
+ 
+    # Show bets for all weeks up to the current week.
+    1.upto(SurvivorEntry::MAX_WEEKS_MAP[@game_type]) { |week|
+      bets_html << "<th class='leftborderme' colspan='" +
+          SurvivorEntry.bets_in_week(@game_type, week).to_s + "'>" + week.to_s + "</th>"
+    }
+    bets_html <<    "</tr>
+                   </thead>"
+
+    @entries_by_type.each { |entry|
+      bets_html << "<tr>
+                      <td class='rightborderme "
+
+      # if entry is dead, cross out entry name
+      if !entry.is_alive
+        bets_html << "red-cell"
+      end
+      bets_html << "'>" + link_to(entry.user.full_name + " " + entry.entry_number.to_s,
+          "/survivor_entries/" + entry.id.to_s) + "</td>"
+
+      bets = @entry_to_bets_map[entry.id]
+      1.upto(SurvivorEntry::MAX_WEEKS_MAP[@game_type]) { |week|
+        1.upto(SurvivorEntry.bets_in_week(@game_type, week)) { |bet_number|
+          bets_html << "<td"
+          if !bets.nil?
+            bet = bets[SurvivorBet.bet_selector(week, bet_number)]
+            if !bet.nil?
+              if !bet.is_correct.nil?
+                bets_html << " class='" + (bet.is_correct ? "green-cell" : "red-cell").to_s + "'
+                               title='" + bet.game_result + "'"
+              end
+              bets_html << ">" + bet.nfl_team.abbreviation
+            elsif entry.knockout_week == week
+              # no bets were made during week & entry was knocked out
+              bets_html << " class='red-cell'>--"
+            else
+              bets_html << ">"
+            end
+          elsif entry.knockout_week == week
+            # no bets were made, but entry was knocked out in week 1
+            bets_html << " class='red-cell'>--"
+          else
+            bets_html << ">"
+          end
+          bets_html << "</td>"
+        }
+      }
+      bets_html << "</tr>"
+    }
+
+    bets_html << "</table>"
+    return bets_html.html_safe
+  end
 end

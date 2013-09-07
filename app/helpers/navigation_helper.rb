@@ -19,10 +19,11 @@ module NavigationHelper
   HIGH_ROLLER_RULES_BUTTON = "HIGH_ROLLER_RULES_BUTTON"
 
   # Admin buttons
-  ADMIN_ENTRIES_BUTTON = "ADMIN_ENTRIES_BUTTON"
-  ADMIN_KILL_ENTRIES_BUTTON = "ADMIN_KILL_ENTRIES_BUTTON"
-  ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
   ADMIN_USERS_BUTTON = "ADMIN_USERS_BUTTON"
+  ADMIN_ENTRIES_BUTTON = "ADMIN_ENTRIES_BUTTON"
+  ADMIN_ALL_PICKS_BUTTON = "ADMIN_ALL_PICKS_BUTTON"
+  ADMIN_NFL_SCHEDULE_BUTTON = "ADMIN_NFL_SCHEDULE_BUTTON"
+  ADMIN_KILL_ENTRIES_BUTTON = "ADMIN_KILL_ENTRIES_BUTTON"
 
   # Super-admin buttons
   ADMIN_NFL_TEAMS_BUTTON = "ADMIN_NFL_TEAMS_BUTTON"
@@ -56,6 +57,7 @@ module NavigationHelper
             [
              { btn: ADMIN_USERS_BUTTON, txt: "Users", lnk: "/users" },
              { btn: ADMIN_ENTRIES_BUTTON, txt: "Entries", lnk: "/entries" },
+             { btn: ADMIN_ALL_PICKS_BUTTON, txt: "All Picks", lnk: "/picks" },
              { type: "divider" },
              { btn: ADMIN_NFL_SCHEDULE_BUTTON, txt: "NFL Schedule", lnk: "/nfl_schedule" },
              { btn: ADMIN_KILL_ENTRIES_BUTTON, txt: "Kill Entries", lnk: "/kill_entries" },
