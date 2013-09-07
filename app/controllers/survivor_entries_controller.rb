@@ -584,7 +584,16 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :survivor
     load_entries_data(@game_type)
-    render "breakdown"
+
+    respond_to do |format|
+      format.html { 
+        render "breakdown"
+      }
+      format.csv {
+        render text: to_csv(@entries_by_type, @entry_to_bets_map, @game_type, @current_week, @game_week)
+      }
+      # TODO xls
+    end
   end
 
   # GET /anti_survivor
@@ -597,6 +606,7 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :anti_survivor
     load_entries_data(@game_type)
+    # TODO csv/xls
     render "breakdown"
   end
 
@@ -610,6 +620,7 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :high_roller
     load_entries_data(@game_type)
+    # TODO csv/xls
     render "breakdown"
   end
 
@@ -620,6 +631,58 @@ class SurvivorEntriesController < ApplicationController
     @current_week = get_current_week
     @game_week = game_week
     @week_to_entry_stats_map = build_week_to_entry_stats_map(@entries_by_type, @current_week)
+  end
+
+  def to_csv(entries, entry_to_bets_map, game_type, current_week, game_week)
+    CSV.generate do |csv|
+      column_headers = ["Entry"]
+      max_week = [current_week, game_week].max
+      1.upto(max_week) { |week|
+        num_bets_in_week = SurvivorEntry.bets_in_week(game_type, week)
+        if num_bets_in_week == 1
+          column_headers << "Week " + week.to_s
+        else
+          column_headers << "Week " + week.to_s + "a"
+          column_headers << "Week " + week.to_s + "b"
+        end
+      }
+
+      csv << column_headers
+      entries.each do |entry|
+        bets = entry_to_bets_map[entry.id]
+        column_values = [entry.user.full_name + " " + entry.entry_number.to_s]
+        1.upto(max_week) { |week|
+          1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
+            if !bets.nil?
+              bet = bets[SurvivorBet.bet_selector(week, bet_number)]
+              if !bet.nil?
+                if entry.is_alive || week <= entry.knockout_week
+                  if !bet.is_correct.nil? || (DateTime.now > bet.nfl_game.start_time) ||
+                      (bet.week <= current_week)
+                    column_values << bet.nfl_team.abbreviation
+                  else
+                    column_values << ""
+                  end
+                else
+                  column_values << ""
+                end
+              elsif entry.knockout_week == week
+                column_values << "--"
+              else
+                column_values << ""
+              end
+            elsif entry.knockout_week == week
+              column_values << "--"
+            end
+          }
+        }
+        csv << column_values
+      end
+    end
+  end
+
+  def get_column_value()
+    # TODO move previous loop here
   end
 
   # returns the survivor entries of the specified type
