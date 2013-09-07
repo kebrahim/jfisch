@@ -464,7 +464,7 @@ module SurvivorEntriesHelper
   # shows the table of all bets for all users, for the specified game type
   def all_bets_table(game_type, entries_by_type, entry_to_bets_map, logged_in_user, current_week,
                      game_week)
-    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
+    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + " smallfonttable'>
                    <thead>
                      <tr>
                        <th rowspan='2'>Entry</th>"
@@ -556,7 +556,7 @@ module SurvivorEntriesHelper
   # and remaining entries in each week.
   def entry_stats_table(game_type, week_to_entry_stats_map, current_week)
     stats_html = "<h4>Entry Stats</h4>
-                 <table class='" + ApplicationHelper::TABLE_CLASS + "'>
+                 <table class='" + ApplicationHelper::TABLE_CLASS + " smallfonttable'>
                    <thead>
                      <tr>
                        <th rowspan=2>Stat</th>"
@@ -691,7 +691,7 @@ module SurvivorEntriesHelper
 
   # displays table of all bets for all users, for the admin to view
   def all_user_bets_table
-    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + "'>
+    bets_html = "<table class='" + ApplicationHelper::TABLE_CLASS + " smallfonttable'>
                    <thead>
                      <tr>
                        <th rowspan='2'>Entry</th>
