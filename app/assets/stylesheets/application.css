@@ -307,7 +307,7 @@ p.matchup {
   margin: 0 0 0 0;
   font-size: 11px;
 }
-td > a, td > a#hover, h4 > a, h4 > a#hover, h5 > a, h5 > a#hover {
+td > a, td > a#hover, h4 > a, h4 > a#hover, h5 > a, h5 > a#hover, p > a, p > a#hover {
   color: black !important;
   background-color: transparent !important;
   text-decoration: underline !important;

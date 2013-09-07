@@ -25,6 +25,12 @@
 
 <div class='row-fluid'>
   <div class='span12 center'>
+    <h4>Entry Breakdown</h4>
+    <p>
+      Download:
+      <%= link_to "CSV", "/" + @game_type.to_s + ".csv" %> | Excel
+      <!-- %= link_to "Excel", "/" + @game_type.to_s + ".xls" % -->
+    </p>
     <%= all_bets_table(@game_type, @entries_by_type, @entry_to_bets_map, @user, @current_week, 
                        @game_week) %>
   </div>

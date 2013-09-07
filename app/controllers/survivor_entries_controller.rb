@@ -590,7 +590,7 @@ class SurvivorEntriesController < ApplicationController
         render "breakdown"
       }
       format.csv {
-        render text: to_csv(@entries_by_type, @entry_to_bets_map, @game_type, @current_week, @game_week)
+        send_data to_csv(@entries_by_type, @entry_to_bets_map, @game_type, @current_week, @game_week)
       }
       # TODO xls
     end
@@ -606,8 +606,16 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :anti_survivor
     load_entries_data(@game_type)
-    # TODO csv/xls
-    render "breakdown"
+
+    respond_to do |format|
+      format.html { 
+        render "breakdown"
+      }
+      format.csv {
+        send_data to_csv(@entries_by_type, @entry_to_bets_map, @game_type, @current_week, @game_week)
+      }
+      # TODO xls
+    end
   end
 
   # GET /high_roller
@@ -620,8 +628,16 @@ class SurvivorEntriesController < ApplicationController
 
     @game_type = :high_roller
     load_entries_data(@game_type)
-    # TODO csv/xls
-    render "breakdown"
+
+    respond_to do |format|
+      format.html { 
+        render "breakdown"
+      }
+      format.csv {
+        send_data to_csv(@entries_by_type, @entry_to_bets_map, @game_type, @current_week, @game_week)
+      }
+      # TODO xls
+    end
   end
 
   # loads the survivor entry data for the game breakdown by the specified game_type
