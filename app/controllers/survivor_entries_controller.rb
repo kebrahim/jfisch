@@ -207,13 +207,17 @@ class SurvivorEntriesController < ApplicationController
       week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       user_entries = SurvivorEntry.where({user_id: user.id, year: current_year})
                                   .order(:game_type, :entry_number)
+      weeks = Week.where(year: Date.today.year)
+                  .order(:number)
+      week_to_start_time_map = build_week_to_start_time_map(weeks)
       
       # collect bets, separating into create/update
       bets = {}
       bets[:create] = []
       bets[:update] = []
       user_entries.each { |survivor_entry|
-        get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map)
+        get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map,
+                         week_to_start_time_map)
       }
 
       # create/update bets
@@ -263,7 +267,8 @@ class SurvivorEntriesController < ApplicationController
 
   # constructs the bets to create/update/delete for the specified entry and populates them in the
   # specified bets hashmap
-  def get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map)
+  def get_updated_bets(survivor_entry, bets, selector_to_bet_map, week_team_to_game_map,
+                       week_to_start_time_map)
     game_type = SurvivorEntry.name_to_game_type(survivor_entry.game_type)
     1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
@@ -273,22 +278,31 @@ class SurvivorEntriesController < ApplicationController
         if !params[selector].nil? &&
             (!existing_bet.nil? || selected_team_id > 0)
           if existing_bet.nil?
-            # Bet does not exist, create new bet.
-            new_bet = SurvivorBet.new
-            new_bet.survivor_entry_id = survivor_entry.id
-            new_bet.week = week
-            new_bet.bet_number = bet_number
-            new_bet.nfl_game_id =
-                week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
-            new_bet.nfl_team_id = selected_team_id
-            new_bet.is_correct = nil
-            bets[:create] << new_bet
+            # Bet does not exist, create new bet if game isn't locked.
+            nfl_game = week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)]
+            if !nfl_game.is_locked(week_to_start_time_map)
+              new_bet = SurvivorBet.new
+              new_bet.survivor_entry_id = survivor_entry.id
+              new_bet.week = week
+              new_bet.bet_number = bet_number
+              new_bet.nfl_game_id = nfl_game.id
+              new_bet.nfl_team_id = selected_team_id
+              new_bet.is_correct = nil
+              bets[:create] << new_bet
+            end
           elsif existing_bet.nfl_team_id != selected_team_id
-            # Bet already exists and is changed, update.
-            existing_bet.nfl_team_id = selected_team_id
-            existing_bet.nfl_game_id = selected_team_id == 0 ? 0 :
-                week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
-            bets[:update] << existing_bet
+            # Bet already exists and is changed, update if neither previous nor currently
+            # selected games are locked.
+            new_nfl_game =
+                week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)]
+            old_nfl_game =
+                week_team_to_game_map[NflSchedule.game_selector(week, existing_bet.nfl_team_id)]
+            if !old_nfl_game.is_locked(week_to_start_time_map) &&
+               (new_nfl_game.nil? || !new_nfl_game.is_locked(week_to_start_time_map))
+              existing_bet.nfl_team_id = selected_team_id
+              existing_bet.nfl_game_id = selected_team_id == 0 ? 0 : new_nfl_game.id
+              bets[:update] << existing_bet
+            end
           end
         end
       }
@@ -481,6 +495,9 @@ class SurvivorEntriesController < ApplicationController
             SurvivorBet.where(survivor_entry_id: @survivor_entry))
         week_team_to_game_map = build_week_team_to_game_map(
             NflSchedule.where(year: current_year))
+        weeks = Week.where(year: Date.today.year)
+                    .order(:number)
+        week_to_start_time_map = build_week_to_start_time_map(weeks)
 
         game_type = SurvivorEntry.name_to_game_type(@survivor_entry.game_type)
         bets_to_create = []
@@ -492,23 +509,33 @@ class SurvivorEntriesController < ApplicationController
             selected_team_id = params[selector].to_i
             if !params[selector].nil? &&
                 (!existing_bet.nil? || selected_team_id > 0)
+              # TODO validate bets [no repeats, locked games, etc.]; aggregate invalid bets
               if existing_bet.nil?
-                # Bet does not exist, create new bet.
-                new_bet = SurvivorBet.new
-                new_bet.survivor_entry_id = @survivor_entry.id
-                new_bet.week = week
-                new_bet.bet_number = bet_number
-                new_bet.nfl_game_id =
-                    week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
-                new_bet.nfl_team_id = selected_team_id
-                new_bet.is_correct = nil
-                bets_to_create << new_bet
+                # Bet does not exist, create new bet if game isn't locked.
+                nfl_game = week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)]
+                if !nfl_game.is_locked(week_to_start_time_map)
+                  new_bet = SurvivorBet.new
+                  new_bet.survivor_entry_id = @survivor_entry.id
+                  new_bet.week = week
+                  new_bet.bet_number = bet_number
+                  new_bet.nfl_game_id = nfl_game.id
+                  new_bet.nfl_team_id = selected_team_id
+                  new_bet.is_correct = nil
+                  bets_to_create << new_bet
+                end
               elsif existing_bet.nfl_team_id != selected_team_id
-                # Bet already exists and is changed, update.
-                existing_bet.nfl_team_id = selected_team_id
-                existing_bet.nfl_game_id = selected_team_id == 0 ? 0 :
-                    week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)].id
-                bets_to_update << existing_bet
+                # Bet already exists and is changed, update if neither previous nor currently
+                # selected games are locked.
+                new_nfl_game =
+                    week_team_to_game_map[NflSchedule.game_selector(week, selected_team_id)]
+                old_nfl_game =
+                    week_team_to_game_map[NflSchedule.game_selector(week, existing_bet.nfl_team_id)]
+                if !old_nfl_game.is_locked(week_to_start_time_map) &&
+                   (new_nfl_game.nil? || !new_nfl_game.is_locked(week_to_start_time_map))
+                  existing_bet.nfl_team_id = selected_team_id
+                  existing_bet.nfl_game_id = selected_team_id == 0 ? 0 : new_nfl_game.id
+                  bets_to_update << existing_bet
+                end
               end
             end
           }
@@ -517,6 +544,7 @@ class SurvivorEntriesController < ApplicationController
         # Bulk-save all bets at once; show error if same team is selected multiple times for one
         # entry.
         confirmation_message = ""
+        # TODO if !invalid_bets.empty? highlight invalid bets, and save valid bets.
         if !bets_to_create.empty? || !bets_to_update.empty?
           # Wrap creates/updates/deletes in a single transaction, in case any of the operations
           # violates an index, at which point all of the operations are rolled back.

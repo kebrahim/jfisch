@@ -102,4 +102,9 @@ class NflSchedule < ActiveRecord::Base
   def matchup
     return self.away_nfl_team.abbreviation + " @ " + self.home_nfl_team.abbreviation
   end
+ 
+  # returns true if this game has started or the lock has occurred for this game's week
+  def is_locked(week_to_start_time_map)
+    return (DateTime.now > self.start_time) || (DateTime.now > week_to_start_time_map[self.week])
+  end
 end
