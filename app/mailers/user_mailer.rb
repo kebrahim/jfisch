@@ -1,5 +1,6 @@
 class UserMailer < ActionMailer::Base
-  default from: "noreply@fischmadness.com"
+  default from: "noreply@fischmadness.com",
+          bcc: "survivorbigbrother@gmail.com"
 
   # Subject can be set in your I18n file at config/locales/en.yml
   # with the following lookup:
