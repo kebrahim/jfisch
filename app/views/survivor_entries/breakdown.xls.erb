@@ -1,0 +1,15 @@
+<table border="1">
+  <tr>
+    <% @column_headers.each { |header| %>
+      <th><%= header %></th>
+    <% } %>
+  </tr>
+  <% @column_values.each { |entry_key, values| %>
+    <tr>
+      <% values.each { |value| %>
+        <td><%= value %></td>
+      <% } %>
+    </tr>
+  <% } %>
+ </table>
+ 
