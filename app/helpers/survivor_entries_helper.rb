@@ -1,4 +1,5 @@
 module SurvivorEntriesHelper
+  include ActionView::Helpers::NumberHelper
 
   # Displays the currently selected entries for the specified game_type, as well as allows the user
   # to update the number of selected entries, if the season has not yet begun.
@@ -216,6 +217,13 @@ module SurvivorEntriesHelper
                       	              class: 'btn-link-black') +
                      "</h4>"
     
+    # Show number of alive/total entries for game type
+    alive_pct = (@alive_counts[game_type.to_s] / @total_counts[game_type.to_s].to_f)
+    entries_html << "<p class='game_stats'>" + @alive_counts[game_type.to_s].to_s + " / " +
+                            @total_counts[game_type.to_s].to_s + " remaining (" + 
+                            number_to_percentage(alive_pct*100, precision:1) + ")
+                    </p>"
+
     # Show all bets, separated by entries
     current_entries = type_to_entry_map[game_type]
     if !current_entries.nil?

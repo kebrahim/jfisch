@@ -355,3 +355,8 @@ th .desc {
   padding: 0;
   background-color: white;
 }
+
+.game_stats {
+  font-size: 9pt;
+  font-weight: bold;
+}

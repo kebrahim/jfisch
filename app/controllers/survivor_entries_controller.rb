@@ -1,6 +1,6 @@
 class SurvivorEntriesController < ApplicationController
   skip_before_filter :verify_authenticity_token
-
+  
   # GET /dashboard
   def dashboard
     @user = current_user
@@ -46,6 +46,8 @@ class SurvivorEntriesController < ApplicationController
                            .where(:survivor_entries => {year: current_year, user_id: user.id})
                            .order("survivor_entries.id, nfl_schedules.week")
     @entry_to_bets_map = build_entry_id_to_bets_map(user_bets)
+    @total_counts = SurvivorEntry.group(:game_type).count
+    @alive_counts = SurvivorEntry.where(is_alive: true).group(:game_type).count
   end
 
   # GET /my_entries
