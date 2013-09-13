@@ -219,8 +219,8 @@ module SurvivorEntriesHelper
     
     # Show number of alive/total entries for game type
     alive_pct = (@alive_counts[game_type.to_s] / @total_counts[game_type.to_s].to_f)
-    entries_html << "<p class='game_stats'>" + @alive_counts[game_type.to_s].to_s + " / " +
-                            @total_counts[game_type.to_s].to_s + " remaining (" + 
+    entries_html << "<p class='game_stats'>" + @alive_counts[game_type.to_s].to_s + "/" +
+                            @total_counts[game_type.to_s].to_s + " entries (" + 
                             number_to_percentage(alive_pct*100, precision:1) + ")
                     </p>"
 
