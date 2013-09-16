@@ -801,7 +801,7 @@ class SurvivorEntriesController < ApplicationController
       return
     end
     
-    @users = User.order("lower (last_name), lower(first_name)")
+    @users = User.order("lower(first_name), lower (last_name)")
     @current_year = Date.today.year
     entries = SurvivorEntry.where(year: @current_year)
     @user_to_entries_count_map = {}
