@@ -3,16 +3,16 @@ module SurvivorEntriesHelper
 
   # Displays the currently selected entries for the specified game_type, as well as allows the user
   # to update the number of selected entries, if the season has not yet begun.
-  def entries_selector(game_type, type_to_entry_map, span_size, before_season)
+  def entries_selector(game_type, span_size)
     entries_html = "<div class='span" + span_size.to_s + " bigentryspan center'>
                       <h4>" + link_to(SurvivorEntry.game_type_title(game_type),
                       	              "/" + game_type.to_s,
                       	              class: 'btn-link-black') + "</h4>"
-    current_entries = type_to_entry_map[game_type]
+    current_entries = @type_to_entry_map[game_type]
     entry_count = current_entries ? current_entries.size : 0
 
     # If season has not begun, allow user to update count of entries
-    if before_season
+    if @before_season[game_type]
       entries_html << "<strong>Entry count:</strong>
                           <select name='game_" + game_type.to_s + "' class='input-mini'>"
       
@@ -83,7 +83,7 @@ module SurvivorEntriesHelper
                       <th>Team</th>
                     </tr></thead>"
     game_type = survivor_entry.get_game_type
-    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
         existing_bet = @selector_to_bet_map[SurvivorBet.bet_entry_selector(
             survivor_entry.id, week, bet_number)]
@@ -197,8 +197,8 @@ module SurvivorEntriesHelper
                       &nbsp"
     end
 
-    # Show update entries button if season has not yet begun
-    if @before_season
+    # Show update entries button if any season has not yet begun
+    if @before_season.values.include?(true)
       buttons_html <<
           "<button class='btn btn-inverse' name='updateentries'>Update Entry Counts</button>
            &nbsp"
@@ -218,9 +218,11 @@ module SurvivorEntriesHelper
                      "</h4>"
     
     # Show number of alive/total entries for game type
-    alive_pct = (@alive_counts[game_type.to_s] / @total_counts[game_type.to_s].to_f)
-    entries_html << "<p class='game_stats'>" + @alive_counts[game_type.to_s].to_s + "/" +
-                            @total_counts[game_type.to_s].to_s + " entries (" + 
+    total_entry_count = @total_counts[game_type.to_s].nil? ? 0 : @total_counts[game_type.to_s]
+    alive_entry_count = @alive_counts[game_type.to_s].nil? ? 0 : @alive_counts[game_type.to_s]
+    alive_pct = total_entry_count == 0 ? 0 : (alive_entry_count / total_entry_count.to_f)
+    entries_html << "<p class='game_stats'>" + alive_entry_count.to_s + "/" +
+                            total_entry_count.to_s + " entries (" + 
                             number_to_percentage(alive_pct*100, precision:1) + ")
                     </p>"
 
@@ -247,7 +249,8 @@ module SurvivorEntriesHelper
         if !current_entry.is_alive
           # if entry is dead, highlight entry in red
           entries_html << " dead"
-        elsif entry_missing_pick_in_week(current_entry, @current_week.number)
+        elsif @current_week.number >= SurvivorEntry::START_WEEK_MAP[current_entry.get_game_type] &&
+            entry_missing_pick_in_week(current_entry, @current_week.number)
           # if entry is missing a pick for current week, highlight entry in yellow
           entries_html << " missing"
         end
@@ -353,7 +356,7 @@ module SurvivorEntriesHelper
                     </tr></thead>"
 
     game_type = survivor_entry.get_game_type
-    1.upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(SurvivorEntry::MAX_WEEKS_MAP[game_type]) { |week|
       1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
         entry_html << "<tr"
         existing_bet = selector_to_bet_map[SurvivorBet.bet_selector(week, bet_number)]

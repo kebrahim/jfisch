@@ -81,8 +81,7 @@ class SurvivorEntriesController < ApplicationController
   # Loads the data needed for the my_entries page, for the specified user
   def get_entries_data(user)
     # before_season depends on start of season
-    @before_season =
-        DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
+    @before_season = get_before_season_map
 
     current_year = Date.today.year
     @type_to_entry_map = build_type_to_entry_map(
@@ -102,6 +101,17 @@ class SurvivorEntriesController < ApplicationController
                  .order(:number)
     @week_to_start_time_map = build_week_to_start_time_map(@weeks)
     @current_week = get_current_week_from_weeks(@weeks)
+  end
+
+  # returns a hash of game type to boolean depending on whether the season has begun for that game
+  def get_before_season_map
+    before_season = {}
+    SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
+      before_season[game_type] = DateTime.now <
+          Week.where({ year: Date.today.year,
+                       number: SurvivorEntry::START_WEEK_MAP[game_type]}).first.start_time
+    }
+    return before_season
   end
 
   # Returns a hash of survivor entry id to an array of bets for that entry
@@ -184,10 +194,13 @@ class SurvivorEntriesController < ApplicationController
           SurvivorEntry.where({user_id: user.id, year: current_year})
                        .order(:game_type, :entry_number))
 
-      # Update entry count for each game type.
-      is_updated |= update_entries(:survivor, user, type_to_entry_map, params, current_year)
-      is_updated |= update_entries(:anti_survivor, user, type_to_entry_map, params, current_year)
-      is_updated |= update_entries(:high_roller, user, type_to_entry_map, params, current_year)
+      # Update entry count for each game type only if season hasn't started for game type.
+      before_season = get_before_season_map
+      SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
+        if before_season[game_type]
+          is_updated |= update_entries(game_type, user, type_to_entry_map, params, current_year)
+        end
+      }
 
       SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
         existing_entries = type_to_entry_map[game_type]

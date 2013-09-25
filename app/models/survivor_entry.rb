@@ -8,12 +8,16 @@ class SurvivorEntry < ActiveRecord::Base
 
   enumerize :game_type, in: [:survivor, :anti_survivor, :high_roller, :second_chance]
 
-  MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2 }
-  ADMIN_MAX_ENTRIES_MAP = { survivor: 8, anti_survivor: 4, high_roller: 4 }
-  MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21 }
-  MAX_BETS_MAP = { survivor: 22, anti_survivor: 21, high_roller: 21 }
-  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil}
-  GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller]
+  MAX_ENTRIES_MAP = { survivor: 4, anti_survivor: 2, high_roller: 2, second_chance: 4 }
+  ADMIN_MAX_ENTRIES_MAP = { survivor: 8, anti_survivor: 4, high_roller: 4, second_chance: 8 }
+  START_WEEK_MAP = { survivor: 1, anti_survivor: 1, high_roller: 1, second_chance: 7 }
+  MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21, second_chance: 17 }
+  MAX_BETS_MAP = { survivor: 22, anti_survivor: 21, high_roller: 21, second_chance: 30 }
+  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil,
+                                  second_chance: 7}
+  THREE_GAME_WEEK_THRESHOLD_MAP = { survivor: nil, anti_survivor: nil, high_roller: nil,
+                                    second_chance: 10}
+  GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller, :second_chance]
 
   # Returns the game_type matching the specified name
   def self.name_to_game_type(game_type_name)
@@ -23,6 +27,8 @@ class SurvivorEntry < ActiveRecord::Base
       return :anti_survivor
     elsif :high_roller.to_s == game_type_name
       return :high_roller
+    elsif :second_chance.to_s == game_type_name
+      return :second_chance
     else
       return nil
     end
@@ -36,6 +42,8 @@ class SurvivorEntry < ActiveRecord::Base
       return :anti_survivor
     elsif :high_roller.to_s == self.game_type
       return :high_roller
+    elsif :second_chance.to_s == self.game_type
+      return :second_chance
     else
       return nil
     end
@@ -50,6 +58,8 @@ class SurvivorEntry < ActiveRecord::Base
       return "Anti"
     when :high_roller
       return "HiRoll"
+    when :second_chance
+      return "SecondChance"
     else
       return nil
     end
@@ -69,6 +79,8 @@ class SurvivorEntry < ActiveRecord::Base
       return "Anti-Survivor"
     when :high_roller
       return "High Roller"
+    when :second_chance
+      return "Second Chance"
     else
       return nil
     end
@@ -76,9 +88,14 @@ class SurvivorEntry < ActiveRecord::Base
 
   # returns the number of bets required for the specified game_type and week
   def self.bets_in_week(game_type, week)
-    threshold_week = SurvivorEntry::TWO_GAME_WEEK_THRESHOLD_MAP[game_type]
-    if threshold_week
-      return (week < threshold_week) ? 1 : 2
+    two_week_threshold = SurvivorEntry::TWO_GAME_WEEK_THRESHOLD_MAP[game_type]
+    if two_week_threshold
+      three_week_threshold = SurvivorEntry::THREE_GAME_WEEK_THRESHOLD_MAP[game_type]
+      if three_week_threshold
+        return (week < two_week_threshold) ? 1 : ((week < three_week_threshold) ? 2 : 3)
+      else
+        return (week < two_week_threshold) ? 1 : 2
+      end
     end
     return 1
   end
