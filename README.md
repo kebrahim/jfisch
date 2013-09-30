@@ -1,4 +1,4 @@
 jfisch
 ======
 
-survivor games for http://survivor.fischmadness.com
+survivor games for http://www.fischmadness.com
