@@ -14,6 +14,11 @@ class RulesController < ApplicationController
     render "breakdown"
   end
 
+  def second_chance
+    @game_type = :second_chance
+    render "breakdown"
+  end
+
   def sendgrid
   end
 end

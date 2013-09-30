@@ -17,6 +17,7 @@ Jfisch::Application.routes.draw do
   get 'survivor' => 'survivor_entries#survivor'
   get 'anti_survivor' => 'survivor_entries#anti_survivor'
   get 'high_roller' => 'survivor_entries#high_roller'
+  get 'second_chance' => 'survivor_entries#second_chance'
   get 'entries' => 'survivor_entries#all_entries'
   get 'picks' => 'survivor_entries#all_bets'
   
@@ -62,11 +63,14 @@ Jfisch::Application.routes.draw do
   get '/ajax/anti_survivor/week/:id' => 'weeks#ajax_anti_survivor'
   get '/high_roller/week' => 'weeks#high_roller'
   get '/ajax/high_roller/week/:id' => 'weeks#ajax_high_roller'
+  get '/second_chance/week' => 'weeks#second_chance'
+  get '/ajax/second_chance/week/:id' => 'weeks#ajax_second_chance'
 
   # rules
   get '/survivor/rules' => 'rules#survivor'
   get '/anti_survivor/rules' => 'rules#anti_survivor'
   get '/high_roller/rules' => 'rules#high_roller'
+  get '/second_chance/rules' => 'rules#second_chance'
 
   get '/sendgrid' => 'rules#sendgrid'
 

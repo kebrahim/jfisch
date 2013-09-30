@@ -12,11 +12,9 @@ class SurvivorEntry < ActiveRecord::Base
   ADMIN_MAX_ENTRIES_MAP = { survivor: 8, anti_survivor: 4, high_roller: 4, second_chance: 8 }
   START_WEEK_MAP = { survivor: 1, anti_survivor: 1, high_roller: 1, second_chance: 7 }
   MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21, second_chance: 17 }
-  MAX_BETS_MAP = { survivor: 22, anti_survivor: 21, high_roller: 21, second_chance: 30 }
+  MAX_BETS_MAP = { survivor: 22, anti_survivor: 21, high_roller: 21, second_chance: 22 }
   TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil,
                                   second_chance: 7}
-  THREE_GAME_WEEK_THRESHOLD_MAP = { survivor: nil, anti_survivor: nil, high_roller: nil,
-                                    second_chance: 10}
   GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller, :second_chance]
 
   # Returns the game_type matching the specified name
@@ -90,12 +88,7 @@ class SurvivorEntry < ActiveRecord::Base
   def self.bets_in_week(game_type, week)
     two_week_threshold = SurvivorEntry::TWO_GAME_WEEK_THRESHOLD_MAP[game_type]
     if two_week_threshold
-      three_week_threshold = SurvivorEntry::THREE_GAME_WEEK_THRESHOLD_MAP[game_type]
-      if three_week_threshold
-        return (week < two_week_threshold) ? 1 : ((week < three_week_threshold) ? 2 : 3)
-      else
-        return (week < two_week_threshold) ? 1 : 2
-      end
+      return (week < two_week_threshold) ? 1 : 2
     end
     return 1
   end

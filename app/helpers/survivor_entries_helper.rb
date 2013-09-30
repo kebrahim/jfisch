@@ -488,7 +488,7 @@ module SurvivorEntriesHelper
     bets_html <<    "</tr>
                      <tr>"
     # Show bets for all weeks up to the current week.
-    1.upto(max_week) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(max_week) { |week|
       bets_html << "<th class='leftborderme' colspan='" +
           SurvivorEntry.bets_in_week(game_type, week).to_s + "'>" + week.to_s + "</th>"
     }
@@ -518,7 +518,7 @@ module SurvivorEntriesHelper
       end
       bets_html << "</td>"
       bets = entry_to_bets_map[entry.id]
-      1.upto(max_week) { |week|
+      SurvivorEntry::START_WEEK_MAP[game_type].upto(max_week) { |week|
         1.upto(SurvivorEntry.bets_in_week(game_type, week)) { |bet_number|
           # Show selected team, marking correct/incorrect, if game is complete.
           bets_html << "<td"
@@ -576,25 +576,25 @@ module SurvivorEntriesHelper
           SurvivorEntry::MAX_BETS_MAP[game_type].to_s + "'>Weeks</th>"
     end
     stats_html <<   "</tr><tr>"
-    1.upto(current_week) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(current_week) { |week|
       stats_html << "<th class='leftborderme'>" + week.to_s + "</th>"
     }
     stats_html <<   "</thead>"
 
     stats_html << "<tr><td class='rightborderme'>Total Entries</td>"
-    1.upto(current_week) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(current_week) { |week|
       stats_html << "<td>" + week_to_entry_stats_map[week]["alive"].to_s + "</td>"
     }
     
     stats_html << "</tr>
                    <tr><td class='rightborderme'>Eliminated Entries</td>"
-    1.upto(current_week) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(current_week) { |week|
       stats_html << "<td>" + week_to_entry_stats_map[week]["elim"].to_s + "</td>"
     }
 
     stats_html << "</tr>
                    <tr><td class='rightborderme'>Remaining Entries</td>"
-    1.upto(current_week) { |week|
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(current_week) { |week|
       stats_html << "<td>" + (week_to_entry_stats_map[week]["alive"] -
                               week_to_entry_stats_map[week]["elim"]).to_s + "</td>"
     }
@@ -610,9 +610,11 @@ module SurvivorEntriesHelper
                             <th rowspan=2 colspan=2 class='rightborderme'>User</th>
                             <th colspan=2 class='rightborderme'>Survivor</th>
                             <th colspan=2 class='rightborderme'>Anti-Survivor</th>
-                            <th colspan=2>High-Roller</th>
+                            <th colspan=2 class='rightborderme'>High-Roller</th>
+                            <th colspan=2>Second Chance</th>
                           </tr>
                           <tr>
+                            <th class='rightborderme'>Total</th><th class='rightborderme'>Alive</th>
                             <th class='rightborderme'>Total</th><th class='rightborderme'>Alive</th>
                             <th class='rightborderme'>Total</th><th class='rightborderme'>Alive</th>
                             <th class='rightborderme'>Total</th><th>Alive</th>
@@ -624,7 +626,7 @@ module SurvivorEntriesHelper
           "<tr><td>" + link_to(user.full_name, '/users/' + user.id.to_s + "/entries") + "</td>
                <td>" + user.email + "</td>"
       if user_to_entries_count_map.has_key?(user.id)
-        [:survivor, :anti_survivor, :high_roller].each { |game_type|
+        SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
           0.upto(1) { |idx|
             all_entries_html << "<td"
             all_entries_html << " class='leftborderme'" if idx == 0
@@ -633,7 +635,7 @@ module SurvivorEntriesHelper
           }
         }
       else
-        0.upto(5) { |idx|
+        0.upto(7) { |idx|
           all_entries_html << "<td"
           all_entries_html << " class='leftborderme'" if idx.even?
           all_entries_html << ">0</td>"
@@ -644,7 +646,7 @@ module SurvivorEntriesHelper
 
     # total entries for all users
     all_entries_html << "<tr class='bold-row'><td class='topborderme' colspan=2>Totals</td>"
-    [:survivor, :anti_survivor, :high_roller].each { |game_type|
+    SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
       0.upto(1) { |idx|
         all_entries_html << "<td class='topborderme"
         all_entries_html << " leftborderme" if idx.even?
@@ -712,7 +714,7 @@ module SurvivorEntriesHelper
                      <tr>"
  
     # Show bets for all weeks up to the current week.
-    1.upto(SurvivorEntry::MAX_WEEKS_MAP[@game_type]) { |week|
+    SurvivorEntry::START_WEEK_MAP[@game_type].upto(SurvivorEntry::MAX_WEEKS_MAP[@game_type]) { |week|
       bets_html << "<th class='leftborderme' colspan='" +
           SurvivorEntry.bets_in_week(@game_type, week).to_s + "'>" + week.to_s + "</th>"
     }
@@ -731,7 +733,7 @@ module SurvivorEntriesHelper
           "/survivor_entries/" + entry.id.to_s) + "</td>"
 
       bets = @entry_to_bets_map[entry.id]
-      1.upto(SurvivorEntry::MAX_WEEKS_MAP[@game_type]) { |week|
+      SurvivorEntry::START_WEEK_MAP[@game_type].upto(SurvivorEntry::MAX_WEEKS_MAP[@game_type]) { |week|
         1.upto(SurvivorEntry.bets_in_week(@game_type, week)) { |bet_number|
           bets_html << "<td"
           if !bets.nil?

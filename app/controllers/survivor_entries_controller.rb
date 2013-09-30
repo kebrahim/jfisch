@@ -632,6 +632,11 @@ class SurvivorEntriesController < ApplicationController
     load_breakdown(:high_roller)
   end
 
+  # GET /second_chance
+  def second_chance
+    load_breakdown(:second_chance)
+  end
+
   def load_breakdown(game_type)
     @user = current_user
     if @user.nil?
@@ -834,9 +839,9 @@ class SurvivorEntriesController < ApplicationController
 
   def init_entry_count_map(entry_count_map, user_id)
     entry_count_map[user_id] = {}
-    entry_count_map[user_id][:survivor] = [0,0]
-    entry_count_map[user_id][:anti_survivor] = [0,0]
-    entry_count_map[user_id][:high_roller] = [0,0]
+    SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
+      entry_count_map[user_id][game_type] = [0,0]
+    }
   end
 
   # GET /all_bets

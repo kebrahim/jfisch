@@ -113,6 +113,26 @@ class WeeksController < ApplicationController
     render "ajax_breakdown", :layout => "ajax"
   end
 
+  # GET /second_chance/week
+  def second_chance
+    @user = current_user
+    if @user.nil?
+      redirect_to root_url
+      return
+    end
+
+    @game_type = :second_chance
+    @current_week = current_week
+    @game_week = game_week
+    render "breakdown"
+  end
+  
+  # GET /ajax/second_chance/week/:number
+  def ajax_second_chance
+    load_week_breakdown_data(:second_chance)
+    render "ajax_breakdown", :layout => "ajax"
+  end
+
   # loads the data for the week breakdown for the specified game_type
   def load_week_breakdown_data(game_type)
     # only let user see weeks that have completed

@@ -7,16 +7,19 @@ module NavigationHelper
   SURVIVOR_GAME_BUTTON = "SURVIVOR_GAME_BUTTON"
   ANTI_GAME_BUTTON = "ANTI_GAME_BUTTON"
   HIGH_ROLLER_GAME_BUTTON = "HIGH_ROLLER_GAME_BUTTON"
+  SECOND_CHANCE_GAME_BUTTON = "SECOND_CHANCE_GAME_BUTTON"
 
   # Weekly breakdown buttons
   SURVIVOR_WEEKLY_BUTTON = "SURVIVOR_WEEKLY_BUTTON"
   ANTI_WEEKLY_BUTTON = "ANTI_WEEKLY_BUTTON"
   HIGH_ROLLER_WEEKLY_BUTTON = "HIGH_ROLLER_WEEKLY_BUTTON"
+  SECOND_CHANCE_WEEKLY_BUTTON = "SECOND_CHANCE_WEEKLY_BUTTON"
 
   # Rules buttons
   SURVIVOR_RULES_BUTTON = "SURVIVOR_RULES_BUTTON"
   ANTI_RULES_BUTTON = "ANTI_RULES_BUTTON"
   HIGH_ROLLER_RULES_BUTTON = "HIGH_ROLLER_RULES_BUTTON"
+  SECOND_CHANCE_RULES_BUTTON = "SECOND_CHANCE_RULES_BUTTON"
 
   # Admin buttons
   ADMIN_USERS_BUTTON = "ADMIN_USERS_BUTTON"
@@ -32,12 +35,21 @@ module NavigationHelper
   # User buttons
   EDIT_PROFILE_BUTTON = "EDIT_PROFILE_BUTTON"
 
-  GAME_BUTTON_MAP = { survivor: SURVIVOR_GAME_BUTTON, anti_survivor: ANTI_GAME_BUTTON, 
-                      high_roller: HIGH_ROLLER_GAME_BUTTON }
-  WEEKLY_BUTTON_MAP = { survivor: SURVIVOR_WEEKLY_BUTTON, anti_survivor: ANTI_WEEKLY_BUTTON, 
-                        high_roller: HIGH_ROLLER_WEEKLY_BUTTON }
-  RULES_BUTTON_MAP = { survivor: SURVIVOR_RULES_BUTTON, anti_survivor: ANTI_RULES_BUTTON, 
-                       high_roller: HIGH_ROLLER_RULES_BUTTON }
+  GAME_BUTTON_MAP = { survivor: SURVIVOR_GAME_BUTTON,
+                      anti_survivor: ANTI_GAME_BUTTON, 
+                      high_roller: HIGH_ROLLER_GAME_BUTTON,
+                      second_chance: SECOND_CHANCE_GAME_BUTTON
+                    }
+  WEEKLY_BUTTON_MAP = { survivor: SURVIVOR_WEEKLY_BUTTON,
+                        anti_survivor: ANTI_WEEKLY_BUTTON, 
+                        high_roller: HIGH_ROLLER_WEEKLY_BUTTON,
+                        second_chance: SECOND_CHANCE_WEEKLY_BUTTON
+                      }
+  RULES_BUTTON_MAP = { survivor: SURVIVOR_RULES_BUTTON,
+                       anti_survivor: ANTI_RULES_BUTTON, 
+                       high_roller: HIGH_ROLLER_RULES_BUTTON,
+                       second_chance: SECOND_CHANCE_RULES_BUTTON
+                     }
 
   def navigationBar(selected_button)
     navbar = "<div class='navbar'><div class='navbar-inner'>"
