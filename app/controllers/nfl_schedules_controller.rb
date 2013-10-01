@@ -212,24 +212,21 @@ class NflSchedulesController < ApplicationController
           has_correct_bet = bet.has_correct_bet
           entry = bet.survivor_entry
 
-          # Only update bet's correct status if it has changed values, and the current entry
-          # is alive or this entry was knocked out during this week, and the score is being
-          # corrected.
-          if (bet.is_correct.nil? || (bet.is_correct != has_correct_bet)) &&
-             (entry.is_alive || (entry.knockout_week == bet.nfl_game.week))
+          # Only update bet's correct status if the current entry is alive or this entry was knocked
+          # out during this week, and the score is being corrected.
+          if (entry.is_alive || (entry.knockout_week == bet.nfl_game.week))
             bet.update_attribute(:is_correct, has_correct_bet)
 
             # update entry's is_alive status, if it should change.
-            # TODO entry should not be set to alive if week requires 2 bets, both were
-            # initially incorrect and now one is being changed to correct.
-            if entry.is_alive != has_correct_bet
+            entry_status = entry_status_for_bets_in_week(entry, bet.week)
+            if entry.is_alive != entry_status
               attributes_to_update = {}
 
               # set is_alive status
-              attributes_to_update[:is_alive] = has_correct_bet
+              attributes_to_update[:is_alive] = entry_status
               
               # set knockout_week
-              attributes_to_update[:knockout_week] = has_correct_bet ? nil : bet.nfl_game.week
+              attributes_to_update[:knockout_week] = entry_status ? nil : bet.nfl_game.week
 
               entry.update_attributes(attributes_to_update)
             end
@@ -242,5 +239,26 @@ class NflSchedulesController < ApplicationController
       error_message = "Both scores are required for " + nfl_game.matchup
     end
     return error_message
+  end
+
+  # determines what the 'is_alive' status of the specified entry should be, based on the bets made
+  # during the specified week.
+  def entry_status_for_bets_in_week(entry, week)
+    # get bets for entry
+    bets_for_entry = SurvivorBet.where({ survivor_entry_id: entry.id, week: week })
+    
+    # if this entry doesn't have enough bets, it should be killed [or remain killed]
+    if bets_for_entry.count < entry.number_bets_required(week)
+      return false
+    end
+
+    # an entry should only be killed if at least one of its bets are incorrect
+    is_alive = true
+    bets_for_entry.each { |bet|
+      if !bet.is_correct.nil?
+        is_alive &= bet.is_correct
+      end
+    }
+    return is_alive
   end
 end

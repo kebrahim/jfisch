@@ -11,7 +11,7 @@
     <h3>NFL <%= SurvivorEntry.game_type_title(@game_type) %></h3>
     <input type=hidden id='hidden_game_type' value=<%= "'" + @game_type.to_s + "'" %> />
   </div>
-  <div class='span3 center nexttoh1'>
+<div class='span3 center nexttoh1'>
     <a href=<%= "'/" + @game_type.to_s + "'" %> class='btn btn-inverse'>Entry Breakdown</a>
   </div>
 </div>
@@ -30,10 +30,9 @@
 
 <script type="text/javascript">
   // Loads the weekly breakdown page asynchronously & populates the weekresults div with the results
-  function week_breakdown_ajax() {
+  function week_breakdown_ajax(week_number) {
     $.ajax({
-      url: "/ajax/" + document.getElementById("hidden_game_type").value + "/week/" + 
-           (document.getElementById("week_chooser").selectedIndex + 1),
+      url: "/ajax/" + document.getElementById("hidden_game_type").value + "/week/" + week_number,
       success: function(data) {
         $("#weekresults").html(data);
       }
@@ -43,9 +42,14 @@
   // On document ready, load the selected week's breakdown, and set the selected week's breakdown to
   // be loaded whenever the week selector is changed.
   $(document).ready(function() {
-    week_breakdown_ajax();
+    if (document.getElementById("week_chooser").value == "") {
+      week_breakdown_ajax("0");
+    } else {
+      week_breakdown_ajax(document.getElementById("week_chooser").value);
+    }
+
     $("#week_chooser").change(function() {
-      week_breakdown_ajax();
+      week_breakdown_ajax(document.getElementById("week_chooser").value);
     });
   });
 </script>

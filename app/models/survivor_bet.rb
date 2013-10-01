@@ -38,6 +38,8 @@ class SurvivorBet < ActiveRecord::Base
       return self.nfl_team_id == self.nfl_game.losing_nfl_team_id
     when :high_roller
       return self.nfl_team_id == self.nfl_game.winning_nfl_team_id
+    when :second_chance
+      return self.nfl_team_id == self.nfl_game.winning_nfl_team_id
     else
       return nil
     end

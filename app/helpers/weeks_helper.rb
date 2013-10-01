@@ -7,7 +7,7 @@ module WeeksHelper
                            <th>Team</th>
                            <th>Opponent</th>
                            <th class='rightborderme'>Result</th>
-                           <th>Entry Count</th>
+                           <th>Pick Count</th>
                          </tr></thead>"
 
     total_bet_count = 0
@@ -38,13 +38,16 @@ module WeeksHelper
     # total entries placing bets for the week
     week_table_html << "<tr class='bold-row'>
                           <td colspan=3 class='topborderme'>Total Entries</td>
-                          <td class='topborderme leftborderme'>" + (total_bet_count + @killed_entries.size).to_s + "</td>
+                          <td class='topborderme leftborderme'>" + 
+                              @week_to_entry_stats_map[week_number]["alive"].to_s + "</td>
                         </tr>"
 
-    # eliminated entries during the week
+    # eliminated, but not killed, entries during the week
     week_table_html << "<tr class='bold-row'>
                           <td colspan=3>Eliminated Entries</td>
-                          <td class='leftborderme'>" + eliminated_bet_count.to_s + "</td>
+                          <td class='leftborderme'>" +
+                              (@week_to_entry_stats_map[week_number]["elim"] -
+                               @killed_entries.size).to_s + "</td>
                         </tr>"
   
     # killed entries during the week
@@ -56,7 +59,9 @@ module WeeksHelper
     # remaining entries during the week
     week_table_html << "<tr class='bold-row'>
                           <td colspan=3>Remaining Entries</td>
-                          <td class='leftborderme'>" + (total_bet_count - eliminated_bet_count).to_s + "</td>
+                          <td class='leftborderme'>" +
+                              (@week_to_entry_stats_map[week_number]["alive"] -
+                               @week_to_entry_stats_map[week_number]["elim"]).to_s + "</td>
                         </tr>"
 
     week_table_html << "</table>"

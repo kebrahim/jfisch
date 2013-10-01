@@ -298,6 +298,15 @@ module SurvivorEntriesHelper
               has_knockout_bet = true
             end
           }
+
+          # if entry doesn't have enough bets, also show blank week
+          if has_knockout_bet && !current_entry.is_alive
+            num_bets = entry_to_bets_map.has_key?(current_entry.id) ?
+                entry_to_bets_map[current_entry.id].count : 0
+            if num_bets < current_entry.number_bets_required(current_entry.knockout_week)
+              has_knockout_bet = false
+            end
+          end
         end
         if !has_knockout_bet
           entries_html << "<tr class='red-row'>

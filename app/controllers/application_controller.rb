@@ -93,4 +93,36 @@ class ApplicationController < ActionController::Base
     num_picks = entry_id_to_bets_map.has_key?(entry.id) ? entry_id_to_bets_map[entry.id].size : 0
     return num_picks < entry.number_bets_required(week_number)
   end
+
+  # returns the survivor entries of the specified type
+  def get_entries_by_type(game_type)
+    return SurvivorEntry.includes(:user)
+                        .joins(:user)
+                        .where({year: Date.today.year, game_type: game_type})
+                        .order("survivor_entries.knockout_week DESC, users.last_name,
+                                users.first_name, survivor_entries.entry_number")
+  end
+
+  # returns a map of week (up to the specified current week) to another hash, including stats for
+  # total entries alive during that week & number of entries eliminated during that week.
+  def build_week_to_entry_stats_map(entries_by_type, current_week, game_type)
+    week_to_entry_stats_map = {}
+    SurvivorEntry::START_WEEK_MAP[game_type].upto(current_week) { |week|
+      week_to_entry_stats_map[week] = {}
+      week_to_entry_stats_map[week]["alive"] = 0
+      week_to_entry_stats_map[week]["elim"] = 0
+    }
+
+    entries_by_type.each { |entry|
+      SurvivorEntry::START_WEEK_MAP[game_type].upto(current_week) { |week|
+        if entry.is_alive || entry.knockout_week >= week
+          week_to_entry_stats_map[week]["alive"] += 1
+        end
+        if entry.knockout_week == week
+          week_to_entry_stats_map[week]["elim"] += 1
+        end
+      }
+    }
+    return week_to_entry_stats_map
+  end
 end

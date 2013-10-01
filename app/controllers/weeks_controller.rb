@@ -147,6 +147,10 @@ class WeeksController < ApplicationController
     team_to_bet_counts_map = game_bets.group(:nfl_team_id).count(:nfl_team_id)
     @team_to_results_map = build_team_to_results_map(game_bets, team_to_bet_counts_map)
     @killed_entries = get_killed_entries(game_bets, @week.number, game_type)
+
+    @entries_by_type = get_entries_by_type(game_type)
+    @week_to_entry_stats_map =
+        build_week_to_entry_stats_map(@entries_by_type, @current_week, game_type)
   end
   
   # returns a map of nfl team id to corresponding team
