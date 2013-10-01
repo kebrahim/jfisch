@@ -35,10 +35,13 @@
       <%= entries_selector(:anti_survivor, 3) %>
       <%= entries_selector(:high_roller, 3) %>
     </div>
-    <div class='row-fluid'>
-      <%= entries_selector(:second_chance, 12) %>
-    </div>
 
+    <% if !@user.is_blacklisted %>
+      <div class='row-fluid'>
+        <%= entries_selector(:second_chance, 12) %>
+      </div>
+    <% end %>
+    
     <%= entries_buttons %>
     </form>
   </div>

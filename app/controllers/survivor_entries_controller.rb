@@ -81,7 +81,7 @@ class SurvivorEntriesController < ApplicationController
   # Loads the data needed for the my_entries page, for the specified user
   def get_entries_data(user)
     # before_season depends on start of season
-    @before_season = get_before_season_map
+    @before_season = get_before_season_map(user)
 
     current_year = Date.today.year
     @type_to_entry_map = build_type_to_entry_map(
@@ -104,12 +104,13 @@ class SurvivorEntriesController < ApplicationController
   end
 
   # returns a hash of game type to boolean depending on whether the season has begun for that game
-  def get_before_season_map
+  def get_before_season_map(user)
     before_season = {}
     SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
-      before_season[game_type] = DateTime.now <
+      before_season[game_type] = (DateTime.now <
           Week.where({ year: Date.today.year,
-                       number: SurvivorEntry::START_WEEK_MAP[game_type]}).first.start_time
+                       number: SurvivorEntry::START_WEEK_MAP[game_type]}).first.start_time) &&
+          ((game_type != :second_chance) || !user.is_blacklisted)
     }
     return before_season
   end
@@ -195,7 +196,7 @@ class SurvivorEntriesController < ApplicationController
                        .order(:game_type, :entry_number))
 
       # Update entry count for each game type only if season hasn't started for game type.
-      before_season = get_before_season_map
+      before_season = get_before_season_map(user)
       SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
         if before_season[game_type]
           is_updated |= update_entries(game_type, user, type_to_entry_map, params, current_year)
@@ -639,7 +640,7 @@ class SurvivorEntriesController < ApplicationController
 
   def load_breakdown(game_type)
     @user = current_user
-    if @user.nil?
+    if @user.nil? || (game_type == :second_chance && @user.is_blacklisted)
       redirect_to root_url
       return
     end

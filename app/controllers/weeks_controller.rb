@@ -116,7 +116,7 @@ class WeeksController < ApplicationController
   # GET /second_chance/week
   def second_chance
     @user = current_user
-    if @user.nil?
+    if @user.nil? || @user.is_blacklisted
       redirect_to root_url
       return
     end

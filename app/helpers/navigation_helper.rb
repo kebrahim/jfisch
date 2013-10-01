@@ -103,6 +103,11 @@ module NavigationHelper
   def game_dropdown(selected_button)
     game_buttons = []
     SurvivorEntry::GAME_TYPE_ARRAY.each {|game_type|
+      # hide second chance game from blacklisted user
+      if (game_type == :second_chance && current_user.is_blacklisted)
+        next
+      end
+
       submenu_buttons = [
         { btn: GAME_BUTTON_MAP[game_type], txt: "Entry Breakdown", lnk: "/" + game_type.to_s },
         { btn: WEEKLY_BUTTON_MAP[game_type], txt: "Weekly Breakdown",

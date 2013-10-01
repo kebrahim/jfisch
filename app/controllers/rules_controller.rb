@@ -1,21 +1,28 @@
 class RulesController < ApplicationController
   def survivor
-  	@game_type = :survivor
-    render "breakdown"
+    handle_rules(:survivor)
   end
 
   def anti_survivor
-  	@game_type = :anti_survivor
-    render "breakdown"
+    handle_rules(:anti_survivor)
   end
 
   def high_roller
-  	@game_type = :high_roller
-    render "breakdown"
+    handle_rules(:high_roller)
   end
 
   def second_chance
-    @game_type = :second_chance
+    handle_rules(:second_chance)
+  end
+
+  def handle_rules(game_type)
+    @user = current_user
+    if @user.nil? || (game_type == :second_chance && @user.is_blacklisted)
+      redirect_to root_url
+      return
+    end
+
+    @game_type = game_type
     render "breakdown"
   end
 

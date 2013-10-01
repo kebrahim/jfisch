@@ -49,10 +49,13 @@
       <%= entries_bet_display(:anti_survivor, @type_to_entry_map, @entry_to_bets_map, 3) %>
       <%= entries_bet_display(:high_roller, @type_to_entry_map, @entry_to_bets_map, 3) %>
     </div>
-    <div class='row-fluid'>
-      <%= entries_bet_display(:second_chance, @type_to_entry_map, @entry_to_bets_map, 12) %>
-    </div>
     
+    <% if !@user.is_blacklisted %>
+      <div class='row-fluid'>
+        <%= entries_bet_display(:second_chance, @type_to_entry_map, @entry_to_bets_map, 12) %>
+      </div>
+    <% end %>
+
     <p>
       <% if @type_to_entry_map.empty? && @before_season %>
         <h5>Welcome to Fisch Madness Survivor! Click the "Manage Entries" button below to create
