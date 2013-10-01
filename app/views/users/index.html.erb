@@ -41,7 +41,12 @@
           <td><%= link_to 'Confirm', admin_confirm_user_path(user),
                           data: { confirm: 'Are you sure you want to confirm this user?' } %></td>
         <% else %>
-          <td><%= image_tag("check.jpg", class: "img_20_20") %></td>
+          <td>
+            <%= image_tag("check.jpg", class: "img_20_20") %>
+            <% if user.is_blacklisted %>
+              <%= image_tag("blacklist.gif", class: "img_20_20") %>
+            <% end %>
+          </td>
         <% end %>
 
         <td><%= link_to 'Edit', edit_user_path(user) %></td>

@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
 
   attr_accessible :email, :first_name, :last_name, :password, :password_confirmation, :role,
                   :captain_code, :referred_by, :send_emails, :time_zone, :is_confirmed,
-                  :confirmation_token
+                  :confirmation_token, :is_blacklisted
 
   enumerize :role, in: [:demo, :user, :captain, :admin, :super_admin]
 

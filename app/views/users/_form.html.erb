@@ -53,6 +53,12 @@
               <td><%= f.check_box(:send_emails) %></td>
             </tr>
           <% end %>
+          <% if @admin_function %>
+            <tr>
+              <td><%= f.label :is_blacklisted, "Blacklisted" %></td>
+              <td><%= f.check_box(:is_blacklisted) %></td>
+            </tr>
+          <% end %>
           <tr class='tdselect'>
             <td><%= f.label :time_zone %>
             <td><%= f.time_zone_select("time_zone", ActiveSupport::TimeZone.us_zones) %></td>
