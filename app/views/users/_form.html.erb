@@ -110,7 +110,10 @@
     </div>
   </div>
 
-  <% if @current_user || @current_week == 0 %>
+  <% 
+    # Users can only sign up before the season, or the two weeks before week 7 [for second chance]
+    if @current_user || [0, 5, 6].include?(@current_week)
+  %>
     <div class="actions">
       <%= f.submit class: 'btn btn-primary' %>&nbsp
       <% if @current_user %>
