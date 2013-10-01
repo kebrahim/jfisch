@@ -400,6 +400,7 @@ class SurvivorEntriesController < ApplicationController
         (@survivor_entry.user_id == @user.id || @user.is_admin)
       @admin_function = @user.is_admin && (@survivor_entry.user_id != @user.id)
       @weeks = Week.where(year: Date.today.year)
+                   .where("number >= (?)", @survivor_entry.start_week)
                    .where("number <= (?)", @survivor_entry.max_weeks)
                    .order(:number)
       @current_week = get_current_week_from_weeks(@weeks)

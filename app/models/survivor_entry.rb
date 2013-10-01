@@ -105,4 +105,9 @@ class SurvivorEntry < ActiveRecord::Base
   def max_weeks
     return SurvivorEntry::MAX_WEEKS_MAP[self.get_game_type]
   end
+
+  # returns the starting week for this entry
+  def start_week
+    return SurvivorEntry::START_WEEK_MAP[self.get_game_type]
+  end
 end

@@ -67,6 +67,8 @@
         var user_name = entry_name.split(" ")[0];
         var selected_text = $("#entry_chooser")[0].options[$("#entry_chooser")[0].selectedIndex].innerHTML;
         $('#entry_title').text(user_name + " " + selected_text);
+
+        // TODO update weeks dropdown to only show pertinent weeks for selected game type
       }
     });
   }

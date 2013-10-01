@@ -53,7 +53,7 @@ module ApplicationHelper
   # returns a select tag, allowing user to choose from a list of weeks, from 1 to the specified
   # current week, marking the specified selected week as selected
   def display_week_chooser(current_week, selected_week, game_type=nil)
-    week_chooser_html = "<label>Choose week:</label>&nbsp&nbsp
+    week_chooser_html = "<label>Select week:</label>&nbsp&nbsp
                          <select class='input-large' id='week_chooser'>"
     start_week = game_type.nil? ? 1 : SurvivorEntry::START_WEEK_MAP[game_type]
     start_week.upto(current_week) { |week|
