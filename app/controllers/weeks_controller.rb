@@ -142,6 +142,7 @@ class WeeksController < ApplicationController
     end
 
     @current_week = current_week
+    @game_week = game_week
     @team_map = build_team_map
     game_bets = get_game_bets(game_type, @week.number, Date.today.year)
     team_to_bet_counts_map = game_bets.group(:nfl_team_id).count(:nfl_team_id)
@@ -150,7 +151,7 @@ class WeeksController < ApplicationController
 
     @entries_by_type = get_entries_by_type(game_type)
     @week_to_entry_stats_map =
-        build_week_to_entry_stats_map(@entries_by_type, @current_week, game_type)
+        build_week_to_entry_stats_map(@entries_by_type, @game_week, game_type)
   end
   
   # returns a map of nfl team id to corresponding team

@@ -15,10 +15,10 @@
   </div>
 </div>
 
-<% if @current_week > 0 %>
+<% if @game_week > 0 %>
   <div class='row-fluid'>
     <div class='span12 center'>
-      <%= entry_stats_table(@game_type, @week_to_entry_stats_map, @current_week) %>
+      <%= entry_stats_table(@game_type, @week_to_entry_stats_map, @game_week) %>
     </div>
   </div>
 <% end %>

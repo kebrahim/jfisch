@@ -673,7 +673,7 @@ class SurvivorEntriesController < ApplicationController
     @current_week = get_current_week
     @game_week = game_week
     @week_to_entry_stats_map =
-        build_week_to_entry_stats_map(@entries_by_type, @current_week, game_type)
+        build_week_to_entry_stats_map(@entries_by_type, @game_week, game_type)
   end
   
   # returns the column headers for the entry breakdown table
