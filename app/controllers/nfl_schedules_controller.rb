@@ -247,8 +247,10 @@ class NflSchedulesController < ApplicationController
     # get bets for entry
     bets_for_entry = SurvivorBet.where({ survivor_entry_id: entry.id, week: week })
     
-    # if this entry doesn't have enough bets, it should be killed [or remain killed]
-    if bets_for_entry.count < entry.number_bets_required(week)
+    # if this entry doesn't have enough bets, it should be killed [or remain killed], only if the
+    # deadline for this week has occurred
+    if bets_for_entry.count < entry.number_bets_required(week) &&
+        week <= get_current_week_from_weeks(Week.where(year: Date.today.year).order(:number))
       return false
     end
 
