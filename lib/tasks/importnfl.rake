@@ -111,4 +111,15 @@ namespace :importnfl do
     end
     puts "Imported " + wkcount.to_s + " NFL scoring weeks!"
   end
+
+  desc "Cleans up NFL schedule data after daylight savings, by adding one hour to every start_time in the future"
+  task :schedule_dst => :environment do
+    games = NflSchedule.where("start_time > (?)", DateTime.now).order(:start_time)
+    game_count = 0
+    games.each { |game|
+      game.update_attribute(:start_time, (game.start_time + 1.hour.to_i))
+      game_count += 1
+    }
+    puts "Cleaned up " + game_count.to_s + " games!"
+  end
 end
