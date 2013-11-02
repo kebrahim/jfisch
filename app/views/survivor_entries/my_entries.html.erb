@@ -22,13 +22,9 @@
 
     <%= show_notice_as_alert(notice) %>
 
-    <% if !@admin_function %>
-      <div class='alert alert-info'>
-        <strong>
-          Click on an individual entry name to see matchups and the NFL schedule.
-        </strong>
-      </div>
-    <% end %>
+    <button id='scheduleBtn' type='button' class='btn btn-link'>
+      <p>View NFL Schedule</p>
+    </button>
 
     <div class='row-fluid'>
       <%= entries_selector(:survivor, 6) %>
@@ -46,3 +42,50 @@
     </form>
   </div>
 </div>
+
+<div id='scheduleModal' class='modal hide fade' tabindex='-1' role='dialog'
+     aria-labelledby='myModalLabel' aria-hidden='false' style='display:none;'>
+  <div class='modal-header'>
+    <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+    <h4 id='myModalLabel' class='center'>NFL Schedule</h4>
+  </div>
+  <div class='modal-body center'>
+    <label for='week_chooser'>Select Week: </label>
+    <select id='week_chooser' class='input-medium'>
+    <% @weeks.each { |week| %>
+      <option value=<%= week.number %>
+              <%= (week.number == (@current_week + 1) ? "selected" : "") %>>
+        Week <%= week.number %>
+      </option>
+    <% } %>
+    </select>
+    <div id='schedresults'></div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('#scheduleBtn').click(function(){
+    $('#scheduleModal').modal('toggle');
+  });
+
+  // Loads the nfl schedule week page asynchronously & populates the schedresults div with the
+  // results
+  function week_schedule_ajax() {
+    $.ajax({
+      url: "/ajax/nfl_schedule/week/" + document.getElementById("week_chooser").value,
+      success: function(data) {
+        $("#schedresults").html(data);
+      }
+    });
+  }
+
+  // On document ready, load the selected entry's bets and the selected week's schedule, and set the
+  // selected data to be updated whenever the corresponding selectors are changed.
+  $(document).ready(function() {
+    week_schedule_ajax();
+    $("#week_chooser").change(function() {
+      week_schedule_ajax();
+    });
+  });
+
+</script>
