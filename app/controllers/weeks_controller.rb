@@ -10,7 +10,7 @@ class WeeksController < ApplicationController
       return
     end
 
-    @current_year = Date.today.year
+    @current_year = current_season_year
     @weeks = Week.where(year: @current_year).order(:number)
 
     respond_to do |format|
@@ -33,7 +33,7 @@ class WeeksController < ApplicationController
     if !params["save"].nil?
       Week.transaction do
         begin
-          Week.where(year: Date.today.year).order(:number).each { |week|
+          Week.where(year: current_season_year).order(:number).each { |week|
             week_start_time_string = params["weekstart" + week.number.to_s]
             week_start_time = DateTime.strptime(week_start_time_string + " Atlantic Time (Canada)",
                                                 "%m/%d/%Y %I:%M %p %Z")
@@ -136,7 +136,7 @@ class WeeksController < ApplicationController
   # loads the data for the week breakdown for the specified game_type
   def load_week_breakdown_data(game_type)
     # only let user see weeks that have completed
-    @week = Week.where({year: Date.today.year, number: params[:id].to_i}).first
+    @week = Week.where({year: current_season_year, number: params[:id].to_i}).first
     if @week.nil?
       return
     end
@@ -144,7 +144,7 @@ class WeeksController < ApplicationController
     @current_week = current_week
     @game_week = game_week
     @team_map = build_team_map
-    game_bets = get_game_bets(game_type, @week.number, Date.today.year)
+    game_bets = get_game_bets(game_type, @week.number, current_season_year)
     team_to_bet_counts_map = game_bets.group(:nfl_team_id).count(:nfl_team_id)
     @team_to_results_map = build_team_to_results_map(game_bets, team_to_bet_counts_map)
     @killed_entries = get_killed_entries(game_bets, @week.number, game_type)
@@ -199,7 +199,7 @@ class WeeksController < ApplicationController
   def get_killed_entries(game_bets, week_number, game_type)
     entries = SurvivorEntry.includes(:user)
                            .joins(:user)
-                           .where({year: Date.today.year, game_type: game_type})
+                           .where({year: current_season_year, game_type: game_type})
     entry_id_to_bets_map = build_entry_id_to_bets_map(game_bets)
 
     killed_entries = []

@@ -32,10 +32,10 @@ class SurvivorEntriesController < ApplicationController
   # loads the data needed for the dashboard, for the specified user
   def get_dashboard_data(user)
     @before_season =
-        DateTime.now < Week.where({year: Date.today.year, number: 1}).first.start_time
-    current_year = Date.today.year
+        DateTime.now < Week.where({year: current_season_year, number: 1}).first.start_time
+    current_year = current_season_year
     @current_week = get_next_week_object_from_weeks(
-        Week.where(year: Date.today.year).order(:number))
+        Week.where(year: current_season_year).order(:number))
     @type_to_entry_map = build_type_to_entry_map(
         SurvivorEntry.where({user_id: user.id, year: current_year})
                      .order(:game_type, :entry_number))
@@ -83,7 +83,7 @@ class SurvivorEntriesController < ApplicationController
     # before_season depends on start of season
     @before_season = get_before_season_map(user)
 
-    current_year = Date.today.year
+    current_year = current_season_year
     @type_to_entry_map = build_type_to_entry_map(
         SurvivorEntry.where({user_id: user.id, year: current_year})
                      .order(:game_type, :entry_number))
@@ -97,7 +97,7 @@ class SurvivorEntriesController < ApplicationController
     @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
     @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
 
-    @weeks = Week.where(year: Date.today.year)
+    @weeks = Week.where(year: current_season_year)
                  .order(:number)
     @week_to_start_time_map = build_week_to_start_time_map(@weeks)
     @current_week = get_current_week_from_weeks(@weeks)
@@ -108,7 +108,7 @@ class SurvivorEntriesController < ApplicationController
     before_season = {}
     SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|
       before_season[game_type] = (DateTime.now <
-          Week.where({ year: Date.today.year,
+          Week.where({ year: current_season_year,
                        number: SurvivorEntry::START_WEEK_MAP[game_type]}).first.start_time) &&
           ((game_type != :second_chance) || !user.is_blacklisted)
     }
@@ -188,7 +188,7 @@ class SurvivorEntriesController < ApplicationController
   # Updates the specified user's entry counts and picks, based on the specified posted params
   def update_user_entries_and_bets(user, params)
     confirmation_message = ""
-    current_year = Date.today.year
+    current_year = current_season_year
     if params["updateentries"]
       is_updated, has_creates = false
       type_to_entry_map = build_type_to_entry_map(
@@ -223,7 +223,7 @@ class SurvivorEntriesController < ApplicationController
       week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       user_entries = SurvivorEntry.where({user_id: user.id, year: current_year})
                                   .order(:game_type, :entry_number)
-      weeks = Week.where(year: Date.today.year)
+      weeks = Week.where(year: current_season_year)
                   .order(:number)
       week_to_start_time_map = build_week_to_start_time_map(weeks)
       
@@ -399,12 +399,12 @@ class SurvivorEntriesController < ApplicationController
     if !@user.nil? && !@survivor_entry.nil? &&
         (@survivor_entry.user_id == @user.id || @user.is_admin)
       @admin_function = @user.is_admin && (@survivor_entry.user_id != @user.id)
-      @weeks = Week.where(year: Date.today.year)
+      @weeks = Week.where(year: current_season_year)
                    .where("number >= (?)", @survivor_entry.start_week)
                    .where("number <= (?)", @survivor_entry.max_weeks)
                    .order(:number)
       @current_week = get_current_week_from_weeks(@weeks)
-      @user_entries = SurvivorEntry.where({ year: Date.today.year,
+      @user_entries = SurvivorEntry.where({ year: current_season_year,
                                             user_id: @survivor_entry.user_id })
                                    .order(:game_type, :entry_number)
 
@@ -435,10 +435,10 @@ class SurvivorEntriesController < ApplicationController
             SurvivorBet.includes(:nfl_game)
                        .where(survivor_entry_id: @survivor_entry))
       
-      current_year = Date.today.year
+      current_year = current_season_year
       @week_team_to_game_map = build_week_team_to_game_map(NflSchedule.where(year: current_year))
       @nfl_teams_map = build_id_to_team_map(NflTeam.order(:city, :name))
-      @weeks = Week.where(year: Date.today.year)
+      @weeks = Week.where(year: current_season_year)
                    .where("number <= (?)", @survivor_entry.max_weeks)
                    .order(:number)
       @week_to_start_time_map = build_week_to_start_time_map(@weeks)
@@ -507,12 +507,12 @@ class SurvivorEntriesController < ApplicationController
 
       # save created/updated bets for selected entry
       if params["cancel"].nil?
-        current_year = Date.today.year
+        current_year = current_season_year
         selector_to_bet_map = build_selector_to_bet_map(
             SurvivorBet.where(survivor_entry_id: @survivor_entry))
         week_team_to_game_map = build_week_team_to_game_map(
             NflSchedule.where(year: current_year))
-        weeks = Week.where(year: Date.today.year)
+        weeks = Week.where(year: current_season_year)
                     .order(:number)
         week_to_start_time_map = build_week_to_start_time_map(weeks)
 
@@ -748,7 +748,7 @@ class SurvivorEntriesController < ApplicationController
         SurvivorBet.includes([:nfl_game, :nfl_team])
                    .joins(:survivor_entry)
                    .joins(:nfl_game)
-                   .where(:survivor_entries => {year: Date.today.year, game_type: game_type})
+                   .where(:survivor_entries => {year: current_season_year, game_type: game_type})
                    .order("survivor_entries.id, nfl_schedules.week"))
   end
 
@@ -767,7 +767,7 @@ class SurvivorEntriesController < ApplicationController
 
   # returns the current week of all weeks for the given year
   def get_current_week
-    return get_current_week_from_weeks(Week.where(year: Date.today.year)
+    return get_current_week_from_weeks(Week.where(year: current_season_year)
                                            .order(:number))
   end
 
@@ -791,7 +791,7 @@ class SurvivorEntriesController < ApplicationController
     end
     
     @users = User.order("lower(first_name), lower (last_name)")
-    @current_year = Date.today.year
+    @current_year = current_season_year
     entries = SurvivorEntry.where(year: @current_year)
     @user_to_entries_count_map = {}
     init_entry_count_map(@user_to_entries_count_map, 0)
@@ -822,7 +822,7 @@ class SurvivorEntriesController < ApplicationController
       redirect_to root_url
       return
     end
-    @current_year = Date.today.year
+    @current_year = current_season_year
   end
 
   # GET /ajax/survivor_entries/game/:game_type
@@ -846,7 +846,7 @@ class SurvivorEntriesController < ApplicationController
       redirect_to root_url
       return
     end
-    @current_year = Date.today.year
+    @current_year = current_season_year
     @current_week = current_week
     @selected_week = @current_week
   end
@@ -858,7 +858,7 @@ class SurvivorEntriesController < ApplicationController
       redirect_to root_url
       return
     end
-    @current_year = Date.today.year
+    @current_year = current_season_year
     @current_week = current_week
     @selected_week = params[:number].to_i
     
@@ -874,7 +874,7 @@ class SurvivorEntriesController < ApplicationController
     end
 
     # only let user see weeks that have completed
-    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    @week = Week.where({year: current_season_year, number: params[:number].to_i}).first
     if @week && DateTime.now > @week.start_time
       @entries_without_bets = get_entries_without_bets(@week.number)
     end
@@ -912,7 +912,7 @@ class SurvivorEntriesController < ApplicationController
   def get_entries_without_bets(week)
     entries = SurvivorEntry.includes(:user)
                            .joins(:user)
-                           .where(year: Date.today.year)
+                           .where(year: current_season_year)
                            .where("is_alive = true OR knockout_week = " + week.to_s)
                            .order(:game_type, :user_id, :entry_number)
 
@@ -920,7 +920,7 @@ class SurvivorEntriesController < ApplicationController
                            .joins(:survivor_entry)
                            .joins(:nfl_game)
                            .where(week: week)
-                           .where(:survivor_entries => {year: Date.today.year})
+                           .where(:survivor_entries => {year: current_season_year})
                            .order("survivor_entries.id, nfl_schedules.week")
     entry_id_to_bets_map = build_entry_id_to_bets_map(week_bets)
 

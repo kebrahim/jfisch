@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   helper_method :current_user
   helper_method :current_week
+  helper_method :current_season_year
   helper_method :game_week
   before_filter :set_time_zone
 
@@ -23,9 +24,15 @@ class ApplicationController < ActionController::Base
     Time.zone = current_user.time_zone if current_user
   end
 
+  # returns the current season year
+  def current_season_year
+    # TODO calculate season year based on date
+    return 2013
+  end
+
   # returns the current week of all weeks for the given year
   def current_week
-    return get_current_week_from_weeks(Week.where(year: Date.today.year)
+    return get_current_week_from_weeks(Week.where(year: current_season_year)
                                            .order(:number))
   end
 
@@ -62,7 +69,7 @@ class ApplicationController < ActionController::Base
   # returns the week number based on whether any games in that particular week have already started
   def game_week
     now = DateTime.now
-    all_games = NflSchedule.where(year: Date.today.year)
+    all_games = NflSchedule.where(year: current_season_year)
                            .order(:start_time)
     week_started = 0
     all_games.each { |game|
@@ -98,7 +105,7 @@ class ApplicationController < ActionController::Base
   def get_entries_by_type(game_type)
     return SurvivorEntry.includes(:user)
                         .joins(:user)
-                        .where({year: Date.today.year, game_type: game_type})
+                        .where({year: current_season_year, game_type: game_type})
                         .order("survivor_entries.knockout_week DESC, users.last_name,
                                 users.first_name, survivor_entries.entry_number")
   end

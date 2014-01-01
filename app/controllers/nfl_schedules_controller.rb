@@ -10,7 +10,7 @@ class NflSchedulesController < ApplicationController
       return
     end
 
-    @weeks = Week.where(year: Date.today.year)
+    @weeks = Week.where(year: current_season_year)
                  .order(:number)
     @current_week = game_week
 
@@ -118,18 +118,18 @@ class NflSchedulesController < ApplicationController
 
   # GET /ajax/nfl_schedule/week/:number
   def ajaxweek
-    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    @week = Week.where({year: current_season_year, number: params[:number].to_i}).first
     @games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
-                        .where({year: Date.today.year, week: @week.number})
+                        .where({year: current_season_year, week: @week.number})
                         .order(:start_time)
     render :layout => "ajax"
   end
 
   # GET /ajax/nfl_schedule/adminweek/:number
   def ajaxadminweek
-    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    @week = Week.where({year: current_season_year, number: params[:number].to_i}).first
     @games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
-                        .where({year: Date.today.year, week: @week.number})
+                        .where({year: current_season_year, week: @week.number})
                         .order(:start_time, :id)
     render :layout => "ajax"
   end
@@ -142,7 +142,7 @@ class NflSchedulesController < ApplicationController
       return
     end
 
-    @weeks = Week.where(year: Date.today.year)
+    @weeks = Week.where(year: current_season_year)
                  .order(:number)
     @current_week = get_week_object_by_number(@weeks, params[:number].to_i).number
     
@@ -157,11 +157,11 @@ class NflSchedulesController < ApplicationController
       return
     end
     
-    @week = Week.where({year: Date.today.year, number: params[:number].to_i}).first
+    @week = Week.where({year: current_season_year, number: params[:number].to_i}).first
     confirmation_message = ""
     if params["updatescores"]
       nfl_games = NflSchedule.includes([:home_nfl_team, :away_nfl_team])
-                             .where({year: Date.today.year, week: @week.number})
+                             .where({year: current_season_year, week: @week.number})
                              .order(:start_time)
 
       SurvivorBet.transaction do 
@@ -250,7 +250,7 @@ class NflSchedulesController < ApplicationController
     # if this entry doesn't have enough bets, it should be killed [or remain killed], only if the
     # deadline for this week has occurred
     if bets_for_entry.count < entry.number_bets_required(week) &&
-        week <= get_current_week_from_weeks(Week.where(year: Date.today.year).order(:number))
+        week <= get_current_week_from_weeks(Week.where(year: current_season_year).order(:number))
       return false
     end
 
