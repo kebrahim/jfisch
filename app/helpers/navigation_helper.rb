@@ -105,7 +105,7 @@ module NavigationHelper
     SurvivorEntry::GAME_TYPE_ARRAY.each {|game_type|
       # hide second chance game from blacklisted user
       if (game_type == :second_chance &&
-          (current_user.is_blacklisted || current_week < SurvivorEntry::SECOND_CHANCE_OPEN_WEEK)
+          (current_user.is_blacklisted || current_week < SurvivorEntry::SECOND_CHANCE_OPEN_WEEK))
         next
       end
 
