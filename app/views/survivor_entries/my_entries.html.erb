@@ -32,7 +32,7 @@
       <%= entries_selector(:high_roller, 3) %>
     </div>
 
-    <% if !@user.is_blacklisted %>
+    <% if !@user.is_blacklisted && @current_week >= SurvivorEntry::SECOND_CHANCE_OPEN_WEEK %>
       <div class='row-fluid'>
         <%= entries_selector(:second_chance, 12) %>
       </div>

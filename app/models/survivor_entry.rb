@@ -12,10 +12,11 @@ class SurvivorEntry < ActiveRecord::Base
   ADMIN_MAX_ENTRIES_MAP = { survivor: 8, anti_survivor: 4, high_roller: 4, second_chance: 8 }
   START_WEEK_MAP = { survivor: 1, anti_survivor: 1, high_roller: 1, second_chance: 7 }
   MAX_WEEKS_MAP = { survivor: 17, anti_survivor: 17, high_roller: 21, second_chance: 17 }
-  MAX_BETS_MAP = { survivor: 22, anti_survivor: 21, high_roller: 21, second_chance: 22 }
-  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 14, high_roller: nil,
+  MAX_BETS_MAP = { survivor: 22, anti_survivor: 22, high_roller: 21, second_chance: 22 }
+  TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 13, high_roller: nil,
                                   second_chance: 7 }
   GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller, :second_chance]
+  SECOND_CHANCE_OPEN_WEEK = 4
 
   # Returns the game_type matching the specified name
   def self.name_to_game_type(game_type_name)
