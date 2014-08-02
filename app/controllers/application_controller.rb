@@ -27,7 +27,7 @@ class ApplicationController < ActionController::Base
   # returns the current season year
   def current_season_year
     # TODO calculate season year based on date
-    return 2013
+    return 2014
   end
 
   # returns the current week of all weeks for the given year

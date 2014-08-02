@@ -36,7 +36,7 @@ namespace :importnfl do
   def import_nfl_schedule(filename)
     require 'csv'
     schedcount = 0
-    year = 2013
+    year = 2014
     CSV.foreach(File.join(File.expand_path(::Rails.root), filename)) do |row|
       # skip comment line
       if row[0].starts_with?("#")
@@ -90,7 +90,7 @@ namespace :importnfl do
   def import_weeks(filename)
     require 'csv'
     wkcount = 0
-    year = 2013
+    year = 2014
     CSV.foreach(File.join(File.expand_path(::Rails.root), filename)) do |row|
       # skip comment line
       if row[0].starts_with?("#")
