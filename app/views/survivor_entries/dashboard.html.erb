@@ -50,7 +50,7 @@
       <%= entries_bet_display(:high_roller, @type_to_entry_map, @entry_to_bets_map, 3) %>
     </div>
     
-    <% if !@user.is_blacklisted && @current_week >= SurvivorEntry::SECOND_CHANCE_OPEN_WEEK %>
+    <% if !@user.is_blacklisted && @current_week.number >= SurvivorEntry::SECOND_CHANCE_OPEN_WEEK %>
       <div class='row-fluid'>
         <%= entries_bet_display(:second_chance, @type_to_entry_map, @entry_to_bets_map, 12) %>
       </div>
