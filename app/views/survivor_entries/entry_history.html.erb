@@ -2,19 +2,19 @@
 
 <div class='row-fluid'>
   <div class='span3 center nexttoh1'>
-    <a href=<%= "/entry_history" %> class='btn btn-inverse'>Entry History</a>
+    <a href=<%= "/entries" %> class='btn btn-inverse'>Entry Counts</a>
   </div>
   <div class='span6 center'>
-    <h3><%= @current_year %> Survivor Entry Counts</h3>
+    <h3><%= @current_year %> Survivor Entry History</h3>
   </div>
   <div class='span3 center nexttoh1'>
-    <a href=<%= "/entry_history" %> class='btn btn-inverse'>Entry History</a>
+    <a href=<%= "/entries" %> class='btn btn-inverse'>Entry Counts</a>
   </div>
 </div>
 
 <div class='row-fluid'>
   <div class='span12 center'>
-	  <br/>
-	  <%= all_entries_table(@users, @user_to_entries_count_map) %>
+    <br/>
+	  <%= entry_history_table(@entries) %>
   </div>
 </div>

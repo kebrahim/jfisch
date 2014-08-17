@@ -808,6 +808,20 @@ class SurvivorEntriesController < ApplicationController
     }
   end
 
+  # GET /entry_history
+  def entry_history
+    @current_user = current_user
+    if @current_user.nil? || !@current_user.is_admin
+      redirect_to root_url
+      return
+    end
+    
+    @current_year = current_season_year
+    @entries = SurvivorEntry.includes(:user)
+                            .where(year: @current_year)
+                            .order(:created_at)
+  end
+
   def init_entry_count_map(entry_count_map, user_id)
     entry_count_map[user_id] = {}
     SurvivorEntry::GAME_TYPE_ARRAY.each { |game_type|

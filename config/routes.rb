@@ -19,6 +19,7 @@ Jfisch::Application.routes.draw do
   get 'high_roller' => 'survivor_entries#high_roller'
   get 'second_chance' => 'survivor_entries#second_chance'
   get 'entries' => 'survivor_entries#all_entries'
+  get 'entry_history' => 'survivor_entries#entry_history'
   get 'picks' => 'survivor_entries#all_bets'
   
   get 'kill_entries' => 'survivor_entries#kill_entries'

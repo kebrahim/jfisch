@@ -774,4 +774,28 @@ module SurvivorEntriesHelper
     bets_html << "</table>"
     return bets_html.html_safe
   end
+
+  # displays the entry history table
+  def entry_history_table(entries)
+    entry_history_html = "<table class='" + ApplicationHelper::TABLE_CLASS + " smallfonttable'>
+                          <thead><tr>
+                            <th colspan=2 class='rightborderme'>User</th>
+                            <th class='rightborderme'>Entry</th>
+                            <th class='rightborderme'>Creation Date</th>
+                            <th>Creation Time</th>
+                          </tr></thead>"
+    
+    entries.each { |entry|
+      user = entry.user
+      entry_history_html <<
+          "<tr>" << "<td>" + user.full_name + "</td>
+                     <td>" + user.email + "</td>
+                     <td>" + entry.type_title + " " + entry.entry_number.to_s + "</td>
+                     <td>" + entry.created_at.utc.in_time_zone.strftime("%m/%d/%Y") + "</td>
+                     <td>" + entry.created_at.utc.in_time_zone.strftime("%I:%M %p %Z") + "</td>
+                  </tr>"
+    }
+    entry_history_html << "</table>"
+    return entry_history_html.html_safe
+  end
 end
