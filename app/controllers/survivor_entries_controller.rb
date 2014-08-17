@@ -817,9 +817,10 @@ class SurvivorEntriesController < ApplicationController
     end
     
     @current_year = current_season_year
+    # TODO add sorting
     @entries = SurvivorEntry.includes(:user)
                             .where(year: @current_year)
-                            .order(:created_at)
+                            .order("created_at DESC")
   end
 
   def init_entry_count_map(entry_count_map, user_id)
