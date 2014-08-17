@@ -779,16 +779,20 @@ module SurvivorEntriesHelper
   def entry_history_table(entries)
     entry_history_html = "<table class='" + ApplicationHelper::TABLE_CLASS + " smallfonttable'>
                           <thead><tr>
+                            <th></th>
                             <th colspan=2 class='rightborderme'>User</th>
                             <th class='rightborderme'>Entry</th>
                             <th class='rightborderme'>Creation Date</th>
                             <th>Creation Time</th>
                           </tr></thead>"
     
+    entry_count = 0
     entries.each { |entry|
+      entry_count += 1
       user = entry.user
       entry_history_html <<
-          "<tr>" << "<td>" + user.full_name + "</td>
+          "<tr>" << "<td>" + entry_count.to_s + "</td>
+                     <td>" + user.full_name + "</td>
                      <td>" + user.email + "</td>
                      <td>" + entry.type_title + " " + entry.entry_number.to_s + "</td>
                      <td>" + entry.created_at.utc.in_time_zone.strftime("%m/%d/%Y") + "</td>
