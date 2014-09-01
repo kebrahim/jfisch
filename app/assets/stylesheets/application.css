@@ -364,3 +364,40 @@ th .desc {
 .modal-body {
   max-height: 650px !important;
 }
+
+.countdownclock {
+  position: relative !important;
+  padding-top: 0px;
+  margin-left: -194px;
+  height: 100px;
+  width: 800px;
+  /* zoom: .6; */
+  transform: scale(.54);
+  -ms-transform: scale(.54);
+  -webkit-transform: scale(.54);
+  -o-transform: scale(.54);
+  -moz-transform: scale(.54);
+}
+
+.alert .flip-clock-wrapper {
+  font-size: 22px;
+  position: relative;
+  margin: 0px 0px 0px 73px;
+}
+
+.countdownalert {
+  height: 95px;
+}
+
+.alert .flip-clock-divider.days .flip-clock-label {
+  right: -94px;
+}
+.alert .flip-clock-divider.hours .flip-clock-label {
+  right: -100px;
+}
+.alert .flip-clock-divider.minutes .flip-clock-label {
+  right: -108px;
+}
+.alert .flip-clock-divider.seconds .flip-clock-label {
+  right: -110px;
+}

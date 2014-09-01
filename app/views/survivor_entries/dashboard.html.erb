@@ -16,23 +16,16 @@
     <br/>
     <%= show_notice_as_alert(notice) %>
 
-    <div class='alert alert-info'>
+    <div class='alert alert-info countdownalert'>
       <strong>
         Deadline for Week <%= @current_week.number.to_s %> picks:
         <%= @current_week.start_time.utc.in_time_zone.strftime("%-I:%M %p %Z on %A, %b ") + 
             @current_week.start_time.utc.in_time_zone.strftime("%-d").to_i.ordinalize %><br/>
         <%
           time_diff = TimeDifference.between(@current_week.start_time.utc.in_time_zone, Time.now)
-          days = time_diff.in_days.floor
-          hours = (time_diff.in_hours - (days * 24)).floor
-          minutes = (time_diff.in_minutes - (days * 24 * 60) - (hours * 60)).floor
-          seconds =
-              (time_diff.in_seconds - (days * 24 * 3600) - (hours * 3600) - (minutes * 60)).floor
         %>
-        Time remaining: <%= days.to_s + " " + ((days == 1) ? "day" : "days") + ", " +
-                            hours.to_s + " " + ((hours == 1) ? "hour" : "hours") + ", " +
-                            minutes.to_s + " " + ((minutes == 1) ? "minute" : "minutes") + ", " +
-                            seconds.to_s + " " + ((seconds == 1) ? "second" : "seconds") %>
+        <input type="hidden" name="td" value=<%= time_diff.in_seconds %> />
+        <div class="countdownclock"></div>
       </strong>
     </div>
 
@@ -74,3 +67,11 @@
     </p>
   </div>
 </div>
+
+<script type="text/javascript">
+  var td = parseInt(document.getElementsByName("td")[0].value);
+  var clock = $('.countdownclock').FlipClock(td, {
+    clockFace: 'DailyCounter',
+    countdown: true
+  });
+</script>
