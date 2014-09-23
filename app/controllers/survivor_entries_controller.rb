@@ -34,7 +34,7 @@ class SurvivorEntriesController < ApplicationController
     @before_season =
         DateTime.now < Week.where({year: current_season_year, number: 1}).first.start_time
     current_year = current_season_year
-    @current_week = get_next_week_object_from_weeks(
+    @next_week = get_next_week_object_from_weeks(
         Week.where(year: current_season_year).order(:number))
     @type_to_entry_map = build_type_to_entry_map(
         SurvivorEntry.where({user_id: user.id, year: current_year})
@@ -670,7 +670,7 @@ class SurvivorEntriesController < ApplicationController
   def load_entries_data(game_type)
     @entries_by_type = get_entries_by_type(game_type)
     @entry_to_bets_map = get_bets_map_by_type(game_type)
-    @current_week = get_current_week
+    @current_week = current_week
     @game_week = game_week
     @week_to_entry_stats_map =
         build_week_to_entry_stats_map(@entries_by_type, @game_week, game_type)
@@ -763,23 +763,6 @@ class SurvivorEntriesController < ApplicationController
       entry_to_bets_map[bet.survivor_entry_id][bet.selector] = bet
     }
     return entry_to_bets_map
-  end
-
-  # returns the current week of all weeks for the given year
-  def get_current_week
-    return get_current_week_from_weeks(Week.where(year: current_season_year)
-                                           .order(:number))
-  end
-
-  # returns the current week, from the specified array of weeks, based on the weeks' start times
-  def get_current_week_from_weeks(weeks)
-    now = DateTime.now
-    weeks.each { |week|
-      if now < week.start_time
-        return (week.number - 1)
-      end
-    }
-    return weeks.last.number
   end
 
   # GET /entries

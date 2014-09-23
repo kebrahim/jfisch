@@ -16,7 +16,7 @@ class SurvivorEntry < ActiveRecord::Base
   TWO_GAME_WEEK_THRESHOLD_MAP = { survivor: 13, anti_survivor: 13, high_roller: nil,
                                   second_chance: 7 }
   GAME_TYPE_ARRAY = [:survivor, :anti_survivor, :high_roller, :second_chance]
-  SECOND_CHANCE_OPEN_WEEK = 4
+  SECOND_CHANCE_OPEN_WEEK = 3
 
   # Returns the game_type matching the specified name
   def self.name_to_game_type(game_type_name)

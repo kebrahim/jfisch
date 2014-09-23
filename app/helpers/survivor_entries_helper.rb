@@ -249,8 +249,8 @@ module SurvivorEntriesHelper
         if !current_entry.is_alive
           # if entry is dead, highlight entry in red
           entries_html << " dead"
-        elsif @current_week.number >= SurvivorEntry::START_WEEK_MAP[current_entry.get_game_type] &&
-            entry_missing_pick_in_week(current_entry, @current_week.number)
+        elsif @next_week.number >= SurvivorEntry::START_WEEK_MAP[current_entry.get_game_type] &&
+            entry_missing_pick_in_week(current_entry, @next_week.number)
           # if entry is missing a pick for current week, highlight entry in yellow
           entries_html << " missing"
         end
